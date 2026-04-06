@@ -1,48 +1,27 @@
 import { motion } from "framer-motion";
 import { Calculator, Globe, FileDown, ShieldCheck, BarChart3, Zap } from "lucide-react";
-
-const features = [
-  {
-    icon: Calculator,
-    title: "NPV, IRR & ROI",
-    description: "Industry-standard financial metrics computed instantly with step-by-step breakdowns.",
-  },
-  {
-    icon: Globe,
-    title: "Multi-Currency",
-    description: "Analyze in USD, ARS, MXN, EUR, or GBP with locale-aware formatting.",
-  },
-  {
-    icon: FileDown,
-    title: "PDF & Excel Export",
-    description: "Download professional reports ready for board presentations or further analysis.",
-  },
-  {
-    icon: BarChart3,
-    title: "Scenario Modeling",
-    description: "Toggle between optimistic, base, and pessimistic growth scenarios instantly.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Tax-Aware",
-    description: "Accounts for tax rates in cash flow calculations with loss carryforward logic.",
-  },
-  {
-    icon: Zap,
-    title: "Instant Results",
-    description: "No sign-up required. Enter your data and get results in milliseconds.",
-  },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function FeaturesSection() {
+  const { t } = useI18n();
+
+  const features = [
+    { icon: Calculator, title: t("features.npvTitle"), description: t("features.npvDesc") },
+    { icon: Globe, title: t("features.currencyTitle"), description: t("features.currencyDesc") },
+    { icon: FileDown, title: t("features.exportTitle"), description: t("features.exportDesc") },
+    { icon: BarChart3, title: t("features.scenarioTitle"), description: t("features.scenarioDesc") },
+    { icon: ShieldCheck, title: t("features.taxTitle"), description: t("features.taxDesc") },
+    { icon: Zap, title: t("features.instantTitle"), description: t("features.instantDesc") },
+  ];
+
   return (
     <section id="features" className="max-w-5xl mx-auto px-4 py-16">
       <div className="text-center mb-10">
         <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
-          Everything you need to evaluate investments
+          {t("features.title")}
         </h2>
         <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-          Built for analysts, founders, and finance teams who need fast, reliable projections.
+          {t("features.subtitle")}
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
