@@ -1,12 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Check, ChevronsUpDown, Search } from "lucide-react";
+import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { type Currency, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -138,7 +136,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [currencyOpen, setCurrencyOpen] = useState(false);
   const [investment, setInvestment] = useState("100000");
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
@@ -242,8 +239,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
 
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
 
-  const currencyEntries = useMemo(() => Object.keys(CURRENCY_CONFIG) as Currency[], []);
-
   return (
     <motion.form
       onSubmit={handleSubmit}
@@ -275,45 +270,11 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
             {t("form.currency")}
           </Label>
-          <Popover open={currencyOpen} onOpenChange={setCurrencyOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={currencyOpen}
-                className="w-full h-12 bg-secondary border-border text-foreground justify-between font-normal"
-              >
-                <span className="truncate text-sm">
-                  {CURRENCY_CONFIG[currency].label}
-                </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-              <Command>
-                <CommandInput placeholder={t("form.selectCurrency")} />
-                <CommandList>
-                  <CommandEmpty>No results</CommandEmpty>
-                  <CommandGroup>
-                    {currencyEntries.map((c) => (
-                      <CommandItem
-                        key={c}
-                        value={`${c} ${CURRENCY_CONFIG[c].label}`}
-                        onSelect={() => {
-                          setCurrency(c);
-                          setCurrencyOpen(false);
-                        }}
-                        className="text-sm"
-                      >
-                        <Check className={cn("mr-2 h-4 w-4", currency === c ? "opacity-100" : "opacity-0")} />
-                        {CURRENCY_CONFIG[c].label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <CurrencySearchDropdown
+                currency={currency}
+                onChange={setCurrency}
+                placeholder={t("form.selectCurrency")}
+              />
         </div>
       </div>
       <div>
@@ -527,6 +488,81 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         {t("form.analyze")}
       </Button>
     </motion.form>
+  );
+}
+
+function CurrencySearchDropdown({
+  currency,
+  onChange,
+  placeholder,
+}: {
+  currency: Currency;
+  onChange: (c: Currency) => void;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const currencies = Object.keys(CURRENCY_CONFIG) as Currency[];
+  const filtered = currencies.filter((c) => {
+    const label = CURRENCY_CONFIG[c].label.toLowerCase();
+    const q = search.toLowerCase();
+    return label.includes(q) || c.toLowerCase().includes(q);
+  });
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full h-12 bg-secondary border border-border text-foreground rounded-md px-3 flex items-center justify-between text-sm"
+      >
+        <span className="truncate">{CURRENCY_CONFIG[currency].label}</span>
+        <ChevronDown className={cn("h-4 w-4 opacity-50 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg">
+          <div className="flex items-center border-b border-border px-3">
+            <Search className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={placeholder}
+              className="w-full py-2.5 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+              autoFocus
+            />
+          </div>
+          <div className="max-h-[250px] overflow-y-auto p-1">
+            {filtered.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-3">No results</p>
+            )}
+            {filtered.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => { onChange(c); setOpen(false); setSearch(""); }}
+                className={cn(
+                  "w-full text-left px-3 py-2 rounded text-sm hover:bg-accent transition-colors flex items-center gap-2",
+                  currency === c && "bg-accent font-medium"
+                )}
+              >
+                {CURRENCY_CONFIG[c].label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
