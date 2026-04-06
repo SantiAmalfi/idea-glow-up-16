@@ -124,20 +124,19 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
             Currency
           </Label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-5 gap-2">
             {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => setCurrency(c)}
-                className={`rounded-xl border p-3 text-center transition-all text-sm font-semibold ${
+                className={`rounded-xl border p-2.5 text-center transition-all text-xs font-semibold ${
                   currency === c
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
                 }`}
               >
-                <Coins className="h-4 w-4 mx-auto mb-1" />
-                {c}
+                {CURRENCY_CONFIG[c].label}
               </button>
             ))}
           </div>
