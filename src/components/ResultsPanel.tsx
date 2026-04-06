@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Activity, BarChart3, Clock, Receipt } from "lucide-react";
-import { formatCurrency, formatPercent } from "@/lib/finance";
+import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
 
 interface ResultsPanelProps {
   npv: number;
@@ -10,15 +10,16 @@ interface ResultsPanelProps {
   investment: number;
   paybackPeriod: number | null;
   totalTax: number;
+  currency: Currency;
 }
 
-export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, paybackPeriod, totalTax }: ResultsPanelProps) {
+export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, paybackPeriod, totalTax, currency }: ResultsPanelProps) {
   const isPositiveNPV = npv >= 0;
 
   const metrics = [
     {
       label: "Net Present Value",
-      value: formatCurrency(npv),
+      value: formatCurrency(npv, currency),
       positive: isPositiveNPV,
       icon: isPositiveNPV ? TrendingUp : TrendingDown,
       description: isPositiveNPV ? "Project creates value" : "Project destroys value",
@@ -32,10 +33,10 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, p
     },
     {
       label: "Total Net Return",
-      value: formatCurrency(totalReturn),
+      value: formatCurrency(totalReturn, currency),
       positive: totalReturn > investment,
       icon: BarChart3,
-      description: `On ${formatCurrency(investment)} invested`,
+      description: `On ${formatCurrency(investment, currency)} invested`,
     },
     {
       label: "Return on Investment",
@@ -53,7 +54,7 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, p
     },
     {
       label: "Total Tax Paid",
-      value: formatCurrency(totalTax),
+      value: formatCurrency(totalTax, currency),
       positive: true,
       icon: Receipt,
       description: "Estimated total taxes over period",

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { formatCurrency, formatPercent } from "@/lib/finance";
+import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
 import {
   Table,
   TableBody,
@@ -19,6 +19,7 @@ interface CalculationDetailsProps {
   cashFlows: number[];
   npv: number;
   irr: number | null;
+  currency: Currency;
 }
 
 export default function CalculationDetails({
@@ -29,6 +30,7 @@ export default function CalculationDetails({
   cashFlows,
   npv,
   irr,
+  currency,
 }: CalculationDetailsProps) {
   // Build detailed rows
   const rows = yearlyData.map((y, i) => {
