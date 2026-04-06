@@ -106,6 +106,56 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         </p>
       </div>
 
+      {/* Project Info */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+            Project Name
+          </Label>
+          <Input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            className="bg-secondary border-border text-foreground h-12"
+            placeholder="e.g. New Factory Expansion"
+          />
+        </div>
+        <div>
+          <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+            Currency
+          </Label>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCurrency(c)}
+                className={`rounded-xl border p-3 text-center transition-all text-sm font-semibold ${
+                  currency === c
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
+                }`}
+              >
+                <Coins className="h-4 w-4 mx-auto mb-1" />
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div>
+        <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+          Project Description
+        </Label>
+        <Textarea
+          value={projectDescription}
+          onChange={(e) => setProjectDescription(e.target.value)}
+          className="bg-secondary border-border text-foreground min-h-[60px]"
+          placeholder="Brief description of the investment project..."
+          rows={2}
+        />
+      </div>
+
       {/* Top-level inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
