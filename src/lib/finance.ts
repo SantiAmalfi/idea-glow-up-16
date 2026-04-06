@@ -19,14 +19,25 @@ export function calculateIRR(cashFlows: number[], guess = 0.1, maxIter = 1000, t
   return Math.abs(calculateNPV(rate, cashFlows)) < 0.01 ? rate : null;
 }
 
+type Scenario = "optimistic" | "base" | "pessimistic";
+
+const SCENARIO_RATES: Record<Scenario, number> = {
+  optimistic: 0.30,
+  base: 0.15,
+  pessimistic: 0.05,
+};
+
 export function generateCashFlows(
   initialInvestment: number,
-  annualReturn: number,
-  years: number
+  years: number,
+  scenario: Scenario
 ): number[] {
+  const rate = SCENARIO_RATES[scenario];
   const flows = [-initialInvestment];
   for (let i = 1; i <= years; i++) {
-    flows.push(annualReturn);
+    // Simulates growing returns: year 1 starts lower, ramps up
+    const yearReturn = initialInvestment * rate * (0.6 + 0.4 * (i / years));
+    flows.push(Math.round(yearReturn));
   }
   return flows;
 }
