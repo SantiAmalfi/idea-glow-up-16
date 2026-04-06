@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Check, ChevronsUpDown, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { type Currency, CURRENCY_CONFIG } from "@/lib/finance";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { type Currency, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export type Scenario = "optimistic" | "base" | "pessimistic";
 
@@ -50,6 +52,25 @@ const scenarioConfig = [
   { value: "pessimistic" as Scenario, color: "text-destructive border-destructive bg-destructive/10", incomeMultiplier: 0.12, expenseRatio: 0.60 },
 ];
 
+/** Format a number with dots as thousands separator */
+function formatWithDots(num: number): string {
+  return num.toLocaleString("de-DE", { maximumFractionDigits: 0 });
+}
+
+/** Parse a formatted string (with dots as thousand separators) back to a number */
+function parseFormattedNumber(str: string): number {
+  // Remove dots (thousand sep), replace comma with dot (decimal sep)
+  const cleaned = str.replace(/\./g, "").replace(",", ".");
+  return Number(cleaned) || 0;
+}
+
+/** Format input display value: raw number string → formatted with dots */
+function toDisplayValue(rawValue: string): string {
+  const num = Number(rawValue);
+  if (rawValue === "" || isNaN(num)) return rawValue;
+  return formatWithDots(num);
+}
+
 function generateEstimates(investment: number, years: number, scenario: Scenario): YearFormData[] {
   const s = scenarioConfig.find((sc) => sc.value === scenario)!;
   const data: YearFormData[] = [];
@@ -69,11 +90,55 @@ function generateEstimates(investment: number, years: number, scenario: Scenario
   return data;
 }
 
+/** A number input that displays with dot thousand separators */
+function FormattedNumberInput({
+  value,
+  onChange,
+  className,
+  readOnly,
+  ...props
+}: Omit<React.ComponentProps<"input">, "onChange" | "value"> & {
+  value: string;
+  onChange: (rawValue: string) => void;
+}) {
+  const [focused, setFocused] = useState(false);
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    if (!focused) setLocalValue(value);
+  }, [value, focused]);
+
+  const displayValue = focused ? localValue : toDisplayValue(value);
+
+  return (
+    <Input
+      {...props}
+      type={focused ? "number" : "text"}
+      value={displayValue}
+      readOnly={readOnly}
+      onChange={(e) => {
+        if (readOnly) return;
+        setLocalValue(e.target.value);
+        onChange(e.target.value);
+      }}
+      onFocus={() => {
+        if (!readOnly) {
+          setFocused(true);
+          setLocalValue(value);
+        }
+      }}
+      onBlur={() => setFocused(false)}
+      className={className}
+    />
+  );
+}
+
 export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const { t } = useI18n();
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [currency, setCurrency] = useState<Currency>("USD");
+  const [currencyOpen, setCurrencyOpen] = useState(false);
   const [investment, setInvestment] = useState("100000");
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
@@ -117,6 +182,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
     });
   };
 
+  const recalcTotal = (items: { name: string; value: string }[]) => {
+    return String(items.reduce((sum, it) => sum + (Number(it.value) || 0), 0));
+  };
+
   const updateItem = (yearIndex: number, type: "income" | "expense", itemIndex: number, field: "name" | "value", val: string) => {
     setYearlyData((prev) => {
       const next = [...prev];
@@ -124,12 +193,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       const items = [...next[yearIndex][key]];
       items[itemIndex] = { ...items[itemIndex], [field]: val };
       next[yearIndex] = { ...next[yearIndex], [key]: items };
-      // Recalculate total from items
-      const total = items.reduce((sum, it) => sum + (Number(it.value) || 0), 0);
-      if (items.length > 0) {
-        const totalField = type === "income" ? "income" : "expenses";
-        next[yearIndex] = { ...next[yearIndex], [totalField]: String(total) };
-      }
+      // Always recalculate total from items
+      const total = recalcTotal(items);
+      const totalField = type === "income" ? "income" : "expenses";
+      next[yearIndex] = { ...next[yearIndex], [totalField]: total };
       return next;
     });
   };
@@ -140,10 +207,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       const key = type === "income" ? "incomeItems" : "expenseItems";
       const items = next[yearIndex][key].filter((_, i) => i !== itemIndex);
       next[yearIndex] = { ...next[yearIndex], [key]: items };
-      const total = items.reduce((sum, it) => sum + (Number(it.value) || 0), 0);
       if (items.length > 0) {
+        const total = recalcTotal(items);
         const totalField = type === "income" ? "income" : "expenses";
-        next[yearIndex] = { ...next[yearIndex], [totalField]: String(total) };
+        next[yearIndex] = { ...next[yearIndex], [totalField]: total };
       }
       return next;
     });
@@ -173,14 +240,9 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
     pessimistic: { label: t("form.pessimistic"), desc: t("form.pessimisticDesc") },
   };
 
-  const fields = [
-    { label: t("form.investment"), value: investment, set: setInvestment, icon: DollarSign, placeholder: "100000", min: 0 },
-    { label: t("form.years"), value: years, set: setYears, icon: Calendar, placeholder: "5", min: 1 },
-    { label: t("form.discountRate"), value: discountRate, set: setDiscountRate, icon: Percent, placeholder: "10", min: 0 },
-    { label: t("form.taxRate"), value: taxRate, set: setTaxRate, icon: Percent, placeholder: "25", min: 0 },
-  ];
-
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
+
+  const currencyEntries = useMemo(() => Object.keys(CURRENCY_CONFIG) as Currency[], []);
 
   return (
     <motion.form
@@ -213,18 +275,45 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
             {t("form.currency")}
           </Label>
-          <Select value={currency} onValueChange={(val) => setCurrency(val as Currency)}>
-            <SelectTrigger className="bg-secondary border-border text-foreground h-12">
-              <SelectValue placeholder={t("form.selectCurrency")} />
-            </SelectTrigger>
-            <SelectContent className="max-h-[300px]">
-              {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => (
-                <SelectItem key={c} value={c} className="text-sm">
-                  {CURRENCY_CONFIG[c].label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={currencyOpen} onOpenChange={setCurrencyOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={currencyOpen}
+                className="w-full h-12 bg-secondary border-border text-foreground justify-between font-normal"
+              >
+                <span className="truncate text-sm">
+                  {CURRENCY_CONFIG[currency].label}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+              <Command>
+                <CommandInput placeholder={t("form.selectCurrency")} />
+                <CommandList>
+                  <CommandEmpty>No results</CommandEmpty>
+                  <CommandGroup>
+                    {currencyEntries.map((c) => (
+                      <CommandItem
+                        key={c}
+                        value={`${c} ${CURRENCY_CONFIG[c].label}`}
+                        onSelect={() => {
+                          setCurrency(c);
+                          setCurrencyOpen(false);
+                        }}
+                        className="text-sm"
+                      >
+                        <Check className={cn("mr-2 h-4 w-4", currency === c ? "opacity-100" : "opacity-0")} />
+                        {CURRENCY_CONFIG[c].label}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
       <div>
@@ -242,7 +331,12 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
 
       {/* Top-level inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {fields.map((f, i) => (
+        {[
+          { label: t("form.investment"), value: investment, set: setInvestment, icon: DollarSign, placeholder: "100000", min: 0, formatted: true },
+          { label: t("form.years"), value: years, set: setYears, icon: Calendar, placeholder: "5", min: 1, formatted: false },
+          { label: t("form.discountRate"), value: discountRate, set: setDiscountRate, icon: Percent, placeholder: "10", min: 0, formatted: false },
+          { label: t("form.taxRate"), value: taxRate, set: setTaxRate, icon: Percent, placeholder: "25", min: 0, formatted: false },
+        ].map((f, i) => (
           <motion.div
             key={f.label}
             initial={{ opacity: 0, y: 10 }}
@@ -254,15 +348,26 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
             </Label>
             <div className="relative">
               <f.icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="number"
-                value={f.value}
-                onChange={(e) => f.set(e.target.value)}
-                className="pl-10 bg-secondary border-border font-mono text-foreground h-12"
-                placeholder={f.placeholder}
-                required
-                min={f.min}
-              />
+              {f.formatted ? (
+                <FormattedNumberInput
+                  value={f.value}
+                  onChange={(v) => f.set(v)}
+                  className="pl-10 bg-secondary border-border font-mono text-foreground h-12"
+                  placeholder={f.placeholder}
+                  required
+                  min={f.min}
+                />
+              ) : (
+                <Input
+                  type="number"
+                  value={f.value}
+                  onChange={(e) => f.set(e.target.value)}
+                  className="pl-10 bg-secondary border-border font-mono text-foreground h-12"
+                  placeholder={f.placeholder}
+                  required
+                  min={f.min}
+                />
+              )}
             </div>
           </motion.div>
         ))}
@@ -311,6 +416,8 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
 
           {yearlyData.map((y, i) => {
             const net = Number(y.income) - Number(y.expenses);
+            const hasIncomeItems = y.incomeItems.length > 0;
+            const hasExpenseItems = y.expenseItems.length > 0;
             return (
               <div key={i} className="space-y-1">
                 <motion.div
@@ -330,11 +437,14 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform ${y.showIncomeDetail ? "rotate-180" : ""}`} />
                     </button>
                     <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <FormattedNumberInput
                       value={y.income}
-                      onChange={(e) => updateYear(i, "income", e.target.value)}
-                      className="pl-8 pr-8 bg-secondary border-border font-mono text-foreground h-10 text-sm"
+                      onChange={(v) => updateYear(i, "income", v)}
+                      className={cn(
+                        "pl-8 pr-8 bg-secondary border-border font-mono text-foreground h-10 text-sm",
+                        hasIncomeItems && "opacity-70"
+                      )}
+                      readOnly={hasIncomeItems}
                       required
                       min={0}
                     />
@@ -349,11 +459,14 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform ${y.showExpenseDetail ? "rotate-180" : ""}`} />
                     </button>
                     <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                    <Input
-                      type="number"
+                    <FormattedNumberInput
                       value={y.expenses}
-                      onChange={(e) => updateYear(i, "expenses", e.target.value)}
-                      className="pl-8 pr-8 bg-secondary border-border font-mono text-foreground h-10 text-sm"
+                      onChange={(v) => updateYear(i, "expenses", v)}
+                      className={cn(
+                        "pl-8 pr-8 bg-secondary border-border font-mono text-foreground h-10 text-sm",
+                        hasExpenseItems && "opacity-70"
+                      )}
+                      readOnly={hasExpenseItems}
                       required
                       min={0}
                     />
@@ -364,7 +477,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                     }`}
                   >
                     {net >= 0 ? "+" : ""}
-                    {net.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })}
+                    {formatWithDots(net)}
                   </span>
                 </motion.div>
 
@@ -459,10 +572,9 @@ function DetailItems({
           />
           <div className="relative w-28">
             <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{symbol}</span>
-            <Input
-              type="number"
+            <FormattedNumberInput
               value={item.value}
-              onChange={(e) => onUpdate(yearIndex, type, idx, "value", e.target.value)}
+              onChange={(v) => onUpdate(yearIndex, type, idx, "value", v)}
               placeholder="0"
               className="pl-7 bg-background border-border font-mono text-foreground h-8 text-xs"
               min={0}
