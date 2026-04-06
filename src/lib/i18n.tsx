@@ -229,7 +229,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = (key: TranslationKey, vars?: Record<string, string>): string => {
     const entry = translations[key];
     if (!entry) return key;
-    let text = entry[language] || entry.en;
+    let text: string = entry[language] || entry.en;
     if (vars) {
       Object.entries(vars).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, v);
