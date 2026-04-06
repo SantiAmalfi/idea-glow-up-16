@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
+import type { Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
 import { calculateNPV, calculateIRR, generateCashFlows } from "@/lib/finance";
@@ -20,14 +21,14 @@ export default function Index() {
 
   const handleAnalyze = (data: {
     investment: number;
-    annualReturn: number;
     years: number;
     discountRate: number;
+    scenario: Scenario;
   }) => {
-    const cashFlows = generateCashFlows(data.investment, data.annualReturn, data.years);
+    const cashFlows = generateCashFlows(data.investment, data.years, data.scenario);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
-    const totalReturn = data.annualReturn * data.years;
+    const totalReturn = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
     const roi = (totalReturn - data.investment) / data.investment;
 
     setResult({ npv, irr, totalReturn, roi, investment: data.investment, cashFlows });
@@ -36,7 +37,6 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -51,14 +51,12 @@ export default function Index() {
             <span className="text-primary"> Investment</span>
           </h1>
           <p className="text-muted-foreground mt-4 text-lg max-w-lg mx-auto">
-            Calculate NPV, IRR, and ROI to make data-driven decisions about your projects and ideas.
+            Calculate NPV, IRR, and ROI using scenario-based projections for your projects and ideas.
           </p>
         </motion.div>
 
-        {/* Form */}
         <InvestmentForm onAnalyze={handleAnalyze} />
 
-        {/* Results */}
         {result && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -81,7 +79,6 @@ export default function Index() {
 
             <CashFlowChart cashFlows={result.cashFlows} />
 
-            {/* Verdict */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
