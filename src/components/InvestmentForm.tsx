@@ -16,6 +16,9 @@ export interface YearData {
 
 interface InvestmentFormProps {
   onAnalyze: (data: {
+    projectName: string;
+    projectDescription: string;
+    currency: Currency;
     investment: number;
     years: number;
     discountRate: number;
@@ -44,6 +47,9 @@ function generateEstimates(investment: number, years: number, scenario: Scenario
 }
 
 export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
+  const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
+  const [currency, setCurrency] = useState<Currency>("USD");
   const [investment, setInvestment] = useState("100000");
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
