@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Activity, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, Activity, BarChart3, Clock, Receipt } from "lucide-react";
 import { formatCurrency, formatPercent } from "@/lib/finance";
 
 interface ResultsPanelProps {
@@ -8,9 +8,11 @@ interface ResultsPanelProps {
   totalReturn: number;
   roi: number;
   investment: number;
+  paybackPeriod: number | null;
+  totalTax: number;
 }
 
-export default function ResultsPanel({ npv, irr, totalReturn, roi, investment }: ResultsPanelProps) {
+export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, paybackPeriod, totalTax }: ResultsPanelProps) {
   const isPositiveNPV = npv >= 0;
 
   const metrics = [
@@ -29,7 +31,7 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment }:
       description: irr !== null ? `${irr > 0 ? "Above" : "Below"} break-even` : "Cannot compute",
     },
     {
-      label: "Total Return",
+      label: "Total Net Return",
       value: formatCurrency(totalReturn),
       positive: totalReturn > investment,
       icon: BarChart3,
@@ -42,10 +44,24 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment }:
       icon: TrendingUp,
       description: roi > 0 ? "Net gain" : "Net loss",
     },
+    {
+      label: "Payback Period",
+      value: paybackPeriod !== null ? `${paybackPeriod.toFixed(1)} years` : "Never",
+      positive: paybackPeriod !== null,
+      icon: Clock,
+      description: paybackPeriod !== null ? "Time to recover investment" : "Investment not recovered",
+    },
+    {
+      label: "Total Tax Paid",
+      value: formatCurrency(totalTax),
+      positive: true,
+      icon: Receipt,
+      description: "Estimated total taxes over period",
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {metrics.map((m, i) => (
         <motion.div
           key={m.label}

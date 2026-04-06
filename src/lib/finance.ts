@@ -19,27 +19,37 @@ export function calculateIRR(cashFlows: number[], guess = 0.1, maxIter = 1000, t
   return Math.abs(calculateNPV(rate, cashFlows)) < 0.01 ? rate : null;
 }
 
-type Scenario = "optimistic" | "base" | "pessimistic";
+export interface YearInput {
+  income: number;
+  expenses: number;
+}
 
-const SCENARIO_RATES: Record<Scenario, number> = {
-  optimistic: 0.30,
-  base: 0.15,
-  pessimistic: 0.05,
-};
-
-export function generateCashFlows(
+export function buildCashFlows(
   initialInvestment: number,
-  years: number,
-  scenario: Scenario
+  yearlyData: YearInput[],
+  taxRate: number
 ): number[] {
-  const rate = SCENARIO_RATES[scenario];
   const flows = [-initialInvestment];
-  for (let i = 1; i <= years; i++) {
-    // Simulates growing returns: year 1 starts lower, ramps up
-    const yearReturn = initialInvestment * rate * (0.6 + 0.4 * (i / years));
-    flows.push(Math.round(yearReturn));
+  for (const year of yearlyData) {
+    const preTax = year.income - year.expenses;
+    const tax = preTax > 0 ? preTax * taxRate : 0;
+    flows.push(Math.round(preTax - tax));
   }
   return flows;
+}
+
+export function calculatePaybackPeriod(cashFlows: number[]): number | null {
+  let cumulative = 0;
+  for (let t = 0; t < cashFlows.length; t++) {
+    cumulative += cashFlows[t];
+    if (cumulative >= 0 && t > 0) {
+      // Interpolate within the year
+      const prevCumulative = cumulative - cashFlows[t];
+      const fraction = -prevCumulative / cashFlows[t];
+      return t - 1 + fraction;
+    }
+  }
+  return null;
 }
 
 export function formatCurrency(value: number): string {
