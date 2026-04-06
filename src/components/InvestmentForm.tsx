@@ -293,7 +293,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       {/* Top-level inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
-          { label: t("form.investment"), value: investment, set: setInvestment, icon: DollarSign, placeholder: "100000", min: 0, formatted: true },
+          { label: t("form.investment"), value: investment, set: setInvestment, icon: null, placeholder: "100000", min: 0, formatted: true },
           { label: t("form.years"), value: years, set: setYears, icon: Calendar, placeholder: "5", min: 1, formatted: false },
           { label: t("form.discountRate"), value: discountRate, set: setDiscountRate, icon: Percent, placeholder: "10", min: 0, formatted: false },
           { label: t("form.taxRate"), value: taxRate, set: setTaxRate, icon: Percent, placeholder: "25", min: 0, formatted: false },
@@ -308,7 +308,11 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
               {f.label}
             </Label>
             <div className="relative">
-              <f.icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              {f.icon ? (
+                <f.icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              ) : (
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">{currencySymbol}</span>
+              )}
               {f.formatted ? (
                 <FormattedNumberInput
                   value={f.value}
@@ -397,7 +401,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                     >
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform ${y.showIncomeDetail ? "rotate-180" : ""}`} />
                     </button>
-                    <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground">{currencySymbol}</span>
                     <FormattedNumberInput
                       value={y.income}
                       onChange={(v) => updateYear(i, "income", v)}
@@ -419,7 +423,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                     >
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform ${y.showExpenseDetail ? "rotate-180" : ""}`} />
                     </button>
-                    <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground">{currencySymbol}</span>
                     <FormattedNumberInput
                       value={y.expenses}
                       onChange={(v) => updateYear(i, "expenses", v)}
