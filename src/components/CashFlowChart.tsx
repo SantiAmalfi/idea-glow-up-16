@@ -1,12 +1,13 @@
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
-import { formatCurrency } from "@/lib/finance";
+import { formatCurrency, type Currency } from "@/lib/finance";
 
 interface CashFlowChartProps {
   cashFlows: number[];
+  currency: Currency;
 }
 
-export default function CashFlowChart({ cashFlows }: CashFlowChartProps) {
+export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProps) {
   const data = cashFlows.map((cf, i) => ({
     year: i === 0 ? "Initial" : `Year ${i}`,
     value: cf,
@@ -45,7 +46,7 @@ export default function CashFlowChart({ cashFlows }: CashFlowChartProps) {
                 color: "hsl(210 40% 96%)",
                 fontFamily: "JetBrains Mono",
               }}
-              formatter={(value: number) => [formatCurrency(value), "Cash Flow"]}
+              formatter={(value: number) => [formatCurrency(value, currency), "Cash Flow"]}
             />
             <ReferenceLine y={0} stroke="hsl(220 25% 18%)" />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { formatCurrency, formatPercent } from "@/lib/finance";
+import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
 import {
   Table,
   TableBody,
@@ -19,6 +19,7 @@ interface CalculationDetailsProps {
   cashFlows: number[];
   npv: number;
   irr: number | null;
+  currency: Currency;
 }
 
 export default function CalculationDetails({
@@ -29,6 +30,7 @@ export default function CalculationDetails({
   cashFlows,
   npv,
   irr,
+  currency,
 }: CalculationDetailsProps) {
   // Build detailed rows
   const rows = yearlyData.map((y, i) => {
@@ -110,30 +112,30 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">
-                    {formatCurrency(-investment)}
+                    {formatCurrency(-investment, currency)}
                   </TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">
-                    {formatCurrency(-investment)}
+                    {formatCurrency(-investment, currency)}
                   </TableCell>
                 </TableRow>
                 {rows.map((r, i) => (
                   <TableRow key={r.year}>
                     <TableCell className="font-mono text-sm">{r.year}</TableCell>
-                    <TableCell className="font-mono text-sm text-right">{formatCurrency(r.income)}</TableCell>
+                    <TableCell className="font-mono text-sm text-right">{formatCurrency(r.income, currency)}</TableCell>
                     <TableCell className="font-mono text-sm text-right text-destructive">
-                      {formatCurrency(r.expenses)}
+                      {formatCurrency(r.expenses, currency)}
                     </TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.preTaxProfit)}
+                      {formatCurrency(r.preTaxProfit, currency)}
                     </TableCell>
                     <TableCell className="font-mono text-sm text-right text-muted-foreground">
-                      {formatCurrency(r.tax)}
+                      {formatCurrency(r.tax, currency)}
                     </TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.netCashFlow)}
+                      {formatCurrency(r.netCashFlow, currency)}
                     </TableCell>
                     <TableCell className={`font-mono text-sm text-right ${cumulativeRows[i].cumulative >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(cumulativeRows[i].cumulative)}
+                      {formatCurrency(cumulativeRows[i].cumulative, currency)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -141,12 +143,12 @@ export default function CalculationDetails({
               <TableFooter>
                 <TableRow>
                   <TableCell className="font-mono text-sm font-bold">Total</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.income)}</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.expenses)}</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit)}</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.tax)}</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.netCashFlow)}</TableCell>
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(cumulative)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.income, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.expenses, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.tax, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.netCashFlow, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(cumulative, currency)}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>
@@ -168,19 +170,19 @@ export default function CalculationDetails({
               <TableBody>
                 <TableRow className="bg-destructive/5">
                   <TableCell className="font-mono text-sm">0</TableCell>
-                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right">1.0000</TableCell>
-                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
                 </TableRow>
                 {rows.map((r) => (
                   <TableRow key={r.year}>
                     <TableCell className="font-mono text-sm">{r.year}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.netCashFlow)}
+                      {formatCurrency(r.netCashFlow, currency)}
                     </TableCell>
                     <TableCell className="font-mono text-sm text-right">{r.discountFactor.toFixed(4)}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.presentValue >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.presentValue)}
+                      {formatCurrency(r.presentValue, currency)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -191,7 +193,7 @@ export default function CalculationDetails({
                     NPV = Σ PV =
                   </TableCell>
                   <TableCell className={`font-mono text-sm text-right font-bold ${npv >= 0 ? "text-primary" : "text-destructive"}`}>
-                    {formatCurrency(npv)}
+                    {formatCurrency(npv, currency)}
                   </TableCell>
                 </TableRow>
               </TableFooter>
@@ -215,7 +217,7 @@ export default function CalculationDetails({
                 A positive NPV means the project earns more than the discount rate.
               </p>
               <p className="font-mono text-sm text-primary font-bold">
-                Result: {formatCurrency(npv)}
+                Result: {formatCurrency(npv, currency)}
               </p>
             </div>
 

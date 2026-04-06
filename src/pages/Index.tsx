@@ -6,9 +6,12 @@ import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
 import CalculationDetails from "@/components/CalculationDetails";
-import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod } from "@/lib/finance";
+import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency } from "@/lib/finance";
 
 interface AnalysisResult {
+  projectName: string;
+  projectDescription: string;
+  currency: Currency;
   npv: number;
   irr: number | null;
   totalReturn: number;
@@ -26,6 +29,9 @@ export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const handleAnalyze = (data: {
+    projectName: string;
+    projectDescription: string;
+    currency: Currency;
     investment: number;
     years: number;
     discountRate: number;
@@ -46,6 +52,9 @@ export default function Index() {
     }, 0);
 
     setResult({
+      projectName: data.projectName,
+      projectDescription: data.projectDescription,
+      currency: data.currency,
       npv, irr, totalReturn, roi,
       investment: data.investment,
       cashFlows, paybackPeriod, totalTax,
@@ -84,6 +93,17 @@ export default function Index() {
             animate={{ opacity: 1 }}
             className="mt-8 space-y-6"
           >
+            {(result.projectName || result.projectDescription) && (
+              <div className="rounded-2xl border border-border bg-card p-6">
+                {result.projectName && (
+                  <h2 className="text-2xl font-bold text-foreground">{result.projectName}</h2>
+                )}
+                {result.projectDescription && (
+                  <p className="text-sm text-muted-foreground mt-1">{result.projectDescription}</p>
+                )}
+              </div>
+            )}
+
             <div className="flex items-center gap-2 mb-2">
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground uppercase tracking-widest">Analysis Results</span>
@@ -98,9 +118,10 @@ export default function Index() {
               investment={result.investment}
               paybackPeriod={result.paybackPeriod}
               totalTax={result.totalTax}
+              currency={result.currency}
             />
 
-            <CashFlowChart cashFlows={result.cashFlows} />
+            <CashFlowChart cashFlows={result.cashFlows} currency={result.currency} />
 
             <CalculationDetails
               investment={result.investment}
@@ -110,6 +131,7 @@ export default function Index() {
               cashFlows={result.cashFlows}
               npv={result.npv}
               irr={result.irr}
+              currency={result.currency}
             />
 
             <motion.div

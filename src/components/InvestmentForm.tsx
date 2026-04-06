@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, Calendar, Percent } from "lucide-react";
+import { DollarSign, Calendar, Percent, Coins } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { type Currency, CURRENCY_CONFIG } from "@/lib/finance";
 
 export type Scenario = "optimistic" | "base" | "pessimistic";
 
@@ -14,6 +16,9 @@ export interface YearData {
 
 interface InvestmentFormProps {
   onAnalyze: (data: {
+    projectName: string;
+    projectDescription: string;
+    currency: Currency;
     investment: number;
     years: number;
     discountRate: number;
@@ -42,6 +47,9 @@ function generateEstimates(investment: number, years: number, scenario: Scenario
 }
 
 export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
+  const [projectName, setProjectName] = useState("");
+  const [projectDescription, setProjectDescription] = useState("");
+  const [currency, setCurrency] = useState<Currency>("USD");
   const [investment, setInvestment] = useState("100000");
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
@@ -68,6 +76,9 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onAnalyze({
+      projectName,
+      projectDescription,
+      currency,
       investment: Number(investment),
       years: numYears,
       discountRate: Number(discountRate) / 100,
@@ -93,6 +104,56 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         <p className="text-sm text-muted-foreground mt-1">
           Pick a scenario to auto-estimate income & expenses, then fine-tune as needed
         </p>
+      </div>
+
+      {/* Project Info */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+            Project Name
+          </Label>
+          <Input
+            type="text"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            className="bg-secondary border-border text-foreground h-12"
+            placeholder="e.g. New Factory Expansion"
+          />
+        </div>
+        <div>
+          <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+            Currency
+          </Label>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => setCurrency(c)}
+                className={`rounded-xl border p-3 text-center transition-all text-sm font-semibold ${
+                  currency === c
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
+                }`}
+              >
+                <Coins className="h-4 w-4 mx-auto mb-1" />
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div>
+        <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+          Project Description
+        </Label>
+        <Textarea
+          value={projectDescription}
+          onChange={(e) => setProjectDescription(e.target.value)}
+          className="bg-secondary border-border text-foreground min-h-[60px]"
+          placeholder="Brief description of the investment project..."
+          rows={2}
+        />
       </div>
 
       {/* Top-level inputs */}
