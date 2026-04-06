@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileDown, FileSpreadsheet } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
 import CalculationDetails from "@/components/CalculationDetails";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import FeaturesSection from "@/components/FeaturesSection";
 import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
@@ -69,25 +72,67 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border bg-secondary text-xs text-muted-foreground uppercase tracking-widest mb-6">
-            <Sparkles className="h-3 w-3 text-primary" />
-            Investment Analyzer
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-            Analyze Your
-            <span className="text-primary"> Investment</span>
-          </h1>
-          <p className="text-muted-foreground mt-4 text-lg max-w-lg mx-auto">
-            Calculate NPV, IRR, and ROI with detailed yearly income, expenses, and tax projections.
-          </p>
-        </motion.div>
+      <Header />
 
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-4 pt-20 pb-12 md:pt-28 md:pb-16 relative">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-6">
+              <Sparkles className="h-3 w-3" />
+              Free · No Sign-Up Required
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight leading-[1.1]">
+              Make smarter
+              <br />
+              <span className="text-primary">investment decisions</span>
+            </h1>
+            <p className="text-muted-foreground mt-5 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+              Calculate NPV, IRR, and ROI in seconds. Model scenarios, compare currencies, and export professional reports.
+            </p>
+
+            {/* Trust badges */}
+            <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                5 Currencies
+              </span>
+              <span className="h-3 w-px bg-border" />
+              <span className="flex items-center gap-1.5">
+                <FileDown className="h-3.5 w-3.5 text-primary" />
+                PDF & Excel
+              </span>
+              <span className="h-3 w-px bg-border" />
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                3 Scenarios
+              </span>
+            </div>
+
+            <motion.a
+              href="#analyzer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="inline-flex items-center gap-2 mt-10 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+            >
+              Start Analyzing
+              <ArrowDown className="h-4 w-4" />
+            </motion.a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Analyzer */}
+      <section id="analyzer" className="max-w-5xl mx-auto px-4 py-8">
         <InvestmentForm onAnalyze={handleAnalyze} />
 
         {result && (
@@ -174,7 +219,10 @@ export default function Index() {
             </motion.div>
           </motion.div>
         )}
-      </div>
+      </section>
+
+      <FeaturesSection />
+      <Footer />
     </div>
   );
 }
