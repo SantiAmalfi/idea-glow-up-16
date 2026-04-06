@@ -2,10 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
-import type { Scenario } from "@/components/InvestmentForm";
+import type { YearData } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
-import { calculateNPV, calculateIRR, generateCashFlows } from "@/lib/finance";
+import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod } from "@/lib/finance";
 
 interface AnalysisResult {
   npv: number;
@@ -14,6 +14,8 @@ interface AnalysisResult {
   roi: number;
   investment: number;
   cashFlows: number[];
+  paybackPeriod: number | null;
+  totalTax: number;
 }
 
 export default function Index() {
@@ -23,15 +25,22 @@ export default function Index() {
     investment: number;
     years: number;
     discountRate: number;
-    scenario: Scenario;
+    taxRate: number;
+    yearlyData: YearData[];
   }) => {
-    const cashFlows = generateCashFlows(data.investment, data.years, data.scenario);
+    const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
     const totalReturn = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
     const roi = (totalReturn - data.investment) / data.investment;
+    const paybackPeriod = calculatePaybackPeriod(cashFlows);
 
-    setResult({ npv, irr, totalReturn, roi, investment: data.investment, cashFlows });
+    const totalTax = data.yearlyData.reduce((sum, y) => {
+      const preTax = y.income - y.expenses;
+      return sum + (preTax > 0 ? preTax * data.taxRate : 0);
+    }, 0);
+
+    setResult({ npv, irr, totalReturn, roi, investment: data.investment, cashFlows, paybackPeriod, totalTax });
   };
 
   return (
@@ -51,7 +60,7 @@ export default function Index() {
             <span className="text-primary"> Investment</span>
           </h1>
           <p className="text-muted-foreground mt-4 text-lg max-w-lg mx-auto">
-            Calculate NPV, IRR, and ROI using scenario-based projections for your projects and ideas.
+            Calculate NPV, IRR, and ROI with detailed yearly income, expenses, and tax projections.
           </p>
         </motion.div>
 
@@ -75,6 +84,8 @@ export default function Index() {
               totalReturn={result.totalReturn}
               roi={result.roi}
               investment={result.investment}
+              paybackPeriod={result.paybackPeriod}
+              totalTax={result.totalTax}
             />
 
             <CashFlowChart cashFlows={result.cashFlows} />
