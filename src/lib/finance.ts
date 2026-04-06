@@ -52,14 +52,26 @@ export function calculatePaybackPeriod(cashFlows: number[]): number | null {
   return null;
 }
 
-export type Currency = "USD" | "ARS" | "MXN" | "EUR" | "GBP";
+export type Currency = "USD" | "ARS" | "MXN" | "EUR" | "GBP" | "BRL" | "UYU" | "CLP" | "COP" | "PEN" | "PYG" | "BOB" | "CAD" | "JPY" | "CNY" | "CHF" | "AUD";
 
-export const CURRENCY_CONFIG: Record<Currency, { locale: string; label: string }> = {
-  USD: { locale: "en-US", label: "USD 🇺🇸" },
-  ARS: { locale: "es-AR", label: "ARS 🇦🇷" },
-  MXN: { locale: "es-MX", label: "MXN 🇲🇽" },
-  EUR: { locale: "de-DE", label: "EUR 🇪🇺" },
-  GBP: { locale: "en-GB", label: "GBP 🇬🇧" },
+export const CURRENCY_CONFIG: Record<Currency, { locale: string; label: string; symbol: string }> = {
+  USD: { locale: "en-US", label: "USD — Dólar estadounidense 🇺🇸", symbol: "$" },
+  EUR: { locale: "de-DE", label: "EUR — Euro 🇪🇺", symbol: "€" },
+  GBP: { locale: "en-GB", label: "GBP — Libra esterlina 🇬🇧", symbol: "£" },
+  BRL: { locale: "pt-BR", label: "BRL — Real brasileño 🇧🇷", symbol: "R$" },
+  ARS: { locale: "es-AR", label: "ARS — Peso argentino 🇦🇷", symbol: "$" },
+  UYU: { locale: "es-UY", label: "UYU — Peso uruguayo 🇺🇾", symbol: "$U" },
+  MXN: { locale: "es-MX", label: "MXN — Peso mexicano 🇲🇽", symbol: "$" },
+  CLP: { locale: "es-CL", label: "CLP — Peso chileno 🇨🇱", symbol: "$" },
+  COP: { locale: "es-CO", label: "COP — Peso colombiano 🇨🇴", symbol: "$" },
+  PEN: { locale: "es-PE", label: "PEN — Sol peruano 🇵🇪", symbol: "S/" },
+  PYG: { locale: "es-PY", label: "PYG — Guaraní paraguayo 🇵🇾", symbol: "₲" },
+  BOB: { locale: "es-BO", label: "BOB — Boliviano 🇧🇴", symbol: "Bs" },
+  CAD: { locale: "en-CA", label: "CAD — Dólar canadiense 🇨🇦", symbol: "C$" },
+  AUD: { locale: "en-AU", label: "AUD — Dólar australiano 🇦🇺", symbol: "A$" },
+  JPY: { locale: "ja-JP", label: "JPY — Yen japonés 🇯🇵", symbol: "¥" },
+  CNY: { locale: "zh-CN", label: "CNY — Yuan chino 🇨🇳", symbol: "¥" },
+  CHF: { locale: "de-CH", label: "CHF — Franco suizo 🇨🇭", symbol: "CHF" },
 };
 
 export function formatCurrency(value: number, currency: Currency = "USD"): string {

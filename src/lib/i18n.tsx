@@ -18,7 +18,7 @@ const translations = {
     es: "Calcula VAN, TIR y ROI en segundos. Modela escenarios, compara monedas y exporta reportes profesionales.",
     pt: "Calcule VPL, TIR e ROI em segundos. Modele cenários, compare moedas e exporte relatórios profissionais.",
   },
-  "hero.currencies": { en: "5 Currencies", es: "5 Monedas", pt: "5 Moedas" },
+  "hero.currencies": { en: "17 Currencies", es: "17 Monedas", pt: "17 Moedas" },
   "hero.scenarios": { en: "3 Scenarios", es: "3 Escenarios", pt: "3 Cenários" },
   "hero.cta": { en: "Start Analyzing", es: "Comenzar análisis", pt: "Começar análise" },
 
