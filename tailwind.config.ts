@@ -13,7 +13,14 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
       colors: {
+        "chart-positive": "hsl(var(--chart-positive))",
+        "chart-negative": "hsl(var(--chart-negative))",
+        "chart-neutral": "hsl(var(--chart-neutral))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
