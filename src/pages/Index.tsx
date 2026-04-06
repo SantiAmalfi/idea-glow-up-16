@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
 import CalculationDetails from "@/components/CalculationDetails";
+import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency } from "@/lib/finance";
+import { exportToPdf } from "@/lib/exportPdf";
+import { exportToExcel } from "@/lib/exportExcel";
 
 interface AnalysisResult {
   projectName: string;
@@ -108,6 +111,25 @@ export default function Index() {
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground uppercase tracking-widest">Analysis Results</span>
               <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => exportToPdf(result)}
+                variant="outline"
+                className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <FileDown className="h-4 w-4" />
+                Download PDF
+              </Button>
+              <Button
+                onClick={() => exportToExcel(result)}
+                variant="outline"
+                className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+                Download Excel
+              </Button>
             </div>
 
             <ResultsPanel
