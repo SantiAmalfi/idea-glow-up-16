@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, Calendar, Percent } from "lucide-react";
+import { DollarSign, Calendar, Percent, Coins } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { type Currency, CURRENCY_CONFIG } from "@/lib/finance";
 
 export type Scenario = "optimistic" | "base" | "pessimistic";
 

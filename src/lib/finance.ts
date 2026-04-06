@@ -52,10 +52,18 @@ export function calculatePaybackPeriod(cashFlows: number[]): number | null {
   return null;
 }
 
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+export type Currency = "USD" | "MXN" | "EUR";
+
+export const CURRENCY_CONFIG: Record<Currency, { locale: string; symbol: string; label: string }> = {
+  USD: { locale: "en-US", symbol: "$", label: "US Dollars (USD)" },
+  MXN: { locale: "es-MX", symbol: "$", label: "Pesos Mexicanos (MXN)" },
+  EUR: { locale: "de-DE", symbol: "€", label: "Euros (EUR)" },
+};
+
+export function formatCurrency(value: number, currency: Currency = "USD"): string {
+  return new Intl.NumberFormat(CURRENCY_CONFIG[currency].locale, {
     style: 'currency',
-    currency: 'USD',
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
