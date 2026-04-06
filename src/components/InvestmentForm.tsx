@@ -76,6 +76,9 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onAnalyze({
+      projectName,
+      projectDescription,
+      currency,
       investment: Number(investment),
       years: numYears,
       discountRate: Number(discountRate) / 100,
