@@ -2,9 +2,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
-import type { YearData } from "@/components/InvestmentForm";
+import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
+import CalculationDetails from "@/components/CalculationDetails";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod } from "@/lib/finance";
 
 interface AnalysisResult {
@@ -16,6 +17,9 @@ interface AnalysisResult {
   cashFlows: number[];
   paybackPeriod: number | null;
   totalTax: number;
+  discountRate: number;
+  taxRate: number;
+  yearlyData: YearData[];
 }
 
 export default function Index() {
@@ -27,6 +31,7 @@ export default function Index() {
     discountRate: number;
     taxRate: number;
     yearlyData: YearData[];
+    scenario: Scenario;
   }) => {
     const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate);
     const npv = calculateNPV(data.discountRate, cashFlows);
@@ -40,12 +45,19 @@ export default function Index() {
       return sum + (preTax > 0 ? preTax * data.taxRate : 0);
     }, 0);
 
-    setResult({ npv, irr, totalReturn, roi, investment: data.investment, cashFlows, paybackPeriod, totalTax });
+    setResult({
+      npv, irr, totalReturn, roi,
+      investment: data.investment,
+      cashFlows, paybackPeriod, totalTax,
+      discountRate: data.discountRate,
+      taxRate: data.taxRate,
+      yearlyData: data.yearlyData,
+    });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
+      <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,6 +101,16 @@ export default function Index() {
             />
 
             <CashFlowChart cashFlows={result.cashFlows} />
+
+            <CalculationDetails
+              investment={result.investment}
+              discountRate={result.discountRate}
+              taxRate={result.taxRate}
+              yearlyData={result.yearlyData}
+              cashFlows={result.cashFlows}
+              npv={result.npv}
+              irr={result.irr}
+            />
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}

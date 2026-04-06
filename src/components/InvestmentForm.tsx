@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, Calendar, Percent, Plus, Minus } from "lucide-react";
+import { DollarSign, Calendar, Percent } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+
+export type Scenario = "optimistic" | "base" | "pessimistic";
 
 export interface YearData {
   income: number;
@@ -17,7 +19,26 @@ interface InvestmentFormProps {
     discountRate: number;
     taxRate: number;
     yearlyData: YearData[];
+    scenario: Scenario;
   }) => void;
+}
+
+const scenarios: { value: Scenario; label: string; description: string; color: string; incomeMultiplier: number; expenseRatio: number }[] = [
+  { value: "optimistic", label: "Optimistic", description: "High growth, strong margins", color: "text-primary border-primary bg-primary/10", incomeMultiplier: 0.45, expenseRatio: 0.25 },
+  { value: "base", label: "Base", description: "Moderate growth, typical costs", color: "text-chart-neutral border-chart-neutral bg-chart-neutral/10", incomeMultiplier: 0.25, expenseRatio: 0.40 },
+  { value: "pessimistic", label: "Pessimistic", description: "Slow growth, high costs", color: "text-destructive border-destructive bg-destructive/10", incomeMultiplier: 0.12, expenseRatio: 0.60 },
+];
+
+function generateEstimates(investment: number, years: number, scenario: Scenario): { income: string; expenses: string }[] {
+  const s = scenarios.find((sc) => sc.value === scenario)!;
+  const data: { income: string; expenses: string }[] = [];
+  for (let i = 1; i <= years; i++) {
+    const rampUp = 0.5 + 0.5 * (i / years);
+    const income = Math.round(investment * s.incomeMultiplier * rampUp);
+    const expenses = Math.round(income * s.expenseRatio);
+    data.push({ income: String(income), expenses: String(expenses) });
+  }
+  return data;
 }
 
 export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
@@ -25,17 +46,16 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
   const [taxRate, setTaxRate] = useState("25");
+  const [scenario, setScenario] = useState<Scenario>("base");
   const [yearlyData, setYearlyData] = useState<{ income: string; expenses: string }[]>([]);
 
   const numYears = Math.max(1, Math.min(30, Number(years) || 1));
 
+  // Re-generate estimates when scenario, investment, or years change
   useEffect(() => {
-    setYearlyData((prev) => {
-      const next = [...prev];
-      while (next.length < numYears) next.push({ income: "30000", expenses: "10000" });
-      return next.slice(0, numYears);
-    });
-  }, [numYears]);
+    const inv = Number(investment) || 100000;
+    setYearlyData(generateEstimates(inv, numYears, scenario));
+  }, [scenario, investment, numYears]);
 
   const updateYear = (index: number, field: "income" | "expenses", value: string) => {
     setYearlyData((prev) => {
@@ -56,11 +76,8 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         income: Number(y.income),
         expenses: Number(y.expenses),
       })),
+      scenario,
     });
-  };
-
-  const applyToAll = (field: "income" | "expenses", value: string) => {
-    setYearlyData((prev) => prev.map((y) => ({ ...y, [field]: value })));
   };
 
   return (
@@ -74,7 +91,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       <div>
         <h2 className="text-xl font-semibold text-foreground">Project Parameters</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Enter your investment details, yearly projections, and tax rate
+          Pick a scenario to auto-estimate income & expenses, then fine-tune as needed
         </p>
       </div>
 
@@ -111,41 +128,41 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         ))}
       </div>
 
+      {/* Scenario picker */}
+      <div>
+        <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-3 block">
+          Growth Scenario
+        </Label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {scenarios.map((s) => (
+            <button
+              key={s.value}
+              type="button"
+              onClick={() => setScenario(s.value)}
+              className={`rounded-xl border p-4 text-left transition-all ${
+                scenario === s.value
+                  ? s.color + " border-current"
+                  : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
+              }`}
+            >
+              <span className="font-semibold text-sm block">{s.label}</span>
+              <span className="text-xs opacity-75 mt-0.5 block">{s.description}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Per-year income & expenses */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <Label className="text-muted-foreground text-xs uppercase tracking-wider">
-            Yearly Income & Expenses
+            Estimated Yearly Income & Expenses
           </Label>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-xs h-7"
-              onClick={() => {
-                if (yearlyData[0]) applyToAll("income", yearlyData[0].income);
-              }}
-            >
-              Apply Year 1 income to all
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="text-xs h-7"
-              onClick={() => {
-                if (yearlyData[0]) applyToAll("expenses", yearlyData[0].expenses);
-              }}
-            >
-              Apply Year 1 expenses to all
-            </Button>
-          </div>
+          <span className="text-xs text-muted-foreground italic">Edit any value to customize</span>
         </div>
 
         <div className="space-y-2">
-          {/* Header */}
-          <div className="grid grid-cols-[80px_1fr_1fr_120px] gap-3 text-xs text-muted-foreground uppercase tracking-wider px-1">
+          <div className="grid grid-cols-[70px_1fr_1fr_120px] gap-3 text-xs text-muted-foreground uppercase tracking-wider px-1">
             <span>Year</span>
             <span>Income</span>
             <span>Expenses</span>
@@ -160,9 +177,9 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.03 * i }}
-                className="grid grid-cols-[80px_1fr_1fr_120px] gap-3 items-center"
+                className="grid grid-cols-[70px_1fr_1fr_120px] gap-3 items-center"
               >
-                <span className="text-sm font-mono text-muted-foreground pl-1">Year {i + 1}</span>
+                <span className="text-sm font-mono text-muted-foreground pl-1">Yr {i + 1}</span>
                 <div className="relative">
                   <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <Input
