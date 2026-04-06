@@ -273,45 +273,11 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
             {t("form.currency")}
           </Label>
-          <Popover open={currencyOpen} onOpenChange={setCurrencyOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={currencyOpen}
-                className="w-full h-12 bg-secondary border-border text-foreground justify-between font-normal"
-              >
-                <span className="truncate text-sm">
-                  {CURRENCY_CONFIG[currency].label}
-                </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-              <Command>
-                <CommandInput placeholder={t("form.selectCurrency")} />
-                <CommandList>
-                  <CommandEmpty>No results</CommandEmpty>
-                  <CommandGroup>
-                    {currencyEntries.map((c) => (
-                      <CommandItem
-                        key={c}
-                        value={`${c} ${CURRENCY_CONFIG[c].label}`}
-                        onSelect={() => {
-                          setCurrency(c);
-                          setCurrencyOpen(false);
-                        }}
-                        className="text-sm"
-                      >
-                        <Check className={cn("mr-2 h-4 w-4", currency === c ? "opacity-100" : "opacity-0")} />
-                        {CURRENCY_CONFIG[c].label}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          <CurrencySearchDropdown
+                currency={currency}
+                onChange={setCurrency}
+                placeholder={t("form.selectCurrency")}
+              />
         </div>
       </div>
       <div>
