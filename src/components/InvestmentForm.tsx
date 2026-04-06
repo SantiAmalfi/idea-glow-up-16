@@ -491,6 +491,81 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   );
 }
 
+function CurrencySearchDropdown({
+  currency,
+  onChange,
+  placeholder,
+}: {
+  currency: Currency;
+  onChange: (c: Currency) => void;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const currencies = Object.keys(CURRENCY_CONFIG) as Currency[];
+  const filtered = currencies.filter((c) => {
+    const label = CURRENCY_CONFIG[c].label.toLowerCase();
+    const q = search.toLowerCase();
+    return label.includes(q) || c.toLowerCase().includes(q);
+  });
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full h-12 bg-secondary border border-border text-foreground rounded-md px-3 flex items-center justify-between text-sm"
+      >
+        <span className="truncate">{CURRENCY_CONFIG[currency].label}</span>
+        <ChevronDown className={cn("h-4 w-4 opacity-50 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg">
+          <div className="flex items-center border-b border-border px-3">
+            <Search className="h-4 w-4 text-muted-foreground mr-2 shrink-0" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={placeholder}
+              className="w-full py-2.5 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+              autoFocus
+            />
+          </div>
+          <div className="max-h-[250px] overflow-y-auto p-1">
+            {filtered.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-3">No results</p>
+            )}
+            {filtered.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => { onChange(c); setOpen(false); setSearch(""); }}
+                className={cn(
+                  "w-full text-left px-3 py-2 rounded text-sm hover:bg-accent transition-colors flex items-center gap-2",
+                  currency === c && "bg-accent font-medium"
+                )}
+              >
+                {CURRENCY_CONFIG[c].label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DetailItems({
   items,
   type,
