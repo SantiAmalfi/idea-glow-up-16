@@ -1,6 +1,9 @@
 import { TrendingUp } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 export default function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className="border-t border-border/50 bg-card/50 mt-20">
       <div className="max-w-5xl mx-auto px-4 py-10">
@@ -14,7 +17,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            Professional investment analysis tool. All calculations are for informational purposes only.
+            {t("footer.disclaimer")}
           </p>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} InvestCalc Pro

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Activity, BarChart3, Clock, Receipt } from "lucide-react";
 import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
+import { useI18n } from "@/lib/i18n";
 
 interface ResultsPanelProps {
   npv: number;
@@ -14,50 +15,51 @@ interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, paybackPeriod, totalTax, currency }: ResultsPanelProps) {
+  const { t } = useI18n();
   const isPositiveNPV = npv >= 0;
 
   const metrics = [
     {
-      label: "Net Present Value",
+      label: t("results.npv"),
       value: formatCurrency(npv, currency),
       positive: isPositiveNPV,
       icon: isPositiveNPV ? TrendingUp : TrendingDown,
-      description: isPositiveNPV ? "Project creates value" : "Project destroys value",
+      description: isPositiveNPV ? t("results.createsValue") : t("results.destroysValue"),
     },
     {
-      label: "Internal Rate of Return",
+      label: t("results.irr"),
       value: irr !== null ? formatPercent(irr) : "N/A",
       positive: irr !== null && irr > 0,
       icon: Activity,
-      description: irr !== null ? `${irr > 0 ? "Above" : "Below"} break-even` : "Cannot compute",
+      description: irr !== null ? (irr > 0 ? t("results.aboveBreakeven") : t("results.belowBreakeven")) : t("results.cannotCompute"),
     },
     {
-      label: "Total Net Return",
+      label: t("results.totalReturn"),
       value: formatCurrency(totalReturn, currency),
       positive: totalReturn > investment,
       icon: BarChart3,
-      description: `On ${formatCurrency(investment, currency)} invested`,
+      description: t("results.onInvested", { amount: formatCurrency(investment, currency) }),
     },
     {
-      label: "Return on Investment",
+      label: t("results.roi"),
       value: formatPercent(roi),
       positive: roi > 0,
       icon: TrendingUp,
-      description: roi > 0 ? "Net gain" : "Net loss",
+      description: roi > 0 ? t("results.netGain") : t("results.netLoss"),
     },
     {
-      label: "Payback Period",
-      value: paybackPeriod !== null ? `${paybackPeriod.toFixed(1)} years` : "Never",
+      label: t("results.payback"),
+      value: paybackPeriod !== null ? `${paybackPeriod.toFixed(1)} ${t("results.years")}` : t("results.never"),
       positive: paybackPeriod !== null,
       icon: Clock,
-      description: paybackPeriod !== null ? "Time to recover investment" : "Investment not recovered",
+      description: paybackPeriod !== null ? t("results.timeToRecover") : t("results.notRecovered"),
     },
     {
-      label: "Total Tax Paid",
+      label: t("results.totalTax"),
       value: formatCurrency(totalTax, currency),
       positive: true,
       icon: Receipt,
-      description: "Estimated total taxes over period",
+      description: t("results.estimatedTax"),
     },
   ];
 

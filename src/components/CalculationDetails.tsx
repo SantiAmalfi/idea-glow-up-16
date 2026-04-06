@@ -1,13 +1,8 @@
 import { motion } from "framer-motion";
 import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
+import { useI18n } from "@/lib/i18n";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableFooter,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -23,32 +18,17 @@ interface CalculationDetailsProps {
 }
 
 export default function CalculationDetails({
-  investment,
-  discountRate,
-  taxRate,
-  yearlyData,
-  cashFlows,
-  npv,
-  irr,
-  currency,
+  investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency,
 }: CalculationDetailsProps) {
-  // Build detailed rows
+  const { t } = useI18n();
+
   const rows = yearlyData.map((y, i) => {
     const preTaxProfit = y.income - y.expenses;
     const tax = preTaxProfit > 0 ? preTaxProfit * taxRate : 0;
     const netCashFlow = preTaxProfit - tax;
     const discountFactor = 1 / Math.pow(1 + discountRate, i + 1);
     const presentValue = netCashFlow * discountFactor;
-    return {
-      year: i + 1,
-      income: y.income,
-      expenses: y.expenses,
-      preTaxProfit,
-      tax,
-      netCashFlow,
-      discountFactor,
-      presentValue,
-    };
+    return { year: i + 1, income: y.income, expenses: y.expenses, preTaxProfit, tax, netCashFlow, discountFactor, presentValue };
   });
 
   const totals = rows.reduce(
@@ -63,7 +43,6 @@ export default function CalculationDetails({
     { income: 0, expenses: 0, preTaxProfit: 0, tax: 0, netCashFlow: 0, presentValue: 0 }
   );
 
-  // Cumulative cash flow for payback
   let cumulative = -investment;
   const cumulativeRows = rows.map((r) => {
     cumulative += r.netCashFlow;
@@ -77,31 +56,28 @@ export default function CalculationDetails({
       transition={{ delay: 0.4, duration: 0.5 }}
       className="rounded-2xl border border-border bg-card p-6 md:p-8"
     >
-      <h2 className="text-xl font-semibold text-foreground mb-1">Calculation Details</h2>
-      <p className="text-sm text-muted-foreground mb-6">
-        Step-by-step breakdown of how NPV and IRR are computed
-      </p>
+      <h2 className="text-xl font-semibold text-foreground mb-1">{t("calc.title")}</h2>
+      <p className="text-sm text-muted-foreground mb-6">{t("calc.subtitle")}</p>
 
       <Tabs defaultValue="cashflows" className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="cashflows">Cash Flows</TabsTrigger>
-          <TabsTrigger value="npv">NPV Breakdown</TabsTrigger>
-          <TabsTrigger value="formulas">Formulas</TabsTrigger>
+          <TabsTrigger value="cashflows">{t("calc.cashFlows")}</TabsTrigger>
+          <TabsTrigger value="npv">{t("calc.npvBreakdown")}</TabsTrigger>
+          <TabsTrigger value="formulas">{t("calc.formulas")}</TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Cash Flow Details */}
         <TabsContent value="cashflows">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-mono text-xs">Year</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Income</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Expenses</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Pre-Tax</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Tax ({(taxRate * 100).toFixed(0)}%)</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Net Cash Flow</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Cumulative</TableHead>
+                  <TableHead className="font-mono text-xs">{t("form.year")}</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("form.income")}</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("form.expenses")}</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.preTax")}</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.tax")} ({(taxRate * 100).toFixed(0)}%)</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.netCF")}</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.cumulative")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -111,38 +87,24 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
-                  <TableCell className="font-mono text-sm text-right text-destructive">
-                    {formatCurrency(-investment, currency)}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm text-right text-destructive">
-                    {formatCurrency(-investment, currency)}
-                  </TableCell>
+                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
                 </TableRow>
                 {rows.map((r, i) => (
                   <TableRow key={r.year}>
                     <TableCell className="font-mono text-sm">{r.year}</TableCell>
                     <TableCell className="font-mono text-sm text-right">{formatCurrency(r.income, currency)}</TableCell>
-                    <TableCell className="font-mono text-sm text-right text-destructive">
-                      {formatCurrency(r.expenses, currency)}
-                    </TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.preTaxProfit, currency)}
-                    </TableCell>
-                    <TableCell className="font-mono text-sm text-right text-muted-foreground">
-                      {formatCurrency(r.tax, currency)}
-                    </TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.netCashFlow, currency)}
-                    </TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${cumulativeRows[i].cumulative >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(cumulativeRows[i].cumulative, currency)}
-                    </TableCell>
+                    <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(r.expenses, currency)}</TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.preTaxProfit, currency)}</TableCell>
+                    <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(r.tax, currency)}</TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.netCashFlow, currency)}</TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${cumulativeRows[i].cumulative >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(cumulativeRows[i].cumulative, currency)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
               <TableFooter>
                 <TableRow>
-                  <TableCell className="font-mono text-sm font-bold">Total</TableCell>
+                  <TableCell className="font-mono text-sm font-bold">{t("calc.total")}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.income, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.expenses, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit, currency)}</TableCell>
@@ -155,16 +117,15 @@ export default function CalculationDetails({
           </div>
         </TabsContent>
 
-        {/* Tab 2: NPV Breakdown */}
         <TabsContent value="npv">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="font-mono text-xs">Year (t)</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Cash Flow (CF)</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Discount Factor 1/(1+r)^t</TableHead>
-                  <TableHead className="font-mono text-xs text-right">Present Value</TableHead>
+                  <TableHead className="font-mono text-xs">{t("form.year")} (t)</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("chart.cashFlow")} (CF)</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.discountFactor")} 1/(1+r)^t</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.presentValue")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -177,82 +138,53 @@ export default function CalculationDetails({
                 {rows.map((r) => (
                   <TableRow key={r.year}>
                     <TableCell className="font-mono text-sm">{r.year}</TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.netCashFlow, currency)}
-                    </TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.netCashFlow, currency)}</TableCell>
                     <TableCell className="font-mono text-sm text-right">{r.discountFactor.toFixed(4)}</TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.presentValue >= 0 ? "text-primary" : "text-destructive"}`}>
-                      {formatCurrency(r.presentValue, currency)}
-                    </TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.presentValue >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.presentValue, currency)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
               <TableFooter>
                 <TableRow>
-                  <TableCell colSpan={3} className="font-mono text-sm font-bold text-right">
-                    NPV = Σ PV =
-                  </TableCell>
-                  <TableCell className={`font-mono text-sm text-right font-bold ${npv >= 0 ? "text-primary" : "text-destructive"}`}>
-                    {formatCurrency(npv, currency)}
-                  </TableCell>
+                  <TableCell colSpan={3} className="font-mono text-sm font-bold text-right">NPV = Σ PV =</TableCell>
+                  <TableCell className={`font-mono text-sm text-right font-bold ${npv >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(npv, currency)}</TableCell>
                 </TableRow>
               </TableFooter>
             </Table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Discount rate (r) = {(discountRate * 100).toFixed(1)}%. Each future cash flow is divided by (1 + r)^t to find its present value.
+            {t("calc.discountNote")} (r = {(discountRate * 100).toFixed(1)}%)
           </p>
         </TabsContent>
 
-        {/* Tab 3: Formulas */}
         <TabsContent value="formulas">
           <div className="space-y-6">
             <div className="rounded-xl bg-secondary p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Net Present Value (NPV)</h3>
-              <p className="font-mono text-sm text-muted-foreground">
-                NPV = Σ (CF_t / (1 + r)^t) for t = 0 to n
-              </p>
+              <h3 className="text-sm font-semibold text-foreground">{t("calc.npvFormula")}</h3>
+              <p className="font-mono text-sm text-muted-foreground">NPV = Σ (CF_t / (1 + r)^t) for t = 0 to n</p>
               <p className="text-xs text-muted-foreground">
-                Where CF_t = cash flow at time t, r = discount rate ({(discountRate * 100).toFixed(1)}%), n = {yearlyData.length} years.
-                A positive NPV means the project earns more than the discount rate.
+                r = {(discountRate * 100).toFixed(1)}%, n = {yearlyData.length}. {t("calc.npvDesc")}
               </p>
-              <p className="font-mono text-sm text-primary font-bold">
-                Result: {formatCurrency(npv, currency)}
-              </p>
+              <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(npv, currency)}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Internal Rate of Return (IRR)</h3>
-              <p className="font-mono text-sm text-muted-foreground">
-                Find r such that: Σ (CF_t / (1 + r)^t) = 0
-              </p>
-              <p className="text-xs text-muted-foreground">
-                IRR is the discount rate that makes NPV exactly zero. Solved iteratively using the Newton-Raphson method.
-                If IRR {">"} discount rate, the project adds value.
-              </p>
-              <p className="font-mono text-sm text-primary font-bold">
-                Result: {irr !== null ? formatPercent(irr) : "Could not converge"}
-              </p>
+              <h3 className="text-sm font-semibold text-foreground">{t("calc.irrFormula")}</h3>
+              <p className="font-mono text-sm text-muted-foreground">Find r such that: Σ (CF_t / (1 + r)^t) = 0</p>
+              <p className="text-xs text-muted-foreground">{t("calc.irrDesc")} {t("calc.irrAbove")}</p>
+              <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {irr !== null ? formatPercent(irr) : t("calc.couldNotConverge")}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Net Cash Flow per Year</h3>
-              <p className="font-mono text-sm text-muted-foreground">
-                Net CF = (Income − Expenses) × (1 − Tax Rate)
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Tax rate: {(taxRate * 100).toFixed(0)}%. Tax is only applied when pre-tax profit is positive (no tax on losses).
-              </p>
+              <h3 className="text-sm font-semibold text-foreground">{t("calc.netCFFormula")}</h3>
+              <p className="font-mono text-sm text-muted-foreground">Net CF = (Income − Expenses) × (1 − Tax Rate)</p>
+              <p className="text-xs text-muted-foreground">{t("calc.tax")}: {(taxRate * 100).toFixed(0)}%. {t("calc.netCFDesc")}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Return on Investment (ROI)</h3>
-              <p className="font-mono text-sm text-muted-foreground">
-                ROI = (Total Net Return − Investment) / Investment
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Simple measure of profitability as a percentage of the initial investment. Does not account for the time value of money.
-              </p>
+              <h3 className="text-sm font-semibold text-foreground">{t("calc.roiFormula")}</h3>
+              <p className="font-mono text-sm text-muted-foreground">ROI = (Total Net Return − Investment) / Investment</p>
+              <p className="text-xs text-muted-foreground">{t("calc.roiDesc")}</p>
             </div>
           </div>
         </TabsContent>

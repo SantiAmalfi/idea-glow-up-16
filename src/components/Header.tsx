@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Globe } from "lucide-react";
+import { useI18n, LANGUAGE_CONFIG, type Language } from "@/lib/i18n";
 
 export default function Header() {
+  const { language, setLanguage, t } = useI18n();
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -10 }}
@@ -20,14 +23,31 @@ export default function Header() {
             Pro
           </span>
         </div>
-        <nav className="flex items-center gap-1 text-sm">
+        <div className="flex items-center gap-1 text-sm">
           <a href="#analyzer" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-            Analyzer
+            {t("nav.analyzer")}
           </a>
           <a href="#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-            Features
+            {t("nav.features")}
           </a>
-        </nav>
+          <div className="ml-2 h-5 w-px bg-border" />
+          <div className="ml-1 flex items-center gap-0.5">
+            <Globe className="h-3.5 w-3.5 text-muted-foreground mr-1" />
+            {(Object.keys(LANGUAGE_CONFIG) as Language[]).map((lang) => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                  language === lang
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                }`}
+              >
+                {LANGUAGE_CONFIG[lang].flag}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </motion.header>
   );

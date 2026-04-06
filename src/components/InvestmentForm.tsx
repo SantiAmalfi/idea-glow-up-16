@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { DollarSign, Calendar, Percent, Coins } from "lucide-react";
+import { DollarSign, Calendar, Percent } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { type Currency, CURRENCY_CONFIG } from "@/lib/finance";
+import { useI18n } from "@/lib/i18n";
 
 export type Scenario = "optimistic" | "base" | "pessimistic";
 
@@ -28,14 +29,14 @@ interface InvestmentFormProps {
   }) => void;
 }
 
-const scenarios: { value: Scenario; label: string; description: string; color: string; incomeMultiplier: number; expenseRatio: number }[] = [
-  { value: "optimistic", label: "Optimistic", description: "High growth, strong margins", color: "text-primary border-primary bg-primary/10", incomeMultiplier: 0.45, expenseRatio: 0.25 },
-  { value: "base", label: "Base", description: "Moderate growth, typical costs", color: "text-chart-neutral border-chart-neutral bg-chart-neutral/10", incomeMultiplier: 0.25, expenseRatio: 0.40 },
-  { value: "pessimistic", label: "Pessimistic", description: "Slow growth, high costs", color: "text-destructive border-destructive bg-destructive/10", incomeMultiplier: 0.12, expenseRatio: 0.60 },
+const scenarioConfig = [
+  { value: "optimistic" as Scenario, color: "text-primary border-primary bg-primary/10", incomeMultiplier: 0.45, expenseRatio: 0.25 },
+  { value: "base" as Scenario, color: "text-chart-neutral border-chart-neutral bg-chart-neutral/10", incomeMultiplier: 0.25, expenseRatio: 0.40 },
+  { value: "pessimistic" as Scenario, color: "text-destructive border-destructive bg-destructive/10", incomeMultiplier: 0.12, expenseRatio: 0.60 },
 ];
 
 function generateEstimates(investment: number, years: number, scenario: Scenario): { income: string; expenses: string }[] {
-  const s = scenarios.find((sc) => sc.value === scenario)!;
+  const s = scenarioConfig.find((sc) => sc.value === scenario)!;
   const data: { income: string; expenses: string }[] = [];
   for (let i = 1; i <= years; i++) {
     const rampUp = 0.5 + 0.5 * (i / years);
@@ -47,6 +48,7 @@ function generateEstimates(investment: number, years: number, scenario: Scenario
 }
 
 export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
+  const { t } = useI18n();
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [currency, setCurrency] = useState<Currency>("USD");
@@ -59,7 +61,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
 
   const numYears = Math.max(1, Math.min(30, Number(years) || 1));
 
-  // Re-generate estimates when scenario, investment, or years change
   useEffect(() => {
     const inv = Number(investment) || 100000;
     setYearlyData(generateEstimates(inv, numYears, scenario));
@@ -91,6 +92,19 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
     });
   };
 
+  const scenarioLabels: Record<Scenario, { label: string; desc: string }> = {
+    optimistic: { label: t("form.optimistic"), desc: t("form.optimisticDesc") },
+    base: { label: t("form.base"), desc: t("form.baseDesc") },
+    pessimistic: { label: t("form.pessimistic"), desc: t("form.pessimisticDesc") },
+  };
+
+  const fields = [
+    { label: t("form.investment"), value: investment, set: setInvestment, icon: DollarSign, placeholder: "100000", min: 0 },
+    { label: t("form.years"), value: years, set: setYears, icon: Calendar, placeholder: "5", min: 1 },
+    { label: t("form.discountRate"), value: discountRate, set: setDiscountRate, icon: Percent, placeholder: "10", min: 0 },
+    { label: t("form.taxRate"), value: taxRate, set: setTaxRate, icon: Percent, placeholder: "25", min: 0 },
+  ];
+
   return (
     <motion.form
       onSubmit={handleSubmit}
@@ -100,29 +114,27 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-6"
     >
       <div>
-        <h2 className="text-xl font-semibold text-foreground">Project Parameters</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Pick a scenario to auto-estimate income & expenses, then fine-tune as needed
-        </p>
+        <h2 className="text-xl font-semibold text-foreground">{t("form.title")}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{t("form.subtitle")}</p>
       </div>
 
       {/* Project Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
-            Project Name
+            {t("form.projectName")}
           </Label>
           <Input
             type="text"
             value={projectName}
             onChange={(e) => setProjectName(e.target.value)}
             className="bg-secondary border-border text-foreground h-12"
-            placeholder="e.g. New Factory Expansion"
+            placeholder={t("form.projectNamePlaceholder")}
           />
         </div>
         <div>
           <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
-            Currency
+            {t("form.currency")}
           </Label>
           <div className="grid grid-cols-5 gap-2">
             {(Object.keys(CURRENCY_CONFIG) as Currency[]).map((c) => (
@@ -144,25 +156,20 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       </div>
       <div>
         <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
-          Project Description
+          {t("form.description")}
         </Label>
         <Textarea
           value={projectDescription}
           onChange={(e) => setProjectDescription(e.target.value)}
           className="bg-secondary border-border text-foreground min-h-[60px]"
-          placeholder="Brief description of the investment project..."
+          placeholder={t("form.descriptionPlaceholder")}
           rows={2}
         />
       </div>
 
       {/* Top-level inputs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {[
-          { label: "Initial Investment", value: investment, set: setInvestment, icon: DollarSign, placeholder: "100000", min: 0 },
-          { label: "Timeline (Years)", value: years, set: setYears, icon: Calendar, placeholder: "5", min: 1 },
-          { label: "Discount Rate (%)", value: discountRate, set: setDiscountRate, icon: Percent, placeholder: "10", min: 0 },
-          { label: "Tax Rate (%)", value: taxRate, set: setTaxRate, icon: Percent, placeholder: "25", min: 0 },
-        ].map((f, i) => (
+        {fields.map((f, i) => (
           <motion.div
             key={f.label}
             initial={{ opacity: 0, y: 10 }}
@@ -191,10 +198,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       {/* Scenario picker */}
       <div>
         <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-3 block">
-          Growth Scenario
+          {t("form.scenario")}
         </Label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {scenarios.map((s) => (
+          {scenarioConfig.map((s) => (
             <button
               key={s.value}
               type="button"
@@ -205,8 +212,8 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                   : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
               }`}
             >
-              <span className="font-semibold text-sm block">{s.label}</span>
-              <span className="text-xs opacity-75 mt-0.5 block">{s.description}</span>
+              <span className="font-semibold text-sm block">{scenarioLabels[s.value].label}</span>
+              <span className="text-xs opacity-75 mt-0.5 block">{scenarioLabels[s.value].desc}</span>
             </button>
           ))}
         </div>
@@ -216,17 +223,17 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       <div>
         <div className="flex items-center justify-between mb-3">
           <Label className="text-muted-foreground text-xs uppercase tracking-wider">
-            Estimated Yearly Income & Expenses
+            {t("form.yearlyTitle")}
           </Label>
-          <span className="text-xs text-muted-foreground italic">Edit any value to customize</span>
+          <span className="text-xs text-muted-foreground italic">{t("form.yearlyHint")}</span>
         </div>
 
         <div className="space-y-2">
           <div className="grid grid-cols-[70px_1fr_1fr_120px] gap-3 text-xs text-muted-foreground uppercase tracking-wider px-1">
-            <span>Year</span>
-            <span>Income</span>
-            <span>Expenses</span>
-            <span className="text-right">Net (pre-tax)</span>
+            <span>{t("form.year")}</span>
+            <span>{t("form.income")}</span>
+            <span>{t("form.expenses")}</span>
+            <span className="text-right">{t("form.netPreTax")}</span>
           </div>
 
           {yearlyData.map((y, i) => {
@@ -280,7 +287,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         type="submit"
         className="w-full h-12 bg-primary text-primary-foreground font-semibold text-base hover:brightness-110 transition-all"
       >
-        Analyze Investment
+        {t("form.analyze")}
       </Button>
     </motion.form>
   );

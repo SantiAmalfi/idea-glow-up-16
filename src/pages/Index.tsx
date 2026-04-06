@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
 import { exportToExcel } from "@/lib/exportExcel";
+import { useI18n } from "@/lib/i18n";
 
 interface AnalysisResult {
   projectName: string;
@@ -33,6 +34,7 @@ interface AnalysisResult {
 
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const { t } = useI18n();
 
   const handleAnalyze = (data: {
     projectName: string;
@@ -76,7 +78,6 @@ export default function Index() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Gradient orbs */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
 
@@ -88,22 +89,21 @@ export default function Index() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-6">
               <Sparkles className="h-3 w-3" />
-              Free · No Sign-Up Required
+              {t("hero.badge")}
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight leading-[1.1]">
-              Make smarter
+              {t("hero.title1")}
               <br />
-              <span className="text-primary">investment decisions</span>
+              <span className="text-primary">{t("hero.title2")}</span>
             </h1>
             <p className="text-muted-foreground mt-5 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
-              Calculate NPV, IRR, and ROI in seconds. Model scenarios, compare currencies, and export professional reports.
+              {t("hero.subtitle")}
             </p>
 
-            {/* Trust badges */}
             <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                5 Currencies
+                {t("hero.currencies")}
               </span>
               <span className="h-3 w-px bg-border" />
               <span className="flex items-center gap-1.5">
@@ -113,7 +113,7 @@ export default function Index() {
               <span className="h-3 w-px bg-border" />
               <span className="flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                3 Scenarios
+                {t("hero.scenarios")}
               </span>
             </div>
 
@@ -124,7 +124,7 @@ export default function Index() {
               transition={{ delay: 0.5 }}
               className="inline-flex items-center gap-2 mt-10 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all shadow-lg shadow-primary/20"
             >
-              Start Analyzing
+              {t("hero.cta")}
               <ArrowDown className="h-4 w-4" />
             </motion.a>
           </motion.div>
@@ -154,7 +154,7 @@ export default function Index() {
 
             <div className="flex items-center gap-2 mb-2">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground uppercase tracking-widest">Analysis Results</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">{t("results.title")}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -165,7 +165,7 @@ export default function Index() {
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
               >
                 <FileDown className="h-4 w-4" />
-                Download PDF
+                {t("results.downloadPdf")}
               </Button>
               <Button
                 onClick={() => exportToExcel(result)}
@@ -173,7 +173,7 @@ export default function Index() {
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
               >
                 <FileSpreadsheet className="h-4 w-4" />
-                Download Excel
+                {t("results.downloadExcel")}
               </Button>
             </div>
 
@@ -212,9 +212,7 @@ export default function Index() {
               }`}
             >
               <p className={`text-lg font-semibold ${result.npv >= 0 ? "text-primary" : "text-destructive"}`}>
-                {result.npv >= 0
-                  ? "✅ This investment looks promising — positive NPV indicates value creation."
-                  : "⚠️ This investment may not be viable — negative NPV suggests value loss."}
+                {result.npv >= 0 ? t("results.positive") : t("results.negative")}
               </p>
             </motion.div>
           </motion.div>

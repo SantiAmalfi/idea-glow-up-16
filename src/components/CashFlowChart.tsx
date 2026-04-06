@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 import { formatCurrency, type Currency } from "@/lib/finance";
+import { useI18n } from "@/lib/i18n";
 
 interface CashFlowChartProps {
   cashFlows: number[];
@@ -8,8 +9,10 @@ interface CashFlowChartProps {
 }
 
 export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProps) {
+  const { t } = useI18n();
+
   const data = cashFlows.map((cf, i) => ({
-    year: i === 0 ? "Initial" : `Year ${i}`,
+    year: i === 0 ? t("chart.initial") : `${t("chart.yearLabel")} ${i}`,
     value: cf,
   }));
 
@@ -20,8 +23,8 @@ export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProp
       transition={{ delay: 0.3, duration: 0.5 }}
       className="rounded-2xl border border-border bg-card p-6 md:p-8"
     >
-      <h2 className="text-xl font-semibold text-foreground mb-1">Cash Flow Timeline</h2>
-      <p className="text-sm text-muted-foreground mb-6">Projected cash flows over the investment period</p>
+      <h2 className="text-xl font-semibold text-foreground mb-1">{t("chart.title")}</h2>
+      <p className="text-sm text-muted-foreground mb-6">{t("chart.subtitle")}</p>
 
       <div className="h-64 md:h-80">
         <ResponsiveContainer width="100%" height="100%">
@@ -46,7 +49,7 @@ export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProp
                 color: "hsl(210 40% 96%)",
                 fontFamily: "JetBrains Mono",
               }}
-              formatter={(value: number) => [formatCurrency(value, currency), "Cash Flow"]}
+              formatter={(value: number) => [formatCurrency(value, currency), t("chart.cashFlow")]}
             />
             <ReferenceLine y={0} stroke="hsl(220 25% 18%)" />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
