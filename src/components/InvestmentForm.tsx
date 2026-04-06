@@ -136,7 +136,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [projectName, setProjectName] = useState("");
   const [projectDescription, setProjectDescription] = useState("");
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [currencyOpen, setCurrencyOpen] = useState(false);
   const [investment, setInvestment] = useState("100000");
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
@@ -239,8 +238,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   };
 
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
-
-  const currencyEntries = useMemo(() => Object.keys(CURRENCY_CONFIG) as Currency[], []);
 
   return (
     <motion.form
