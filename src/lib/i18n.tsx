@@ -292,6 +292,26 @@ const translations = {
   "results.depreciationDesc": { en: "Straight-line on {asset}", es: "Línea recta sobre {asset}", pt: "Linha reta sobre {asset}" },
   "results.totalTaxShield": { en: "Total Tax Shield", es: "Escudo fiscal total", pt: "Escudo fiscal total" },
   "results.totalTaxShieldDesc": { en: "Tax savings from depreciation", es: "Ahorro fiscal por depreciación", pt: "Economia fiscal por depreciação" },
+
+  // Inflation
+  "form.inflationToggle": { en: "Include inflation projection?", es: "¿Incluir proyección de inflación?", pt: "Incluir projeção de inflação?" },
+  "form.inflationDesc": {
+    en: "Apply an annual inflation rate that increases costs over time.",
+    es: "Aplica una tasa de inflación anual que incrementa los costos con el tiempo.",
+    pt: "Aplica uma taxa de inflação anual que aumenta os custos ao longo do tempo.",
+  },
+  "form.inflationRate": { en: "Annual Inflation (%)", es: "Inflación anual (%)", pt: "Inflação anual (%)" },
+
+  // Editable growth rates
+  "form.customRates": { en: "Custom Growth Rates", es: "Tasas de crecimiento personalizadas", pt: "Taxas de crescimento personalizadas" },
+  "form.customRatesDesc": {
+    en: "Fine-tune the growth percentages for the selected scenario.",
+    es: "Ajusta los porcentajes de crecimiento del escenario seleccionado.",
+    pt: "Ajuste as porcentagens de crescimento do cenário selecionado.",
+  },
+  "form.incomeGrowth": { en: "Income Growth (%/yr)", es: "Crecimiento ingresos (%/año)", pt: "Crescimento receita (%/ano)" },
+  "form.fixedCostGrowth": { en: "Fixed Cost Growth (%/yr)", es: "Crecimiento costos fijos (%/año)", pt: "Crescimento custos fixos (%/ano)" },
+  "form.variableUnitsGrowth": { en: "Variable Units Growth (%/yr)", es: "Crecimiento unidades var. (%/año)", pt: "Crescimento unidades var. (%/ano)" },
 } as const;
 
 type TranslationKey = keyof typeof translations;

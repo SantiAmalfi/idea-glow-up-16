@@ -62,10 +62,10 @@ interface InvestmentFormProps {
 }
 
 /* ── Scenario growth rates ── */
-const SCENARIO_RATES = {
-  optimistic: { incomeGrowth: 0.15, fixedCostGrowth: 0.03, variableUnitsGrowth: 0.10 },
-  base:       { incomeGrowth: 0.05, fixedCostGrowth: 0.05, variableUnitsGrowth: 0.03 },
-  pessimistic:{ incomeGrowth: -0.05, fixedCostGrowth: 0.08, variableUnitsGrowth: -0.05 },
+const DEFAULT_SCENARIO_RATES = {
+  optimistic: { incomeGrowth: 15, fixedCostGrowth: 3, variableUnitsGrowth: 10 },
+  base:       { incomeGrowth: 5, fixedCostGrowth: 5, variableUnitsGrowth: 3 },
+  pessimistic:{ incomeGrowth: -5, fixedCostGrowth: 8, variableUnitsGrowth: -5 },
 };
 
 /* ── Helpers ── */
@@ -145,6 +145,13 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   // Scenario
   const [scenario, setScenario] = useState<Scenario>("base");
 
+  // Editable growth rates (stored as percentages, e.g. 15 = 15%)
+  const [customRates, setCustomRates] = useState({ ...DEFAULT_SCENARIO_RATES.base });
+
+  // Inflation
+  const [inflationEnabled, setInflationEnabled] = useState(false);
+  const [inflationRate, setInflationRate] = useState("5");
+
   // Projected data (editable override)
   const [projectedData, setProjectedData] = useState<{ income: string; expenses: string }[]>([]);
 
@@ -157,22 +164,30 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const year1Variable = variableCosts.reduce((s, it) => s + (Number(it.unitCost) || 0) * (Number(it.units) || 0), 0);
   const year1Expenses = year1Fixed + year1Variable;
 
-  // Project years 2..N whenever scenario, year1 data, or numYears change
+  // Sync custom rates when scenario changes
   useEffect(() => {
-    const rates = SCENARIO_RATES[scenario];
-    const projected: { income: string; expenses: string }[] = [];
+    setCustomRates({ ...DEFAULT_SCENARIO_RATES[scenario] });
+  }, [scenario]);
 
-    // Year 1 is from manual input
+  // Project years 2..N whenever rates, inflation, year1 data, or numYears change
+  useEffect(() => {
+    const incRate = customRates.incomeGrowth / 100;
+    const fixedRate = customRates.fixedCostGrowth / 100;
+    const varRate = customRates.variableUnitsGrowth / 100;
+    const infRate = inflationEnabled ? (Number(inflationRate) || 0) / 100 : 0;
+
+    const projected: { income: string; expenses: string }[] = [];
     projected.push({ income: String(year1Income), expenses: String(year1Expenses) });
 
     for (let yr = 2; yr <= numYears; yr++) {
-      const incGrowth = Math.pow(1 + rates.incomeGrowth, yr - 1);
-      const fixedGrowth = Math.pow(1 + rates.fixedCostGrowth, yr - 1);
-      const varUnitsGrowth = Math.pow(1 + rates.variableUnitsGrowth, yr - 1);
+      const incGrowth = Math.pow(1 + incRate, yr - 1);
+      const fixedGrowth = Math.pow(1 + fixedRate, yr - 1);
+      const varUnitsGrowth = Math.pow(1 + varRate, yr - 1);
+      const inflationFactor = Math.pow(1 + infRate, yr - 1);
 
       const projIncome = Math.round(year1Income * incGrowth);
-      const projFixed = Math.round(year1Fixed * fixedGrowth);
-      const projVariable = Math.round(year1Variable * varUnitsGrowth);
+      const projFixed = Math.round(year1Fixed * fixedGrowth * inflationFactor);
+      const projVariable = Math.round(year1Variable * varUnitsGrowth * inflationFactor);
 
       projected.push({
         income: String(projIncome),
@@ -180,7 +195,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       });
     }
     setProjectedData(projected);
-  }, [scenario, year1Income, year1Fixed, year1Variable, numYears]);
+  }, [customRates, inflationEnabled, inflationRate, year1Income, year1Fixed, year1Variable, numYears]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -514,10 +529,73 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
                   <span className="font-semibold text-sm">{cfg.label}</span>
                 </div>
                 <span className="text-xs opacity-75 block">{cfg.desc}</span>
-                <span className="text-[10px] opacity-60 block mt-1.5 font-mono leading-tight">{cfg.detail}</span>
               </button>
             );
           })}
+        </div>
+
+        {/* Editable growth rates */}
+        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-4">
+          <div>
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">{t("form.customRates")}</span>
+            <p className="text-xs text-muted-foreground">{t("form.customRatesDesc")}</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {([
+              { label: t("form.incomeGrowth"), key: "incomeGrowth" as const },
+              { label: t("form.fixedCostGrowth"), key: "fixedCostGrowth" as const },
+              { label: t("form.variableUnitsGrowth"), key: "variableUnitsGrowth" as const },
+            ]).map((field) => (
+              <div key={field.key}>
+                <Label className="text-muted-foreground text-xs mb-1.5 block">{field.label}</Label>
+                <div className="relative">
+                  <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    type="number"
+                    value={customRates[field.key]}
+                    onChange={(e) => setCustomRates(prev => ({ ...prev, [field.key]: Number(e.target.value) }))}
+                    className="pl-9 bg-secondary border-border font-mono text-foreground h-9 text-sm"
+                    step="0.5"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Inflation toggle */}
+        <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <div>
+                <Label className="text-sm font-semibold text-foreground block">{t("form.inflationToggle")}</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("form.inflationDesc")}</p>
+              </div>
+            </div>
+            <Switch checked={inflationEnabled} onCheckedChange={setInflationEnabled} />
+          </div>
+          <AnimatePresence>
+            {inflationEnabled && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                <div className="max-w-[200px]">
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5 block">{t("form.inflationRate")}</Label>
+                  <div className="relative">
+                    <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      type="number"
+                      value={inflationRate}
+                      onChange={(e) => setInflationRate(e.target.value)}
+                      className="pl-9 bg-secondary border-border font-mono text-foreground h-10"
+                      placeholder="5"
+                      step="0.5"
+                      min={0}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Projected summary table */}
