@@ -220,6 +220,27 @@ export default function CalculationDetails({
               <p className="font-mono text-sm text-muted-foreground">ROI = (Total Net Return − Investment) / Investment</p>
               <p className="text-xs text-muted-foreground">{t("calc.roiDesc")}</p>
             </div>
+
+            {depEnabled && (
+              <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 space-y-3">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  {t("calc.depreciationFormula")}
+                </h3>
+                <p className="font-mono text-sm text-muted-foreground">
+                  D = (Depreciable Value − Residual Value) / n = ({formatCurrency(depreciation!.depreciableValue, currency)} − {formatCurrency(residualValue, currency)}) / {yearlyData.length} = {formatCurrency(Math.round(annualDep), currency)}
+                </p>
+                <p className="font-mono text-sm text-muted-foreground">
+                  Tax Shield = D × t = {formatCurrency(Math.round(annualDep), currency)} × {(taxRate * 100).toFixed(0)}% = {formatCurrency(Math.round(annualDep * taxRate), currency)}/año
+                </p>
+                <p className="text-xs text-muted-foreground">{t("calc.depreciationFormulaDesc")}</p>
+                {residualValue > 0 && (
+                  <p className="font-mono text-sm text-primary font-bold">
+                    {t("calc.residualValue")} ({t("form.year")} {yearlyData.length}): +{formatCurrency(residualValue, currency)}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
