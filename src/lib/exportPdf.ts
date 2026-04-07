@@ -1,7 +1,40 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "./finance";
+import { formatPercent, type Currency, type DepreciationConfig, CURRENCY_CONFIG } from "./finance";
 import type { Language } from "./i18n";
+
+/**
+ * PDF-safe currency formatter that avoids Unicode symbols
+ * jsPDF's built-in Helvetica cannot render £, €, ₲, etc.
+ */
+function pdfCurrency(value: number, currency: Currency): string {
+  const cfg = CURRENCY_CONFIG[currency];
+  const num = new Intl.NumberFormat(cfg.locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+  // Use ASCII-safe prefix: currency code for non-ASCII symbols
+  const safeSymbol = /^[A-Za-z0-9$. /]+$/.test(cfg.symbol) ? cfg.symbol : currency;
+  return `${safeSymbol} ${sanitize(num)}`;
+}
+
+/**
+ * Replace Unicode chars that Helvetica can't render with ASCII equivalents
+ */
+function sanitize(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")      // Unicode minus → ASCII minus
+    .replace(/\u2013/g, "-")      // en-dash
+    .replace(/\u2014/g, "-")      // em-dash
+    .replace(/\u00A0/g, " ")      // non-breaking space
+    .replace(/\u202F/g, " ")      // narrow no-break space
+    .replace(/\u2009/g, " ")      // thin space
+    .replace(/\u00D7/g, "x")      // multiplication sign
+    .replace(/\u2264/g, "<=")     // ≤
+    .replace(/\u2265/g, ">=")     // ≥
+    .replace(/\u03A3/g, "Total")  // Σ → Total
+    .replace(/[^\x00-\xFF]/g, ""); // strip chars beyond Latin-1 (Helvetica supports Latin-1)
+}
 
 interface ExportData {
   projectName: string;
@@ -53,8 +86,8 @@ const labels: Record<string, Record<Language, string>> = {
   netCashFlow:    { en: "Net Cash Flow",           es: "Flujo neto",                  pt: "Fluxo líquido" },
   discountFactor: { en: "Discount Factor",         es: "Factor de descuento",         pt: "Fator de desconto" },
   presentValue:   { en: "Present Value",           es: "Valor presente",              pt: "Valor presente" },
-  conclusionPos:  { en: "Conclusion: Positive NPV — the investment creates value.", es: "Conclusión: VAN positivo — la inversión crea valor.", pt: "Conclusão: VPL positivo — o investimento cria valor." },
-  conclusionNeg:  { en: "Conclusion: Negative NPV — the investment may destroy value.", es: "Conclusión: VAN negativo — la inversión puede destruir valor.", pt: "Conclusão: VPL negativo — o investimento pode destruir valor." },
+  conclusionPos:  { en: "Conclusion: Positive NPV - the investment creates value.", es: "Conclusion: VAN positivo - la inversion crea valor.", pt: "Conclusao: VPL positivo - o investimento cria valor." },
+  conclusionNeg:  { en: "Conclusion: Negative NPV - the investment may destroy value.", es: "Conclusion: VAN negativo - la inversion puede destruir valor.", pt: "Conclusao: VPL negativo - o investimento pode destruir valor." },
   footer:         { en: "Investment Analyzer Report", es: "Reporte del Analizador de Inversiones", pt: "Relatório do Analisador de Investimentos" },
   page:           { en: "Page",                    es: "Página",                      pt: "Página" },
   of:             { en: "of",                      es: "de",                          pt: "de" },
@@ -117,7 +150,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   doc.setFont("helvetica", "bold");
   doc.setTextColor(255, 255, 255);
   doc.text(
-    `${data.npv >= 0 ? l("conclusionPos", lang) : l("conclusionNeg", lang)} (${formatCurrency(data.npv, c)})`,
+    `${data.npv >= 0 ? l("conclusionPos", lang) : l("conclusionNeg", lang)} (${pdfCurrency(data.npv, c)})`,
     margin + 4, y + 8, { maxWidth: pageW - 2 * margin - 8 }
   );
   y += 18;
@@ -130,7 +163,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y += 4;
 
   const paramRows: string[][] = [
-    [l("initialInv", lang), formatCurrency(data.investment, c)],
+    [l("initialInv", lang), pdfCurrency(data.investment, c)],
     [l("discountRate", lang), discPct],
     [l("taxRate", lang), taxPct],
     [`${l("year", lang)}s`, `${nYears}`],
@@ -138,11 +171,11 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
 
   if (hasDep) {
     paramRows.push(
-      [l("depAsset", lang), data.depreciation!.assetName || "—"],
-      [l("depValue", lang), formatCurrency(data.depreciation!.depreciableValue, c)],
-      [l("depResidual", lang), formatCurrency(data.depreciation!.residualValue, c)],
-      [l("depAnnual", lang), `${formatCurrency(annualDep, c)} (${l("depMethod", lang)})`],
-      [l("depTaxShield", lang), `${formatCurrency(taxShieldPerYear, c)} (${formatCurrency(annualDep, c)} × ${taxPct})`],
+      [l("depAsset", lang), data.depreciation!.assetName || "-"],
+      [l("depValue", lang), pdfCurrency(data.depreciation!.depreciableValue, c)],
+      [l("depResidual", lang), pdfCurrency(data.depreciation!.residualValue, c)],
+      [l("depAnnual", lang), `${pdfCurrency(annualDep, c)} (${l("depMethod", lang)})`],
+      [l("depTaxShield", lang), `${pdfCurrency(taxShieldPerYear, c)} (${pdfCurrency(annualDep, c)} x ${taxPct})`],
     );
   } else {
     paramRows.push([l("depreciation", lang), l("noDepreciation", lang)]);
@@ -168,12 +201,12 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y += 4;
 
   const metrics: string[][] = [
-    [l("npv", lang), formatCurrency(data.npv, c)],
+    [l("npv", lang), pdfCurrency(data.npv, c)],
     [l("irr", lang), data.irr !== null ? formatPercent(data.irr) : "N/A"],
     [l("roi", lang), formatPercent(data.roi)],
-    [l("totalReturn", lang), formatCurrency(data.totalReturn, c)],
+    [l("totalReturn", lang), pdfCurrency(data.totalReturn, c)],
     [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1)} ${l("years", lang)}` : l("never", lang)],
-    [l("totalTax", lang), formatCurrency(data.totalTax, c)],
+    [l("totalTax", lang), pdfCurrency(data.totalTax, c)],
   ];
 
   autoTable(doc, {
@@ -206,13 +239,13 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
 
   if (hasDep) {
     cfBody.push([
-      `0 (${l("initial", lang)})`, "—", "—", "—", "—", "—", "—",
-      formatCurrency(-data.investment, c), formatCurrency(cumulative, c),
+      `0 (${l("initial", lang)})`, "-", "-", "-", "-", "-", "-",
+      pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c),
     ]);
   } else {
     cfBody.push([
-      `0 (${l("initial", lang)})`, "—", "—", "—",
-      "—", formatCurrency(-data.investment, c), formatCurrency(cumulative, c),
+      `0 (${l("initial", lang)})`, "-", "-", "-",
+      "-", pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c),
     ]);
   }
 
@@ -229,24 +262,24 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     if (hasDep) {
       cfBody.push([
         `${l("year", lang)} ${i + 1}`,
-        formatCurrency(yr.income, c),
-        formatCurrency(yr.expenses, c),
-        formatCurrency(preTax, c),
-        formatCurrency(annualDep, c),
-        formatCurrency(taxableIncome, c),
-        `${formatCurrency(tax, c)} (${taxPct})`,
-        formatCurrency(finalNet, c) + (residualAdd > 0 ? ` +${formatCurrency(residualAdd, c)} res.` : ""),
-        formatCurrency(cumulative, c),
+        pdfCurrency(yr.income, c),
+        pdfCurrency(yr.expenses, c),
+        pdfCurrency(preTax, c),
+        pdfCurrency(annualDep, c),
+        pdfCurrency(taxableIncome, c),
+        `${pdfCurrency(tax, c)} (${taxPct})`,
+        pdfCurrency(finalNet, c) + (residualAdd > 0 ? ` +${pdfCurrency(residualAdd, c)} res.` : ""),
+        pdfCurrency(cumulative, c),
       ]);
     } else {
       cfBody.push([
         `${l("year", lang)} ${i + 1}`,
-        formatCurrency(yr.income, c),
-        formatCurrency(yr.expenses, c),
-        formatCurrency(preTax, c),
-        `${formatCurrency(tax, c)} (${taxPct})`,
-        formatCurrency(finalNet, c),
-        formatCurrency(cumulative, c),
+        pdfCurrency(yr.income, c),
+        pdfCurrency(yr.expenses, c),
+        pdfCurrency(preTax, c),
+        `${pdfCurrency(tax, c)} (${taxPct})`,
+        pdfCurrency(finalNet, c),
+        pdfCurrency(cumulative, c),
       ]);
     }
   });
@@ -288,7 +321,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y += 4;
 
   const npvBody: string[][] = [];
-  npvBody.push(["0", formatCurrency(-data.investment, c), "1.0000", formatCurrency(-data.investment, c)]);
+  npvBody.push(["0", pdfCurrency(-data.investment, c), "1.0000", pdfCurrency(-data.investment, c)]);
 
   let npvRunning = -data.investment;
   data.yearlyData.forEach((yr, i) => {
@@ -304,13 +337,13 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     npvRunning += pv;
     npvBody.push([
       `${i + 1}`,
-      formatCurrency(finalNet, c),
+      pdfCurrency(finalNet, c),
       df.toFixed(4),
-      formatCurrency(pv, c),
+      pdfCurrency(pv, c),
     ]);
   });
 
-  npvBody.push(["Σ", "", "", formatCurrency(npvRunning, c)]);
+  npvBody.push(["Total", "", "", pdfCurrency(npvRunning, c)]);
 
   autoTable(doc, {
     startY: y,
