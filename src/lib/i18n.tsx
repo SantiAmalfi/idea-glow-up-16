@@ -209,6 +209,40 @@ const translations = {
     es: "Herramienta profesional de análisis de inversión. Todos los cálculos son con fines informativos.",
     pt: "Ferramenta profissional de análise de investimento. Todos os cálculos são apenas informativos.",
   },
+
+  // Depreciation
+  "form.depreciation": { en: "Depreciation / Amortization", es: "Depreciación / Amortización", pt: "Depreciação / Amortização" },
+  "form.depreciationToggle": { en: "Consider depreciation?", es: "¿Considerar depreciación?", pt: "Considerar depreciação?" },
+  "form.depreciationDesc": {
+    en: "Depreciation creates a tax shield that reduces your tax burden without being an actual cash outflow.",
+    es: "La depreciación genera un escudo fiscal que reduce la carga impositiva sin ser una salida real de efectivo.",
+    pt: "A depreciação cria um escudo fiscal que reduz a carga tributária sem ser uma saída real de caixa.",
+  },
+  "form.assetName": { en: "Asset Name", es: "Nombre del activo", pt: "Nome do ativo" },
+  "form.assetNamePlaceholder": { en: "e.g. Industrial Machinery", es: "ej. Maquinaria industrial", pt: "ex. Maquinário industrial" },
+  "form.depreciableValue": { en: "Depreciable Value", es: "Valor depreciable", pt: "Valor depreciável" },
+  "form.residualValue": { en: "Residual Value", es: "Valor residual", pt: "Valor residual" },
+  "form.residualValueHint": {
+    en: "Estimated value at the end of useful life (added to last year's cash flow)",
+    es: "Valor estimado al final de la vida útil (se suma al flujo del último año)",
+    pt: "Valor estimado no final da vida útil (adicionado ao fluxo do último ano)",
+  },
+  "form.annualDepreciation": { en: "Annual Depreciation", es: "Depreciación anual", pt: "Depreciação anual" },
+  "form.taxShield": { en: "Tax Shield / year", es: "Escudo fiscal / año", pt: "Escudo fiscal / ano" },
+
+  "calc.depreciation": { en: "Depreciation", es: "Depreciación", pt: "Depreciação" },
+  "calc.taxShield": { en: "Tax Shield", es: "Escudo fiscal", pt: "Escudo fiscal" },
+  "calc.residualValue": { en: "Residual Value", es: "Valor residual", pt: "Valor residual" },
+  "calc.depreciationFormula": { en: "Depreciation (Straight-Line)", es: "Depreciación (Línea recta)", pt: "Depreciação (Linha reta)" },
+  "calc.depreciationFormulaDesc": {
+    en: "Annual Depreciation = (Depreciable Value − Residual Value) / Years. The tax shield = Depreciation × Tax Rate, which reduces actual taxes paid each year.",
+    es: "Depreciación anual = (Valor depreciable − Valor residual) / Años. El escudo fiscal = Depreciación × Tasa impositiva, que reduce los impuestos reales pagados cada año.",
+    pt: "Depreciação anual = (Valor depreciável − Valor residual) / Anos. O escudo fiscal = Depreciação × Taxa de impostos, que reduz os impostos reais pagos a cada ano.",
+  },
+  "results.depreciation": { en: "Annual Depreciation", es: "Depreciación anual", pt: "Depreciação anual" },
+  "results.depreciationDesc": { en: "Straight-line on {asset}", es: "Línea recta sobre {asset}", pt: "Linha reta sobre {asset}" },
+  "results.totalTaxShield": { en: "Total Tax Shield", es: "Escudo fiscal total", pt: "Escudo fiscal total" },
+  "results.totalTaxShieldDesc": { en: "Tax savings from depreciation", es: "Ahorro fiscal por depreciación", pt: "Economia fiscal por depreciação" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
