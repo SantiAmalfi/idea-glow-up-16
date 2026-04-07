@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Search } from "lucide-react";
+import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Search, Building2, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { type Currency, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
+import { Switch } from "@/components/ui/switch";
+import { type Currency, type DepreciationConfig, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,7 @@ interface InvestmentFormProps {
     taxRate: number;
     yearlyData: YearData[];
     scenario: Scenario;
+    depreciation: DepreciationConfig;
   }) => void;
 }
 
@@ -142,7 +144,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [taxRate, setTaxRate] = useState("25");
   const [scenario, setScenario] = useState<Scenario>("base");
   const [yearlyData, setYearlyData] = useState<YearFormData[]>([]);
-
+  const [depEnabled, setDepEnabled] = useState(false);
+  const [depAssetName, setDepAssetName] = useState("");
+  const [depValue, setDepValue] = useState("");
+  const [depResidual, setDepResidual] = useState("0");
   const numYears = Math.max(1, Math.min(30, Number(years) || 1));
 
   useEffect(() => {
@@ -228,6 +233,12 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         expenses: Number(y.expenses),
       })),
       scenario,
+      depreciation: {
+        enabled: depEnabled,
+        assetName: depAssetName,
+        depreciableValue: Number(depValue) || 0,
+        residualValue: Number(depResidual) || 0,
+      },
     });
   };
 
