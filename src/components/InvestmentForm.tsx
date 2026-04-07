@@ -62,10 +62,10 @@ interface InvestmentFormProps {
 }
 
 /* ── Scenario growth rates ── */
-const SCENARIO_RATES = {
-  optimistic: { incomeGrowth: 0.15, fixedCostGrowth: 0.03, variableUnitsGrowth: 0.10 },
-  base:       { incomeGrowth: 0.05, fixedCostGrowth: 0.05, variableUnitsGrowth: 0.03 },
-  pessimistic:{ incomeGrowth: -0.05, fixedCostGrowth: 0.08, variableUnitsGrowth: -0.05 },
+const DEFAULT_SCENARIO_RATES = {
+  optimistic: { incomeGrowth: 15, fixedCostGrowth: 3, variableUnitsGrowth: 10 },
+  base:       { incomeGrowth: 5, fixedCostGrowth: 5, variableUnitsGrowth: 3 },
+  pessimistic:{ incomeGrowth: -5, fixedCostGrowth: 8, variableUnitsGrowth: -5 },
 };
 
 /* ── Helpers ── */
