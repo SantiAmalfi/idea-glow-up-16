@@ -171,11 +171,11 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
 
   if (hasDep) {
     paramRows.push(
-      [l("depAsset", lang), data.depreciation!.assetName || "—"],
+      [l("depAsset", lang), data.depreciation!.assetName || "-"],
       [l("depValue", lang), pdfCurrency(data.depreciation!.depreciableValue, c)],
       [l("depResidual", lang), pdfCurrency(data.depreciation!.residualValue, c)],
       [l("depAnnual", lang), `${pdfCurrency(annualDep, c)} (${l("depMethod", lang)})`],
-      [l("depTaxShield", lang), `${pdfCurrency(taxShieldPerYear, c)} (${pdfCurrency(annualDep, c)} × ${taxPct})`],
+      [l("depTaxShield", lang), `${pdfCurrency(taxShieldPerYear, c)} (${pdfCurrency(annualDep, c)} x ${taxPct})`],
     );
   } else {
     paramRows.push([l("depreciation", lang), l("noDepreciation", lang)]);
@@ -239,13 +239,13 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
 
   if (hasDep) {
     cfBody.push([
-      `0 (${l("initial", lang)})`, "—", "—", "—", "—", "—", "—",
+      `0 (${l("initial", lang)})`, "-", "-", "-", "-", "-", "-",
       pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c),
     ]);
   } else {
     cfBody.push([
-      `0 (${l("initial", lang)})`, "—", "—", "—",
-      "—", pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c),
+      `0 (${l("initial", lang)})`, "-", "-", "-",
+      "-", pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c),
     ]);
   }
 
