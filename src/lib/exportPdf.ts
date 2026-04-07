@@ -33,7 +33,7 @@ function sanitize(text: string): string {
     .replace(/\u2264/g, "<=")     // ≤
     .replace(/\u2265/g, ">=")     // ≥
     .replace(/\u03A3/g, "Total")  // Σ → Total
-    .replace(/[^\x00-\x7F]/g, ""); // strip any remaining non-ASCII
+    .replace(/[^\x00-\xFF]/g, ""); // strip chars beyond Latin-1 (Helvetica supports Latin-1)
 }
 
 interface ExportData {
