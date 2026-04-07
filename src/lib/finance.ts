@@ -24,16 +24,37 @@ export interface YearInput {
   expenses: number;
 }
 
+export interface DepreciationConfig {
+  enabled: boolean;
+  assetName: string;
+  depreciableValue: number;
+  residualValue: number;
+}
+
 export function buildCashFlows(
   initialInvestment: number,
   yearlyData: YearInput[],
-  taxRate: number
+  taxRate: number,
+  depreciation?: DepreciationConfig
 ): number[] {
+  const years = yearlyData.length;
+  const annualDep = depreciation?.enabled
+    ? (depreciation.depreciableValue - depreciation.residualValue) / years
+    : 0;
+  const residual = depreciation?.enabled ? depreciation.residualValue : 0;
+
   const flows = [-initialInvestment];
-  for (const year of yearlyData) {
+  for (let i = 0; i < years; i++) {
+    const year = yearlyData[i];
     const preTax = year.income - year.expenses;
-    const tax = preTax > 0 ? preTax * taxRate : 0;
-    flows.push(Math.round(preTax - tax));
+    const taxableIncome = preTax - annualDep;
+    const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    let netCF = preTax - tax;
+    // Add residual value to last year
+    if (i === years - 1 && residual > 0) {
+      netCF += residual;
+    }
+    flows.push(Math.round(netCF));
   }
   return flows;
 }

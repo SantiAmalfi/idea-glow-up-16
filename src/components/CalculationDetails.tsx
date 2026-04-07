@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
+import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building2 } from "lucide-react";
 
 interface CalculationDetailsProps {
   investment: number;
@@ -15,20 +16,29 @@ interface CalculationDetailsProps {
   npv: number;
   irr: number | null;
   currency: Currency;
+  depreciation?: DepreciationConfig;
 }
 
 export default function CalculationDetails({
-  investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency,
+  investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency, depreciation,
 }: CalculationDetailsProps) {
   const { t } = useI18n();
 
+  const depEnabled = depreciation?.enabled ?? false;
+  const annualDep = depEnabled
+    ? (depreciation!.depreciableValue - depreciation!.residualValue) / yearlyData.length
+    : 0;
+  const residualValue = depEnabled ? depreciation!.residualValue : 0;
+
   const rows = yearlyData.map((y, i) => {
     const preTaxProfit = y.income - y.expenses;
-    const tax = preTaxProfit > 0 ? preTaxProfit * taxRate : 0;
-    const netCashFlow = preTaxProfit - tax;
+    const taxableIncome = preTaxProfit - annualDep;
+    const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const taxShield = depEnabled ? Math.max(0, Math.min(annualDep * taxRate, preTaxProfit > 0 ? preTaxProfit * taxRate : 0) > 0 ? annualDep * taxRate : 0) : 0;
+    const netCashFlow = preTaxProfit - tax + (i === yearlyData.length - 1 ? residualValue : 0);
     const discountFactor = 1 / Math.pow(1 + discountRate, i + 1);
     const presentValue = netCashFlow * discountFactor;
-    return { year: i + 1, income: y.income, expenses: y.expenses, preTaxProfit, tax, netCashFlow, discountFactor, presentValue };
+    return { year: i + 1, income: y.income, expenses: y.expenses, preTaxProfit, depreciation: annualDep, tax, taxShield: depEnabled ? annualDep * taxRate : 0, netCashFlow, discountFactor, presentValue, hasResidual: i === yearlyData.length - 1 && residualValue > 0 };
   });
 
   const totals = rows.reduce(
@@ -67,6 +77,16 @@ export default function CalculationDetails({
         </TabsList>
 
         <TabsContent value="cashflows">
+          {depEnabled && (
+            <div className="flex items-center gap-2 mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
+              <Building2 className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-muted-foreground">
+                {t("calc.depreciation")}: <span className="font-mono font-semibold text-foreground">{formatCurrency(Math.round(annualDep), currency)}</span>/año
+                {depreciation?.assetName && <> — {depreciation.assetName}</>}
+                {residualValue > 0 && <> · {t("calc.residualValue")}: <span className="font-mono font-semibold text-foreground">{formatCurrency(residualValue, currency)}</span></>}
+              </span>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -75,6 +95,8 @@ export default function CalculationDetails({
                   <TableHead className="font-mono text-xs text-right">{t("form.income")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("form.expenses")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.preTax")}</TableHead>
+                  {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.depreciation")}</TableHead>}
+                  {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.taxShield")}</TableHead>}
                   <TableHead className="font-mono text-xs text-right">{t("calc.tax")} ({(taxRate * 100).toFixed(0)}%)</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.netCF")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.cumulative")}</TableHead>
@@ -86,6 +108,8 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
+                  {depEnabled && <TableCell className="font-mono text-sm text-right">—</TableCell>}
+                  {depEnabled && <TableCell className="font-mono text-sm text-right">—</TableCell>}
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
@@ -96,8 +120,13 @@ export default function CalculationDetails({
                     <TableCell className="font-mono text-sm text-right">{formatCurrency(r.income, currency)}</TableCell>
                     <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(r.expenses, currency)}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.preTaxProfit, currency)}</TableCell>
+                    {depEnabled && <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(Math.round(r.depreciation), currency)}</TableCell>}
+                    {depEnabled && <TableCell className="font-mono text-sm text-right text-primary">{formatCurrency(Math.round(r.taxShield), currency)}</TableCell>}
                     <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(r.tax, currency)}</TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.netCashFlow, currency)}</TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
+                      {formatCurrency(r.netCashFlow, currency)}
+                      {r.hasResidual && <span className="text-xs text-muted-foreground ml-1">*</span>}
+                    </TableCell>
                     <TableCell className={`font-mono text-sm text-right ${cumulativeRows[i].cumulative >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(cumulativeRows[i].cumulative, currency)}</TableCell>
                   </TableRow>
                 ))}
@@ -108,6 +137,8 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.income, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.expenses, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit, currency)}</TableCell>
+                  {depEnabled && <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(Math.round(annualDep * yearlyData.length), currency)}</TableCell>}
+                  {depEnabled && <TableCell className="font-mono text-sm text-right font-bold text-primary">{formatCurrency(Math.round(rows.reduce((s, r) => s + r.taxShield, 0)), currency)}</TableCell>}
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.tax, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.netCashFlow, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(cumulative, currency)}</TableCell>
@@ -115,6 +146,9 @@ export default function CalculationDetails({
               </TableFooter>
             </Table>
           </div>
+          {depEnabled && residualValue > 0 && (
+            <p className="text-xs text-muted-foreground mt-2">* {t("form.residualValueHint")}</p>
+          )}
         </TabsContent>
 
         <TabsContent value="npv">
@@ -186,6 +220,27 @@ export default function CalculationDetails({
               <p className="font-mono text-sm text-muted-foreground">ROI = (Total Net Return − Investment) / Investment</p>
               <p className="text-xs text-muted-foreground">{t("calc.roiDesc")}</p>
             </div>
+
+            {depEnabled && (
+              <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 space-y-3">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  {t("calc.depreciationFormula")}
+                </h3>
+                <p className="font-mono text-sm text-muted-foreground">
+                  D = (Depreciable Value − Residual Value) / n = ({formatCurrency(depreciation!.depreciableValue, currency)} − {formatCurrency(residualValue, currency)}) / {yearlyData.length} = {formatCurrency(Math.round(annualDep), currency)}
+                </p>
+                <p className="font-mono text-sm text-muted-foreground">
+                  Tax Shield = D × t = {formatCurrency(Math.round(annualDep), currency)} × {(taxRate * 100).toFixed(0)}% = {formatCurrency(Math.round(annualDep * taxRate), currency)}/año
+                </p>
+                <p className="text-xs text-muted-foreground">{t("calc.depreciationFormulaDesc")}</p>
+                {residualValue > 0 && (
+                  <p className="font-mono text-sm text-primary font-bold">
+                    {t("calc.residualValue")} ({t("form.year")} {yearlyData.length}): +{formatCurrency(residualValue, currency)}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

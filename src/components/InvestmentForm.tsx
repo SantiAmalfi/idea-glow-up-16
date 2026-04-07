@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Search } from "lucide-react";
+import { DollarSign, Calendar, Percent, ChevronDown, Plus, Trash2, Search, Building2, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { type Currency, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
+import { Switch } from "@/components/ui/switch";
+import { type Currency, type DepreciationConfig, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,7 @@ interface InvestmentFormProps {
     taxRate: number;
     yearlyData: YearData[];
     scenario: Scenario;
+    depreciation: DepreciationConfig;
   }) => void;
 }
 
@@ -142,7 +144,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [taxRate, setTaxRate] = useState("25");
   const [scenario, setScenario] = useState<Scenario>("base");
   const [yearlyData, setYearlyData] = useState<YearFormData[]>([]);
-
+  const [depEnabled, setDepEnabled] = useState(false);
+  const [depAssetName, setDepAssetName] = useState("");
+  const [depValue, setDepValue] = useState("");
+  const [depResidual, setDepResidual] = useState("0");
   const numYears = Math.max(1, Math.min(30, Number(years) || 1));
 
   useEffect(() => {
@@ -228,6 +233,12 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         expenses: Number(y.expenses),
       })),
       scenario,
+      depreciation: {
+        enabled: depEnabled,
+        assetName: depAssetName,
+        depreciableValue: Number(depValue) || 0,
+        residualValue: Number(depResidual) || 0,
+      },
     });
   };
 
@@ -336,6 +347,99 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Depreciation section */}
+      <div className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Building2 className="h-5 w-5 text-primary" />
+            <div>
+              <Label className="text-sm font-semibold text-foreground block">{t("form.depreciationToggle")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("form.depreciationDesc")}</p>
+            </div>
+          </div>
+          <Switch checked={depEnabled} onCheckedChange={setDepEnabled} />
+        </div>
+
+        <AnimatePresence>
+          {depEnabled && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-4 overflow-hidden"
+            >
+              <div>
+                <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+                  {t("form.assetName")}
+                </Label>
+                <Input
+                  type="text"
+                  value={depAssetName}
+                  onChange={(e) => setDepAssetName(e.target.value)}
+                  className="bg-secondary border-border text-foreground h-10"
+                  placeholder={t("form.assetNamePlaceholder")}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+                    {t("form.depreciableValue")}
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">{currencySymbol}</span>
+                    <FormattedNumberInput
+                      value={depValue}
+                      onChange={setDepValue}
+                      className="pl-10 bg-secondary border-border font-mono text-foreground h-10"
+                      placeholder="0"
+                      min={0}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block">
+                    {t("form.residualValue")}
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">{currencySymbol}</span>
+                    <FormattedNumberInput
+                      value={depResidual}
+                      onChange={setDepResidual}
+                      className="pl-10 bg-secondary border-border font-mono text-foreground h-10"
+                      placeholder="0"
+                      min={0}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
+                    <Info className="h-3 w-3 mt-0.5 shrink-0" />
+                    {t("form.residualValueHint")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Summary preview */}
+              {(Number(depValue) > 0) && (
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-muted-foreground block">{t("form.annualDepreciation")}</span>
+                    <span className="font-mono font-semibold text-foreground">
+                      {formatCurrency(Math.round((Number(depValue) - Number(depResidual || 0)) / numYears), currency)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block">{t("form.taxShield")}</span>
+                    <span className="font-mono font-semibold text-primary">
+                      {formatCurrency(Math.round(((Number(depValue) - Number(depResidual || 0)) / numYears) * (Number(taxRate) / 100)), currency)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Scenario picker */}
