@@ -35,7 +35,7 @@ interface AnalysisResult {
 
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const handleAnalyze = (data: {
     projectName: string;
@@ -168,7 +168,7 @@ export default function Index() {
 
             <div className="flex gap-3">
               <Button
-                onClick={() => exportToPdf(result)}
+                onClick={() => exportToPdf(result, language)}
                 variant="outline"
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
               >
@@ -176,7 +176,7 @@ export default function Index() {
                 {t("results.downloadPdf")}
               </Button>
               <Button
-                onClick={() => exportToExcel(result)}
+                onClick={() => exportToExcel(result, language)}
                 variant="outline"
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
               >
