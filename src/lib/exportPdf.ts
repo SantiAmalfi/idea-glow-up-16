@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "./finance";
 import type { Language } from "./i18n";
+import { drawCashFlowBarChart, drawCumulativeChart, drawIncomeExpensesChart } from "./pdfCharts";
 
 interface ExportData {
   projectName: string;
@@ -70,6 +71,10 @@ const labels: Record<string, Record<Language, string>> = {
   depTaxShield:   { en: "Tax Shield per Year",     es: "Escudo fiscal por año",       pt: "Escudo fiscal por ano" },
   depFormula:     { en: "Formula",                 es: "Fórmula",                     pt: "Fórmula" },
   noDepreciation: { en: "Depreciation not considered", es: "Depreciación no considerada", pt: "Depreciação não considerada" },
+  chartSection:   { en: "Visual Analysis",            es: "Análisis visual",             pt: "Análise visual" },
+  chartCF:        { en: "Net Cash Flow by Year",      es: "Flujo neto por año",          pt: "Fluxo líquido por ano" },
+  chartCum:       { en: "Cumulative Cash Flow & Payback", es: "Flujo acumulado y recuperación", pt: "Fluxo acumulado e retorno" },
+  chartIncExp:    { en: "Income vs Expenses by Year", es: "Ingresos vs Gastos por año",  pt: "Receita vs Despesas por ano" },
   taxableIncome:  { en: "Taxable Income",          es: "Ingreso imponible",           pt: "Renda tributável" },
   depreciation:   { en: "Depreciation",            es: "Depreciación",                pt: "Depreciação" },
   taxShield:      { en: "Tax Shield",              es: "Escudo fiscal",               pt: "Escudo fiscal" },
@@ -390,7 +395,57 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y = (doc as any).lastAutoTable.finalY + 10;
   if (y > 270) { doc.addPage(); y = 20; }
 
+  // ── Charts Page ──
+  doc.addPage();
+  y = 20;
+
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text(l("chartSection", lang), margin, y);
+  y += 10;
+
+  // Chart 1: Net Cash Flow bars
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.text(l("chartCF", lang), margin, y);
+  y += 4;
+  y = drawCashFlowBarChart(doc, data.cashFlows, c, y, margin, pageW, {
+    year: l("year", lang),
+    initial: l("initial", lang),
+  });
+
+  y += 4;
+
+  // Chart 2: Cumulative cash flow with payback marker
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text(l("chartCum", lang), margin, y);
+  y += 4;
+  y = drawCumulativeChart(doc, data.cashFlows, c, y, margin, pageW, data.paybackPeriod, {
+    year: l("year", lang),
+    initial: l("initial", lang),
+    payback: l("payback", lang),
+  });
+
+  y += 4;
+
+  // Chart 3: Income vs Expenses
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text(l("chartIncExp", lang), margin, y);
+  y += 4;
+  y = drawIncomeExpensesChart(doc, data.yearlyData, c, y, margin, pageW, {
+    income: l("income", lang),
+    expenses: l("expenses", lang),
+  });
+
+  y += 8;
+
   // ── Conclusion ──
+  if (y > 250) { doc.addPage(); y = 20; }
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(data.npv >= 0 ? 16 : 220, data.npv >= 0 ? 185 : 38, data.npv >= 0 ? 129 : 38);
