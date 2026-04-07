@@ -68,6 +68,55 @@ const translations = {
   "form.incomeDetails": { en: "Income breakdown", es: "Detalle de ingresos", pt: "Detalhamento de receitas" },
   "form.expenseDetails": { en: "Expense breakdown", es: "Detalle de gastos", pt: "Detalhamento de despesas" },
 
+  // Year 1 detail
+  "form.year1Income": { en: "Year 1 — Income Sources", es: "Año 1 — Fuentes de ingreso", pt: "Ano 1 — Fontes de receita" },
+  "form.year1IncomeDesc": {
+    en: "List each revenue stream for the first year. These will be projected for subsequent years based on the selected scenario.",
+    es: "Lista cada fuente de ingreso del primer año. Se proyectarán para los años siguientes según el escenario elegido.",
+    pt: "Liste cada fonte de receita do primeiro ano. Serão projetadas para os anos seguintes conforme o cenário escolhido.",
+  },
+  "form.year1Costs": { en: "Year 1 — Costs", es: "Año 1 — Costos", pt: "Ano 1 — Custos" },
+  "form.year1CostsDesc": {
+    en: "Separate fixed costs (rent, salaries, insurance) from variable costs (materials, commissions) that depend on volume.",
+    es: "Separa costos fijos (alquiler, sueldos, seguros) de costos variables (materiales, comisiones) que dependen del volumen.",
+    pt: "Separe custos fixos (aluguel, salários, seguros) de custos variáveis (materiais, comissões) que dependem do volume.",
+  },
+  "form.fixedCosts": { en: "Fixed Costs", es: "Costos fijos", pt: "Custos fixos" },
+  "form.variableCosts": { en: "Variable Costs", es: "Costos variables", pt: "Custos variáveis" },
+  "form.itemDescription": { en: "Description", es: "Descripción", pt: "Descrição" },
+  "form.unitCost": { en: "Unit cost", es: "Costo unitario", pt: "Custo unitário" },
+  "form.units": { en: "Units", es: "Unidades", pt: "Unidades" },
+  "form.subtotal": { en: "Subtotal", es: "Subtotal", pt: "Subtotal" },
+  "form.totalIncome": { en: "Total Income Year 1", es: "Total ingresos Año 1", pt: "Receita total Ano 1" },
+  "form.totalCosts": { en: "Total Costs Year 1", es: "Total costos Año 1", pt: "Custos totais Ano 1" },
+  "form.addIncome": { en: "Add income source", es: "Agregar fuente de ingreso", pt: "Adicionar fonte de receita" },
+  "form.addFixedCost": { en: "Add fixed cost", es: "Agregar costo fijo", pt: "Adicionar custo fixo" },
+  "form.addVariableCost": { en: "Add variable cost", es: "Agregar costo variable", pt: "Adicionar custo variável" },
+
+  // Scenario projection
+  "form.scenarioProjection": { en: "Scenario & Projection", es: "Escenario y proyección", pt: "Cenário e projeção" },
+  "form.scenarioProjectionDesc": {
+    en: "Choose a scenario to project Year 1 data across {years} years. You can fine-tune any projected value.",
+    es: "Elige un escenario para proyectar los datos del Año 1 a lo largo de {years} años. Podés ajustar cualquier valor proyectado.",
+    pt: "Escolha um cenário para projetar os dados do Ano 1 ao longo de {years} anos. Você pode ajustar qualquer valor projetado.",
+  },
+  "form.optimisticDetail": {
+    en: "Income +15%/yr · Fixed costs +3%/yr (inflation) · Variable units +10%/yr",
+    es: "Ingresos +15%/año · Costos fijos +3%/año (inflación) · Unidades variables +10%/año",
+    pt: "Receita +15%/ano · Custos fixos +3%/ano (inflação) · Unidades variáveis +10%/ano",
+  },
+  "form.baseDetail": {
+    en: "Income +5%/yr · Fixed costs +5%/yr · Variable units +3%/yr",
+    es: "Ingresos +5%/año · Costos fijos +5%/año · Unidades variables +3%/año",
+    pt: "Receita +5%/ano · Custos fixos +5%/ano · Unidades variáveis +3%/ano",
+  },
+  "form.pessimisticDetail": {
+    en: "Income −5%/yr · Fixed costs +8%/yr · Variable units −5%/yr",
+    es: "Ingresos −5%/año · Costos fijos +8%/año · Unidades variables −5%/año",
+    pt: "Receita −5%/ano · Custos fixos +8%/ano · Unidades variáveis −5%/ano",
+  },
+  "form.projectedSummary": { en: "Projected Summary", es: "Resumen proyectado", pt: "Resumo projetado" },
+
   // Results
   "results.title": { en: "Analysis Results", es: "Resultados del análisis", pt: "Resultados da análise" },
   "results.downloadPdf": { en: "Download PDF", es: "Descargar PDF", pt: "Baixar PDF" },
