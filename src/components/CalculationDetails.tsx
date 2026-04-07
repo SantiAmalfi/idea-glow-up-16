@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { formatCurrency, formatPercent, type Currency } from "@/lib/finance";
+import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building2 } from "lucide-react";
 
 interface CalculationDetailsProps {
   investment: number;
@@ -15,20 +16,29 @@ interface CalculationDetailsProps {
   npv: number;
   irr: number | null;
   currency: Currency;
+  depreciation?: DepreciationConfig;
 }
 
 export default function CalculationDetails({
-  investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency,
+  investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency, depreciation,
 }: CalculationDetailsProps) {
   const { t } = useI18n();
 
+  const depEnabled = depreciation?.enabled ?? false;
+  const annualDep = depEnabled
+    ? (depreciation!.depreciableValue - depreciation!.residualValue) / yearlyData.length
+    : 0;
+  const residualValue = depEnabled ? depreciation!.residualValue : 0;
+
   const rows = yearlyData.map((y, i) => {
     const preTaxProfit = y.income - y.expenses;
-    const tax = preTaxProfit > 0 ? preTaxProfit * taxRate : 0;
-    const netCashFlow = preTaxProfit - tax;
+    const taxableIncome = preTaxProfit - annualDep;
+    const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
+    const taxShield = depEnabled ? Math.max(0, Math.min(annualDep * taxRate, preTaxProfit > 0 ? preTaxProfit * taxRate : 0) > 0 ? annualDep * taxRate : 0) : 0;
+    const netCashFlow = preTaxProfit - tax + (i === yearlyData.length - 1 ? residualValue : 0);
     const discountFactor = 1 / Math.pow(1 + discountRate, i + 1);
     const presentValue = netCashFlow * discountFactor;
-    return { year: i + 1, income: y.income, expenses: y.expenses, preTaxProfit, tax, netCashFlow, discountFactor, presentValue };
+    return { year: i + 1, income: y.income, expenses: y.expenses, preTaxProfit, depreciation: annualDep, tax, taxShield: depEnabled ? annualDep * taxRate : 0, netCashFlow, discountFactor, presentValue, hasResidual: i === yearlyData.length - 1 && residualValue > 0 };
   });
 
   const totals = rows.reduce(
