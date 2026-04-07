@@ -1,7 +1,40 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "./finance";
+import { formatPercent, type Currency, type DepreciationConfig, CURRENCY_CONFIG } from "./finance";
 import type { Language } from "./i18n";
+
+/**
+ * PDF-safe currency formatter that avoids Unicode symbols
+ * jsPDF's built-in Helvetica cannot render £, €, ₲, etc.
+ */
+function pdfCurrency(value: number, currency: Currency): string {
+  const cfg = CURRENCY_CONFIG[currency];
+  const num = new Intl.NumberFormat(cfg.locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+  // Use ASCII-safe prefix: currency code for non-ASCII symbols
+  const safeSymbol = /^[A-Za-z0-9$. /]+$/.test(cfg.symbol) ? cfg.symbol : currency;
+  return `${safeSymbol} ${sanitize(num)}`;
+}
+
+/**
+ * Replace Unicode chars that Helvetica can't render with ASCII equivalents
+ */
+function sanitize(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")      // Unicode minus → ASCII minus
+    .replace(/\u2013/g, "-")      // en-dash
+    .replace(/\u2014/g, "-")      // em-dash
+    .replace(/\u00A0/g, " ")      // non-breaking space
+    .replace(/\u202F/g, " ")      // narrow no-break space
+    .replace(/\u2009/g, " ")      // thin space
+    .replace(/\u00D7/g, "x")      // multiplication sign
+    .replace(/\u2264/g, "<=")     // ≤
+    .replace(/\u2265/g, ">=")     // ≥
+    .replace(/\u03A3/g, "Total")  // Σ → Total
+    .replace(/[^\x00-\x7F]/g, ""); // strip any remaining non-ASCII
+}
 
 interface ExportData {
   projectName: string;
