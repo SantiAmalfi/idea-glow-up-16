@@ -10,7 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import { Button } from "@/components/ui/button";
-import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency } from "@/lib/finance";
+import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
 import { exportToExcel } from "@/lib/exportExcel";
 import { useI18n } from "@/lib/i18n";
@@ -30,6 +30,7 @@ interface AnalysisResult {
   discountRate: number;
   taxRate: number;
   yearlyData: YearData[];
+  depreciation: DepreciationConfig;
 }
 
 export default function Index() {
@@ -46,17 +47,23 @@ export default function Index() {
     taxRate: number;
     yearlyData: YearData[];
     scenario: Scenario;
+    depreciation: DepreciationConfig;
   }) => {
-    const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate);
+    const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate, data.depreciation);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
     const totalReturn = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
     const roi = (totalReturn - data.investment) / data.investment;
     const paybackPeriod = calculatePaybackPeriod(cashFlows);
 
+    const annualDep = data.depreciation.enabled
+      ? (data.depreciation.depreciableValue - data.depreciation.residualValue) / data.years
+      : 0;
+
     const totalTax = data.yearlyData.reduce((sum, y) => {
       const preTax = y.income - y.expenses;
-      return sum + (preTax > 0 ? preTax * data.taxRate : 0);
+      const taxableIncome = preTax - annualDep;
+      return sum + (taxableIncome > 0 ? taxableIncome * data.taxRate : 0);
     }, 0);
 
     setResult({
@@ -69,6 +76,7 @@ export default function Index() {
       discountRate: data.discountRate,
       taxRate: data.taxRate,
       yearlyData: data.yearlyData,
+      depreciation: data.depreciation,
     });
   };
 
@@ -199,6 +207,7 @@ export default function Index() {
               npv={result.npv}
               irr={result.irr}
               currency={result.currency}
+              depreciation={result.depreciation}
             />
 
             <motion.div
