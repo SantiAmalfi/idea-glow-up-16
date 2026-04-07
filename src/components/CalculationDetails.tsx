@@ -77,6 +77,16 @@ export default function CalculationDetails({
         </TabsList>
 
         <TabsContent value="cashflows">
+          {depEnabled && (
+            <div className="flex items-center gap-2 mb-4 rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
+              <Building2 className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-muted-foreground">
+                {t("calc.depreciation")}: <span className="font-mono font-semibold text-foreground">{formatCurrency(Math.round(annualDep), currency)}</span>/año
+                {depreciation?.assetName && <> — {depreciation.assetName}</>}
+                {residualValue > 0 && <> · {t("calc.residualValue")}: <span className="font-mono font-semibold text-foreground">{formatCurrency(residualValue, currency)}</span></>}
+              </span>
+            </div>
+          )}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -85,6 +95,8 @@ export default function CalculationDetails({
                   <TableHead className="font-mono text-xs text-right">{t("form.income")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("form.expenses")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.preTax")}</TableHead>
+                  {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.depreciation")}</TableHead>}
+                  {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.taxShield")}</TableHead>}
                   <TableHead className="font-mono text-xs text-right">{t("calc.tax")} ({(taxRate * 100).toFixed(0)}%)</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.netCF")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.cumulative")}</TableHead>
@@ -96,6 +108,8 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
+                  {depEnabled && <TableCell className="font-mono text-sm text-right">—</TableCell>}
+                  {depEnabled && <TableCell className="font-mono text-sm text-right">—</TableCell>}
                   <TableCell className="font-mono text-sm text-right">—</TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(-investment, currency)}</TableCell>
@@ -106,8 +120,13 @@ export default function CalculationDetails({
                     <TableCell className="font-mono text-sm text-right">{formatCurrency(r.income, currency)}</TableCell>
                     <TableCell className="font-mono text-sm text-right text-destructive">{formatCurrency(r.expenses, currency)}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.preTaxProfit, currency)}</TableCell>
+                    {depEnabled && <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(Math.round(r.depreciation), currency)}</TableCell>}
+                    {depEnabled && <TableCell className="font-mono text-sm text-right text-primary">{formatCurrency(Math.round(r.taxShield), currency)}</TableCell>}
                     <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(r.tax, currency)}</TableCell>
-                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.netCashFlow, currency)}</TableCell>
+                    <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
+                      {formatCurrency(r.netCashFlow, currency)}
+                      {r.hasResidual && <span className="text-xs text-muted-foreground ml-1">*</span>}
+                    </TableCell>
                     <TableCell className={`font-mono text-sm text-right ${cumulativeRows[i].cumulative >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(cumulativeRows[i].cumulative, currency)}</TableCell>
                   </TableRow>
                 ))}
@@ -118,6 +137,8 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.income, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.expenses, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit, currency)}</TableCell>
+                  {depEnabled && <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(Math.round(annualDep * yearlyData.length), currency)}</TableCell>}
+                  {depEnabled && <TableCell className="font-mono text-sm text-right font-bold text-primary">{formatCurrency(Math.round(rows.reduce((s, r) => s + r.taxShield, 0)), currency)}</TableCell>}
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.tax, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.netCashFlow, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(cumulative, currency)}</TableCell>
@@ -125,6 +146,9 @@ export default function CalculationDetails({
               </TableFooter>
             </Table>
           </div>
+          {depEnabled && residualValue > 0 && (
+            <p className="text-xs text-muted-foreground mt-2">* {t("form.residualValueHint")}</p>
+          )}
         </TabsContent>
 
         <TabsContent value="npv">
