@@ -145,6 +145,13 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   // Scenario
   const [scenario, setScenario] = useState<Scenario>("base");
 
+  // Editable growth rates (stored as percentages, e.g. 15 = 15%)
+  const [customRates, setCustomRates] = useState({ ...DEFAULT_SCENARIO_RATES.base });
+
+  // Inflation
+  const [inflationEnabled, setInflationEnabled] = useState(false);
+  const [inflationRate, setInflationRate] = useState("5");
+
   // Projected data (editable override)
   const [projectedData, setProjectedData] = useState<{ income: string; expenses: string }[]>([]);
 
@@ -157,22 +164,30 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const year1Variable = variableCosts.reduce((s, it) => s + (Number(it.unitCost) || 0) * (Number(it.units) || 0), 0);
   const year1Expenses = year1Fixed + year1Variable;
 
-  // Project years 2..N whenever scenario, year1 data, or numYears change
+  // Sync custom rates when scenario changes
   useEffect(() => {
-    const rates = SCENARIO_RATES[scenario];
-    const projected: { income: string; expenses: string }[] = [];
+    setCustomRates({ ...DEFAULT_SCENARIO_RATES[scenario] });
+  }, [scenario]);
 
-    // Year 1 is from manual input
+  // Project years 2..N whenever rates, inflation, year1 data, or numYears change
+  useEffect(() => {
+    const incRate = customRates.incomeGrowth / 100;
+    const fixedRate = customRates.fixedCostGrowth / 100;
+    const varRate = customRates.variableUnitsGrowth / 100;
+    const infRate = inflationEnabled ? (Number(inflationRate) || 0) / 100 : 0;
+
+    const projected: { income: string; expenses: string }[] = [];
     projected.push({ income: String(year1Income), expenses: String(year1Expenses) });
 
     for (let yr = 2; yr <= numYears; yr++) {
-      const incGrowth = Math.pow(1 + rates.incomeGrowth, yr - 1);
-      const fixedGrowth = Math.pow(1 + rates.fixedCostGrowth, yr - 1);
-      const varUnitsGrowth = Math.pow(1 + rates.variableUnitsGrowth, yr - 1);
+      const incGrowth = Math.pow(1 + incRate, yr - 1);
+      const fixedGrowth = Math.pow(1 + fixedRate, yr - 1);
+      const varUnitsGrowth = Math.pow(1 + varRate, yr - 1);
+      const inflationFactor = Math.pow(1 + infRate, yr - 1);
 
       const projIncome = Math.round(year1Income * incGrowth);
-      const projFixed = Math.round(year1Fixed * fixedGrowth);
-      const projVariable = Math.round(year1Variable * varUnitsGrowth);
+      const projFixed = Math.round(year1Fixed * fixedGrowth * inflationFactor);
+      const projVariable = Math.round(year1Variable * varUnitsGrowth * inflationFactor);
 
       projected.push({
         income: String(projIncome),
@@ -180,7 +195,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       });
     }
     setProjectedData(projected);
-  }, [scenario, year1Income, year1Fixed, year1Variable, numYears]);
+  }, [customRates, inflationEnabled, inflationRate, year1Income, year1Fixed, year1Variable, numYears]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
