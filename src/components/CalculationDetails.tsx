@@ -97,7 +97,7 @@ export default function CalculationDetails({
                   <TableHead className="font-mono text-xs text-right">{t("calc.preTax")}</TableHead>
                   {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.depreciation")}</TableHead>}
                   {depEnabled && <TableHead className="font-mono text-xs text-right">{t("calc.taxShield")}</TableHead>}
-                  <TableHead className="font-mono text-xs text-right">{t("calc.tax")} ({(taxRate * 100).toFixed(0)}%)</TableHead>
+                  <TableHead className="font-mono text-xs text-right">{t("calc.tax")} ({(taxRate * 100).toFixed(0).replace('.', ',')}%)</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.netCF")}</TableHead>
                   <TableHead className="font-mono text-xs text-right">{t("calc.cumulative")}</TableHead>
                 </TableRow>
@@ -173,7 +173,7 @@ export default function CalculationDetails({
                   <TableRow key={r.year}>
                     <TableCell className="font-mono text-sm">{r.year}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.netCashFlow, currency)}</TableCell>
-                    <TableCell className="font-mono text-sm text-right">{r.discountFactor.toFixed(4)}</TableCell>
+                    <TableCell className="font-mono text-sm text-right">{r.discountFactor.toFixed(4).replace('.', ',')}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.presentValue >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.presentValue, currency)}</TableCell>
                   </TableRow>
                 ))}
@@ -187,7 +187,7 @@ export default function CalculationDetails({
             </Table>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            {t("calc.discountNote")} (r = {(discountRate * 100).toFixed(1)}%)
+            {t("calc.discountNote")} (r = {(discountRate * 100).toFixed(1).replace('.', ',')}%)
           </p>
         </TabsContent>
 
@@ -197,7 +197,7 @@ export default function CalculationDetails({
               <h3 className="text-sm font-semibold text-foreground">{t("calc.npvFormula")}</h3>
               <p className="font-mono text-sm text-muted-foreground">NPV = Σ (CF_t / (1 + r)^t) for t = 0 to n</p>
               <p className="text-xs text-muted-foreground">
-                r = {(discountRate * 100).toFixed(1)}%, n = {yearlyData.length}. {t("calc.npvDesc")}
+                r = {(discountRate * 100).toFixed(1).replace('.', ',')}%, n = {yearlyData.length}. {t("calc.npvDesc")}
               </p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(npv, currency)}</p>
             </div>
@@ -212,7 +212,7 @@ export default function CalculationDetails({
             <div className="rounded-xl bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.netCFFormula")}</h3>
               <p className="font-mono text-sm text-muted-foreground">Net CF = (Income − Expenses) × (1 − Tax Rate)</p>
-              <p className="text-xs text-muted-foreground">{t("calc.tax")}: {(taxRate * 100).toFixed(0)}%. {t("calc.netCFDesc")}</p>
+              <p className="text-xs text-muted-foreground">{t("calc.tax")}: {(taxRate * 100).toFixed(0).replace('.', ',')}%. {t("calc.netCFDesc")}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
@@ -231,7 +231,7 @@ export default function CalculationDetails({
                   D = (Depreciable Value − Residual Value) / n = ({formatCurrency(depreciation!.depreciableValue, currency)} − {formatCurrency(residualValue, currency)}) / {yearlyData.length} = {formatCurrency(Math.round(annualDep), currency)}
                 </p>
                 <p className="font-mono text-sm text-muted-foreground">
-                  Tax Shield = D × t = {formatCurrency(Math.round(annualDep), currency)} × {(taxRate * 100).toFixed(0)}% = {formatCurrency(Math.round(annualDep * taxRate), currency)}/año
+                  Tax Shield = D × t = {formatCurrency(Math.round(annualDep), currency)} × {(taxRate * 100).toFixed(0).replace('.', ',')}% = {formatCurrency(Math.round(annualDep * taxRate), currency)}/año
                 </p>
                 <p className="text-xs text-muted-foreground">{t("calc.depreciationFormulaDesc")}</p>
                 {residualValue > 0 && (
