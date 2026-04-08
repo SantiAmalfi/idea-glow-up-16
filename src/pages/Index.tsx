@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
 import ReportSettingsPanel, { useReportSettings } from "@/components/ReportSettingsPanel";
+import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
