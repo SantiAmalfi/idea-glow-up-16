@@ -101,7 +101,7 @@ export const CURRENCY_CONFIG: Record<Currency, { locale: string; label: string; 
 };
 
 export function formatCurrency(value: number, currency: Currency = "USD"): string {
-  return new Intl.NumberFormat(CURRENCY_CONFIG[currency].locale, {
+  return new Intl.NumberFormat("de-DE", {
     style: 'currency',
     currency,
     minimumFractionDigits: 0,
@@ -110,5 +110,5 @@ export function formatCurrency(value: number, currency: Currency = "USD"): strin
 }
 
 export function formatPercent(value: number): string {
-  return (value * 100).toFixed(2) + '%';
+  return (value * 100).toFixed(2).replace('.', ',') + '%';
 }
