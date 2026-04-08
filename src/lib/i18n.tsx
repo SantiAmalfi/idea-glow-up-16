@@ -117,6 +117,13 @@ const translations = {
   },
   "form.projectedSummary": { en: "Projected Summary", es: "Resumen proyectado", pt: "Resumo projetado" },
 
+  // PDF Preview
+  "preview.title": { en: "PDF Preview", es: "Vista previa del PDF", pt: "Pré-visualização do PDF" },
+  "preview.refresh": { en: "Refresh", es: "Actualizar", pt: "Atualizar" },
+  "preview.generating": { en: "Generating preview...", es: "Generando vista previa...", pt: "Gerando pré-visualização..." },
+  "preview.error": { en: "Could not generate preview", es: "No se pudo generar la vista previa", pt: "Não foi possível gerar a pré-visualização" },
+  "preview.button": { en: "Preview PDF", es: "Vista previa PDF", pt: "Pré-visualizar PDF" },
+
   // Results
   "results.title": { en: "Analysis Results", es: "Resultados del análisis", pt: "Resultados da análise" },
   "results.downloadPdf": { en: "Download PDF", es: "Descargar PDF", pt: "Baixar PDF" },
