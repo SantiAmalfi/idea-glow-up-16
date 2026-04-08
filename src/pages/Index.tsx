@@ -31,6 +31,7 @@ interface AnalysisResult {
   taxRate: number;
   yearlyData: YearData[];
   depreciation: DepreciationConfig;
+  reinvestments: number[];
 }
 
 export default function Index() {
@@ -78,6 +79,7 @@ export default function Index() {
       taxRate: data.taxRate,
       yearlyData: data.yearlyData,
       depreciation: data.depreciation,
+      reinvestments: data.reinvestments,
     });
   };
 
