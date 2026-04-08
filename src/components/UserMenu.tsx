@@ -1,4 +1,4 @@
-import { LogOut, Crown, User } from "lucide-react";
+import { LogOut, Crown, User, Settings, BarChart3 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -54,6 +54,14 @@ export default function UserMenu() {
           </p>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate("/settings")}>
+          <Settings className="h-4 w-4 mr-2" />
+          {t("nav.settings")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("/settings")}>
+          <BarChart3 className="h-4 w-4 mr-2" />
+          {t("settings.myAnalyses")}
+        </DropdownMenuItem>
         {isPremium && (
           <DropdownMenuItem onClick={openCustomerPortal}>
             <Crown className="h-4 w-4 mr-2" />

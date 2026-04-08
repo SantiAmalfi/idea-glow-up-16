@@ -381,6 +381,20 @@ const translations = {
 
   // Nav pricing
   "nav.pricing": { en: "Pricing", es: "Planes", pt: "Planos" },
+
+  // Settings
+  "nav.settings": { en: "Settings", es: "Configuración", pt: "Configurações" },
+  "settings.profile": { en: "Profile", es: "Perfil", pt: "Perfil" },
+  "settings.plan": { en: "Current Plan", es: "Plan actual", pt: "Plano atual" },
+  "settings.analysesUsed": { en: "Analyses Used", es: "Análisis realizados", pt: "Análises realizadas" },
+  "settings.subscription": { en: "Subscription", es: "Suscripción", pt: "Assinatura" },
+  "settings.premiumActive": { en: "Premium subscription active", es: "Suscripción Premium activa", pt: "Assinatura Premium ativa" },
+  "settings.renewsOn": { en: "Renews on", es: "Se renueva el", pt: "Renova em" },
+  "settings.upgradeDesc": { en: "Upgrade to Premium for unlimited analyses and priority support.", es: "Actualizá a Premium para análisis ilimitados y soporte prioritario.", pt: "Atualize para Premium para análises ilimitadas e suporte prioritário." },
+  "settings.myAnalyses": { en: "My Evaluations", es: "Mis evaluaciones", pt: "Minhas avaliações" },
+  "settings.loading": { en: "Loading...", es: "Cargando...", pt: "Carregando..." },
+  "settings.noAnalyses": { en: "No evaluations yet. Run your first analysis!", es: "Sin evaluaciones aún. ¡Realizá tu primer análisis!", pt: "Sem avaliações ainda. Faça sua primeira análise!" },
+  "settings.untitledProject": { en: "Untitled Project", es: "Proyecto sin nombre", pt: "Projeto sem nome" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
