@@ -2,10 +2,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { formatPercent, type Currency, type DepreciationConfig, CURRENCY_CONFIG } from "./finance";
 import type { Language } from "./i18n";
+import type { ReportSettings } from "@/components/ReportSettingsPanel";
 
-/**
- * PDF-safe currency formatter that avoids Unicode symbols
- */
 function pdfCurrency(value: number, currency: Currency): string {
   const cfg = CURRENCY_CONFIG[currency];
   const num = new Intl.NumberFormat("de-DE", {
@@ -29,6 +27,15 @@ function sanitize(text: string): string {
     .replace(/\u2265/g, ">=")
     .replace(/\u03A3/g, "Total")
     .replace(/[^\x00-\xFF]/g, "");
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  return [
+    parseInt(h.substring(0, 2), 16),
+    parseInt(h.substring(2, 4), 16),
+    parseInt(h.substring(4, 6), 16),
+  ];
 }
 
 interface ExportData {
@@ -106,7 +113,190 @@ function l(key: string, lang: Language): string {
   return labels[key]?.[lang] ?? labels[key]?.en ?? key;
 }
 
-export function exportToPdf(data: ExportData, lang: Language = "en") {
+// ─── Template renderers ───
+
+interface TemplateConfig {
+  primaryRgb: [number, number, number];
+  secondaryRgb: [number, number, number];
+  accentRgb: [number, number, number];
+  font: string;
+  headerTitle: string;
+  headerSubtitle: string;
+  logoUrl: string | null;
+  logoImg: HTMLImageElement | null;
+}
+
+function renderHeader_professional(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+
+  doc.setFillColor(...cfg.primaryRgb);
+  doc.rect(0, 0, pageW, 45, "F");
+  doc.setFillColor(...cfg.secondaryRgb);
+  doc.rect(0, 42, pageW, 3, "F");
+
+  let textX = margin;
+  if (cfg.logoImg) {
+    const logoH = 20;
+    const logoW = (cfg.logoImg.naturalWidth / cfg.logoImg.naturalHeight) * logoH;
+    doc.addImage(cfg.logoImg, "PNG", margin, 12, Math.min(logoW, 40), logoH);
+    textX = margin + Math.min(logoW, 40) + 6;
+  }
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.setFont(cfg.font, "bold");
+  doc.text(cfg.headerTitle, textX, 22, { maxWidth: pageW - textX - margin });
+  doc.setFontSize(10);
+  doc.setFont(cfg.font, "normal");
+  doc.text(cfg.headerSubtitle, textX, 33, { maxWidth: pageW - textX - margin });
+
+  doc.setFontSize(9);
+  doc.setTextColor(...cfg.accentRgb);
+  doc.text(`${l("reportDate", lang)}: ${new Date().toLocaleDateString()}`, pageW - margin, 22, { align: "right" });
+  doc.text(`${l("currency", lang)}: ${_data.currency}`, pageW - margin, 30, { align: "right" });
+
+  return 52;
+}
+
+function renderHeader_modern(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+
+  // Gradient-like effect with two rectangles
+  doc.setFillColor(...cfg.secondaryRgb);
+  doc.rect(0, 0, pageW, 50, "F");
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(margin - 5, 5, pageW - 2 * margin + 10, 40, 4, 4, "F");
+
+  let textX = margin + 5;
+  if (cfg.logoImg) {
+    const logoH = 18;
+    const logoW = (cfg.logoImg.naturalWidth / cfg.logoImg.naturalHeight) * logoH;
+    doc.addImage(cfg.logoImg, "PNG", margin + 5, 13, Math.min(logoW, 35), logoH);
+    textX = margin + Math.min(logoW, 35) + 12;
+  }
+
+  doc.setTextColor(...cfg.primaryRgb);
+  doc.setFontSize(20);
+  doc.setFont(cfg.font, "bold");
+  doc.text(cfg.headerTitle, textX, 22, { maxWidth: pageW - textX - margin - 50 });
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  doc.setTextColor(...cfg.accentRgb);
+  doc.text(cfg.headerSubtitle, textX, 32, { maxWidth: pageW - textX - margin - 50 });
+
+  doc.setFontSize(8);
+  doc.text(`${new Date().toLocaleDateString()} | ${_data.currency}`, pageW - margin, 25, { align: "right" });
+
+  return 58;
+}
+
+function renderHeader_minimal(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+
+  let textX = margin;
+  if (cfg.logoImg) {
+    const logoH = 16;
+    const logoW = (cfg.logoImg.naturalWidth / cfg.logoImg.naturalHeight) * logoH;
+    doc.addImage(cfg.logoImg, "PNG", margin, 15, Math.min(logoW, 35), logoH);
+    textX = margin + Math.min(logoW, 35) + 6;
+  }
+
+  doc.setTextColor(...cfg.primaryRgb);
+  doc.setFontSize(18);
+  doc.setFont(cfg.font, "bold");
+  doc.text(cfg.headerTitle, textX, 22);
+
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  doc.setTextColor(...cfg.accentRgb);
+  doc.text(cfg.headerSubtitle, textX, 30);
+
+  doc.setDrawColor(...cfg.accentRgb);
+  doc.setLineWidth(0.5);
+  doc.line(margin, 36, pageW - margin, 36);
+
+  doc.setFontSize(8);
+  doc.text(`${new Date().toLocaleDateString()} | ${_data.currency}`, pageW - margin, 22, { align: "right" });
+
+  return 44;
+}
+
+function renderHeader_corporate(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 20;
+
+  doc.setFillColor(...cfg.primaryRgb);
+  doc.rect(0, 0, 8, doc.internal.pageSize.getHeight(), "F");
+  doc.setFillColor(...cfg.secondaryRgb);
+  doc.rect(0, 0, pageW, 6, "F");
+
+  let textX = 16 + margin;
+  if (cfg.logoImg) {
+    const logoH = 18;
+    const logoW = (cfg.logoImg.naturalWidth / cfg.logoImg.naturalHeight) * logoH;
+    doc.addImage(cfg.logoImg, "PNG", 16 + margin, 14, Math.min(logoW, 40), logoH);
+    textX = 16 + margin + Math.min(logoW, 40) + 6;
+  }
+
+  doc.setTextColor(...cfg.primaryRgb);
+  doc.setFontSize(20);
+  doc.setFont(cfg.font, "bold");
+  doc.text(cfg.headerTitle, textX, 22);
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  doc.setTextColor(...cfg.accentRgb);
+  doc.text(cfg.headerSubtitle, textX, 32);
+
+  doc.setFontSize(8);
+  doc.text(`${l("reportDate", lang)}: ${new Date().toLocaleDateString()}`, pageW - margin, 18, { align: "right" });
+  doc.text(`${l("currency", lang)}: ${_data.currency}`, pageW - margin, 26, { align: "right" });
+
+  return 46;
+}
+
+const headerRenderers: Record<string, typeof renderHeader_professional> = {
+  professional: renderHeader_professional,
+  modern: renderHeader_modern,
+  minimal: renderHeader_minimal,
+  corporate: renderHeader_corporate,
+};
+
+async function loadImage(url: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+export async function exportToPdf(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings) {
+  const rs = reportSettings || {
+    template_id: "professional",
+    header_title: "",
+    header_subtitle: "",
+    primary_color: "#0f172a",
+    secondary_color: "#10b981",
+    accent_color: "#94a3b8",
+    font_family: "helvetica",
+    logo_url: null,
+  };
+
+  const cfg: TemplateConfig = {
+    primaryRgb: hexToRgb(rs.primary_color),
+    secondaryRgb: hexToRgb(rs.secondary_color),
+    accentRgb: hexToRgb(rs.accent_color),
+    font: rs.font_family,
+    headerTitle: rs.header_title || data.projectName || l("reportTitle", lang),
+    headerSubtitle: rs.header_subtitle || data.projectDescription || l("generatedReport", lang),
+    logoUrl: rs.logo_url,
+    logoImg: rs.logo_url ? await loadImage(rs.logo_url) : null,
+  };
+
   const doc = new jsPDF();
   const c = data.currency;
   const pageW = doc.internal.pageSize.getWidth();
@@ -123,33 +313,16 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   const hasReinvest = reinvestments.some(r => r > 0);
   const totalReinvest = reinvestments.reduce((s, r) => s + r, 0);
 
-  // ── Header bar ──
-  doc.setFillColor(15, 23, 42);
-  doc.rect(0, 0, pageW, 45, "F");
-  doc.setFillColor(16, 185, 129);
-  doc.rect(0, 42, pageW, 3, "F");
-
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(22);
-  doc.setFont("helvetica", "bold");
-  doc.text(data.projectName || l("reportTitle", lang), margin, 22);
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(data.projectDescription || l("generatedReport", lang), margin, 33, { maxWidth: pageW - margin * 2 });
-
-  doc.setFontSize(9);
-  doc.setTextColor(148, 163, 184);
-  doc.text(`${l("reportDate", lang)}: ${new Date().toLocaleDateString()}`, pageW - margin, 22, { align: "right" });
-  doc.text(`${l("currency", lang)}: ${c}`, pageW - margin, 30, { align: "right" });
-
-  let y = 52;
+  // ── Render header based on template ──
+  const renderHeader = headerRenderers[rs.template_id] || renderHeader_professional;
+  let y = renderHeader(doc, cfg, data, lang);
 
   // ── Conclusion ──
-  const conclusionColor: [number, number, number] = data.npv >= 0 ? [16, 185, 129] : [220, 38, 38];
+  const conclusionColor: [number, number, number] = data.npv >= 0 ? cfg.secondaryRgb : [220, 38, 38];
   doc.setFillColor(...conclusionColor);
   doc.roundedRect(margin, y, pageW - 2 * margin, 12, 2, 2, "F");
   doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(cfg.font, "bold");
   doc.setTextColor(255, 255, 255);
   doc.text(
     `${data.npv >= 0 ? l("conclusionPos", lang) : l("conclusionNeg", lang)} (${pdfCurrency(data.npv, c)})`,
@@ -158,9 +331,9 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y += 18;
 
   // ── Analysis Parameters ──
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(cfg.font, "bold");
   doc.text(l("parameters", lang), margin, y);
   y += 4;
 
@@ -186,9 +359,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   if (hasReinvest) {
     paramRows.push([l("totalReinvest", lang), pdfCurrency(totalReinvest, c)]);
     reinvestments.forEach((r, i) => {
-      if (r > 0) {
-        paramRows.push([`  ${l("reinvestment", lang)} ${l("year", lang)} ${i + 1}`, pdfCurrency(r, c)]);
-      }
+      if (r > 0) paramRows.push([`  ${l("reinvestment", lang)} ${l("year", lang)} ${i + 1}`, pdfCurrency(r, c)]);
     });
   } else {
     paramRows.push([l("reinvestment", lang), l("noReinvest", lang)]);
@@ -199,7 +370,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     body: paramRows,
     margin: { left: margin, right: margin },
     theme: "plain",
-    bodyStyles: { fontSize: 9, cellPadding: 2 },
+    bodyStyles: { fontSize: 9, cellPadding: 2, font: cfg.font },
     columnStyles: { 0: { fontStyle: "bold", cellWidth: 60 }, 1: { halign: "right" } },
     alternateRowStyles: { fillColor: [241, 245, 249] },
   });
@@ -207,9 +378,9 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   y = (doc as any).lastAutoTable.finalY + 12;
 
   // ── Key Metrics ──
-  doc.setTextColor(15, 23, 42);
+  doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(cfg.font, "bold");
   doc.text(l("keyMetrics", lang), margin, y);
   y += 4;
 
@@ -228,8 +399,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     body: metrics,
     margin: { left: margin, right: margin },
     theme: "grid",
-    headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
+    headStyles: { fillColor: cfg.secondaryRgb, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9, font: cfg.font },
+    bodyStyles: { fontSize: 9, font: cfg.font },
     alternateRowStyles: { fillColor: [241, 245, 249] },
     columnStyles: {
       0: { cellWidth: 80 },
@@ -243,17 +414,15 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   if (y > 220) { doc.addPage(); y = 20; }
 
   doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(cfg.font, "bold");
+  doc.setTextColor(...cfg.primaryRgb);
   doc.text(l("yearlyCF", lang), margin, y);
   y += 4;
 
-  // Build dynamic columns based on features enabled
   const showReinvCol = hasReinvest;
-
   let cumulative = -data.investment;
   const cfBody: string[][] = [];
 
-  // Row 0 (initial)
   if (hasDep && showReinvCol) {
     cfBody.push([`0 (${l("initial", lang)})`, "-", "-", "-", "-", "-", "-", "-", pdfCurrency(-data.investment, c), pdfCurrency(cumulative, c)]);
   } else if (hasDep) {
@@ -277,28 +446,18 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     cumulative += finalNet;
 
     const row: string[] = [`${l("year", lang)} ${i + 1}`, pdfCurrency(yr.income, c), pdfCurrency(yr.expenses, c), pdfCurrency(preTax, c)];
-
-    if (hasDep) {
-      row.push(pdfCurrency(annualDep, c), pdfCurrency(taxableIncome, c));
-    }
+    if (hasDep) row.push(pdfCurrency(annualDep, c), pdfCurrency(taxableIncome, c));
     row.push(`${pdfCurrency(tax, c)} (${taxPct})`);
-    if (showReinvCol) {
-      row.push(reinv > 0 ? pdfCurrency(reinv, c) : "-");
-    }
+    if (showReinvCol) row.push(reinv > 0 ? pdfCurrency(reinv, c) : "-");
     row.push(pdfCurrency(finalNet, c) + (residualAdd > 0 ? ` +res.` : ""));
     row.push(pdfCurrency(cumulative, c));
     cfBody.push(row);
   });
 
-  // Build header
   const cfHead: string[] = [l("year", lang), l("income", lang), l("expenses", lang), l("preTax", lang)];
-  if (hasDep) {
-    cfHead.push(l("depreciation", lang), l("taxableIncome", lang));
-  }
+  if (hasDep) cfHead.push(l("depreciation", lang), l("taxableIncome", lang));
   cfHead.push(`${l("tax", lang)} (${taxPct})`);
-  if (showReinvCol) {
-    cfHead.push(l("reinvestment", lang));
-  }
+  if (showReinvCol) cfHead.push(l("reinvestment", lang));
   cfHead.push(l("netCF", lang), l("cumulative", lang));
 
   autoTable(doc, {
@@ -307,8 +466,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     body: cfBody,
     margin: { left: margin, right: margin },
     theme: "grid",
-    headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7 },
-    bodyStyles: { fontSize: 7 },
+    headStyles: { fillColor: cfg.primaryRgb, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 7, font: cfg.font },
+    bodyStyles: { fontSize: 7, font: cfg.font },
     alternateRowStyles: { fillColor: [241, 245, 249] },
     columnStyles: Object.fromEntries(
       Array.from({ length: cfHead.length }, (_, i) => [i, i > 0 ? { halign: "right" as const } : {}])
@@ -321,8 +480,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   if (y > 220) { doc.addPage(); y = 20; }
 
   doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(15, 23, 42);
+  doc.setFont(cfg.font, "bold");
+  doc.setTextColor(...cfg.primaryRgb);
   doc.text(l("npvBreakdown", lang), margin, y);
   y += 4;
 
@@ -354,8 +513,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     body: npvBody,
     margin: { left: margin, right: margin },
     theme: "grid",
-    headStyles: { fillColor: [16, 185, 129], textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9 },
-    bodyStyles: { fontSize: 9 },
+    headStyles: { fillColor: cfg.secondaryRgb, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 9, font: cfg.font },
+    bodyStyles: { fontSize: 9, font: cfg.font },
     alternateRowStyles: { fillColor: [241, 245, 249] },
     columnStyles: {
       1: { halign: "right" },
@@ -369,8 +528,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   for (let p = 1; p <= pageCount; p++) {
     doc.setPage(p);
     doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184);
-    doc.text(l("footer", lang), margin, doc.internal.pageSize.getHeight() - 10);
+    doc.setTextColor(...cfg.accentRgb);
+    doc.text(cfg.headerTitle || l("footer", lang), margin, doc.internal.pageSize.getHeight() - 10);
     doc.text(`${l("page", lang)} ${p} ${l("of", lang)} ${pageCount}`, pageW - margin, doc.internal.pageSize.getHeight() - 10, { align: "right" });
   }
 

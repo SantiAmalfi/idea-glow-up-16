@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
+import ReportSettingsPanel, { useReportSettings } from "@/components/ReportSettingsPanel";
 import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
@@ -17,6 +18,7 @@ import { exportToExcel } from "@/lib/exportExcel";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface AnalysisResult {
@@ -44,6 +46,27 @@ export default function Index() {
   const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { settings, setSettings } = useReportSettings();
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const saveReportSettings = async () => {
+    if (!user || !isPremium) return;
+    setSavingSettings(true);
+    try {
+      const { error } = await supabase
+        .from("report_settings")
+        .upsert({
+          user_id: user.id,
+          ...settings,
+        }, { onConflict: "user_id" });
+      if (error) throw error;
+      toast.success("✅");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
 
   // Handle checkout return
   useEffect(() => {
@@ -237,7 +260,7 @@ export default function Index() {
 
             <div className="flex gap-3">
               <Button
-                onClick={() => exportToPdf(result, language)}
+                onClick={() => exportToPdf(result, language, isPremium ? settings : undefined)}
                 variant="outline"
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
               >
@@ -253,6 +276,14 @@ export default function Index() {
                 {t("results.downloadExcel")}
               </Button>
             </div>
+
+            {/* Report customization for premium */}
+            <ReportSettingsPanel
+              settings={settings}
+              onChange={setSettings}
+              onSave={saveReportSettings}
+              saving={savingSettings}
+            />
 
             <ResultsPanel
               npv={result.npv}
