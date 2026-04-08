@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { TrendingUp, Globe } from "lucide-react";
 import { useI18n, LANGUAGE_CONFIG, type Language } from "@/lib/i18n";
+import UserMenu from "@/components/UserMenu";
 
 export default function Header() {
   const { language, setLanguage, t } = useI18n();
@@ -24,6 +25,9 @@ export default function Header() {
           <a href="#analyzer" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {t("nav.analyzer")}
           </a>
+          <a href="#pricing" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+            {t("nav.pricing")}
+          </a>
           <a href="#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {t("nav.features")}
           </a>
@@ -43,6 +47,10 @@ export default function Header() {
                 {LANGUAGE_CONFIG[lang].flag}
               </button>
             ))}
+          </div>
+          <div className="ml-2 h-5 w-px bg-border" />
+          <div className="ml-1">
+            <UserMenu />
           </div>
         </div>
       </div>

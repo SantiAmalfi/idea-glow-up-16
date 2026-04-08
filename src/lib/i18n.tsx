@@ -336,6 +336,51 @@ const translations = {
   "form.incomeGrowth": { en: "Income Growth (%/yr)", es: "Crecimiento ingresos (%/año)", pt: "Crescimento receita (%/ano)" },
   "form.fixedCostGrowth": { en: "Fixed Cost Growth (%/yr)", es: "Crecimiento costos fijos (%/año)", pt: "Crescimento custos fixos (%/ano)" },
   "form.variableUnitsGrowth": { en: "Variable Units Growth (%/yr)", es: "Crecimiento unidades var. (%/año)", pt: "Crescimento unidades var. (%/ano)" },
+
+  // Auth
+  "auth.signIn": { en: "Sign In", es: "Iniciar sesión", pt: "Entrar" },
+  "auth.signUp": { en: "Sign Up", es: "Registrarse", pt: "Cadastrar" },
+  "auth.signOut": { en: "Sign Out", es: "Cerrar sesión", pt: "Sair" },
+  "auth.signInDesc": { en: "Access your account to continue", es: "Accede a tu cuenta para continuar", pt: "Acesse sua conta para continuar" },
+  "auth.signUpDesc": { en: "Create an account to start analyzing", es: "Crea una cuenta para comenzar a analizar", pt: "Crie uma conta para começar a analisar" },
+  "auth.email": { en: "Email", es: "Correo electrónico", pt: "E-mail" },
+  "auth.password": { en: "Password", es: "Contraseña", pt: "Senha" },
+  "auth.name": { en: "Full Name", es: "Nombre completo", pt: "Nome completo" },
+  "auth.namePlaceholder": { en: "John Doe", es: "Juan Pérez", pt: "João Silva" },
+  "auth.hasAccount": { en: "Already have an account? Sign in", es: "¿Ya tenés cuenta? Iniciá sesión", pt: "Já tem conta? Entre" },
+  "auth.noAccount": { en: "Don't have an account? Sign up", es: "¿No tenés cuenta? Registrate", pt: "Não tem conta? Cadastre-se" },
+  "auth.checkEmail": { en: "Check your email for the confirmation link", es: "Revisá tu correo para el enlace de confirmación", pt: "Verifique seu e-mail para o link de confirmação" },
+  "auth.backHome": { en: "Back to home", es: "Volver al inicio", pt: "Voltar ao início" },
+  "auth.remaining": { en: "analyses left", es: "análisis restantes", pt: "análises restantes" },
+  "auth.loginRequired": { en: "Sign in to analyze projects", es: "Iniciá sesión para analizar proyectos", pt: "Entre para analisar projetos" },
+  "auth.limitReached": { en: "Free limit reached. Upgrade to Premium for unlimited analyses.", es: "Límite gratuito alcanzado. Actualizá a Premium para análisis ilimitados.", pt: "Limite gratuito atingido. Atualize para Premium para análises ilimitadas." },
+
+  // Pricing
+  "pricing.badge": { en: "Plans", es: "Planes", pt: "Planos" },
+  "pricing.title": { en: "Choose your plan", es: "Elegí tu plan", pt: "Escolha seu plano" },
+  "pricing.subtitle": { en: "Start free, upgrade when you need more", es: "Empezá gratis, actualizá cuando necesites más", pt: "Comece grátis, atualize quando precisar de mais" },
+  "pricing.free": { en: "Free", es: "Gratis", pt: "Grátis" },
+  "pricing.forever": { en: "forever", es: "siempre", pt: "sempre" },
+  "pricing.monthly": { en: "Monthly", es: "Mensual", pt: "Mensal" },
+  "pricing.annual": { en: "Annual", es: "Anual", pt: "Anual" },
+  "pricing.perMonth": { en: "month", es: "mes", pt: "mês" },
+  "pricing.perYear": { en: "year", es: "año", pt: "ano" },
+  "pricing.save17": { en: "Save 17%", es: "Ahorrá 17%", pt: "Economize 17%" },
+  "pricing.current": { en: "Current", es: "Actual", pt: "Atual" },
+  "pricing.upgrade": { en: "Upgrade", es: "Mejorar plan", pt: "Melhorar plano" },
+  "pricing.manage": { en: "Manage subscription", es: "Gestionar suscripción", pt: "Gerenciar assinatura" },
+  "pricing.signUpFirst": { en: "Sign up to upgrade", es: "Registrate para mejorar", pt: "Cadastre-se para melhorar" },
+  "pricing.getStarted": { en: "Get started", es: "Comenzar", pt: "Começar" },
+  "pricing.freeFeature1": { en: "3 project analyses", es: "3 análisis de proyectos", pt: "3 análises de projetos" },
+  "pricing.freeFeature2": { en: "PDF & Excel export", es: "Exportar PDF y Excel", pt: "Exportar PDF e Excel" },
+  "pricing.freeFeature3": { en: "All financial metrics", es: "Todas las métricas financieras", pt: "Todas as métricas financeiras" },
+  "pricing.premFeature1": { en: "Unlimited analyses", es: "Análisis ilimitados", pt: "Análises ilimitadas" },
+  "pricing.premFeature2": { en: "PDF & Excel export", es: "Exportar PDF y Excel", pt: "Exportar PDF e Excel" },
+  "pricing.premFeature3": { en: "All financial metrics", es: "Todas las métricas financieras", pt: "Todas as métricas financeiras" },
+  "pricing.premFeature4": { en: "Priority support", es: "Soporte prioritario", pt: "Suporte prioritário" },
+
+  // Nav pricing
+  "nav.pricing": { en: "Pricing", es: "Planes", pt: "Planos" },
 } as const;
 
 type TranslationKey = keyof typeof translations;
