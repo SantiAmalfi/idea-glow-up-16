@@ -31,12 +31,12 @@ export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProp
           <BarChart data={data} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <XAxis
               dataKey="year"
-              tick={{ fill: "hsl(215 20% 55%)", fontSize: 12 }}
-              axisLine={{ stroke: "hsl(220 25% 18%)" }}
+              tick={{ fill: "hsl(215 20% 60%)", fontSize: 12 }}
+              axisLine={{ stroke: "hsl(220 25% 20%)" }}
               tickLine={false}
             />
             <YAxis
-              tick={{ fill: "hsl(215 20% 55%)", fontSize: 12, fontFamily: "JetBrains Mono" }}
+              tick={{ fill: "hsl(215 20% 60%)", fontSize: 12, fontFamily: "JetBrains Mono" }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
@@ -44,14 +44,14 @@ export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProp
             <Tooltip
               contentStyle={{
                 background: "hsl(220 35% 10%)",
-                border: "1px solid hsl(220 25% 18%)",
+                border: "1px solid hsl(220 25% 20%)",
                 borderRadius: "12px",
-                color: "hsl(210 40% 96%)",
+                color: "hsl(210 40% 98%)",
                 fontFamily: "JetBrains Mono",
               }}
               formatter={(value: number) => [formatCurrency(value, currency), t("chart.cashFlow")]}
             />
-            <ReferenceLine y={0} stroke="hsl(220 25% 18%)" />
+            <ReferenceLine y={0} stroke="hsl(220 25% 20%)" />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
               {data.map((entry, i) => (
                 <Cell
