@@ -261,14 +261,28 @@ export default function Index() {
             </div>
 
             <div className="flex gap-3">
-              <Button
-                onClick={() => setPreviewOpen(true)}
-                variant="outline"
-                className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
-              >
-                <Eye className="h-4 w-4" />
-                {t("preview.button")}
-              </Button>
+              {isPremium ? (
+                <Button
+                  onClick={() => setPreviewOpen(true)}
+                  variant="outline"
+                  className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+                >
+                  <Eye className="h-4 w-4" />
+                  {t("preview.button")}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2 border-muted text-muted-foreground cursor-not-allowed opacity-60"
+                  onClick={() => {
+                    toast.info(t("preview.premiumOnly"));
+                    document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  <Crown className="h-4 w-4" />
+                  {t("preview.button")}
+                </Button>
+              )}
               <Button
                 onClick={() => exportToPdf(result, language, isPremium ? settings : undefined)}
                 variant="outline"

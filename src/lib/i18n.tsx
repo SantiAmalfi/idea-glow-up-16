@@ -364,6 +364,17 @@ const translations = {
   "auth.continueGoogle": { en: "Continue with Google", es: "Continuar con Google", pt: "Continuar com Google" },
   "auth.orEmail": { en: "or continue with email", es: "o continuar con email", pt: "ou continuar com email" },
   "auth.verificationNote": { en: "A verification link will be sent to your email to complete registration.", es: "Se enviará un enlace de verificación a tu correo para completar el registro.", pt: "Um link de verificação será enviado ao seu e-mail para completar o cadastro." },
+  "auth.forgotPassword": { en: "Forgot your password?", es: "¿Olvidaste tu contraseña?", pt: "Esqueceu sua senha?" },
+  "auth.resetPassword": { en: "Reset Password", es: "Restablecer contraseña", pt: "Redefinir senha" },
+  "auth.resetPasswordDesc": { en: "Enter your email to receive a reset link", es: "Ingresá tu correo para recibir un enlace de restablecimiento", pt: "Digite seu e-mail para receber um link de redefinição" },
+  "auth.sendResetLink": { en: "Send reset link", es: "Enviar enlace", pt: "Enviar link" },
+  "auth.resetLinkSent": { en: "Check your email for the reset link", es: "Revisá tu correo para el enlace de restablecimiento", pt: "Verifique seu e-mail para o link de redefinição" },
+  "auth.newPassword": { en: "New Password", es: "Nueva contraseña", pt: "Nova senha" },
+  "auth.confirmNewPassword": { en: "Confirm New Password", es: "Confirmar nueva contraseña", pt: "Confirmar nova senha" },
+  "auth.updatePassword": { en: "Update Password", es: "Actualizar contraseña", pt: "Atualizar senha" },
+  "auth.passwordUpdated": { en: "Password updated! Redirecting...", es: "¡Contraseña actualizada! Redirigiendo...", pt: "Senha atualizada! Redirecionando..." },
+  "auth.passwordMismatch": { en: "Passwords do not match", es: "Las contraseñas no coinciden", pt: "As senhas não coincidem" },
+  "preview.premiumOnly": { en: "PDF Preview is a Premium feature", es: "La vista previa PDF es una función Premium", pt: "A pré-visualização PDF é um recurso Premium" },
 
   // Pricing
   "pricing.badge": { en: "Plans", es: "Planes", pt: "Planos" },
