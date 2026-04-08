@@ -374,7 +374,7 @@ const translations = {
   "pricing.manage": { en: "Manage subscription", es: "Gestionar suscripción", pt: "Gerenciar assinatura" },
   "pricing.signUpFirst": { en: "Sign up to upgrade", es: "Registrate para mejorar", pt: "Cadastre-se para melhorar" },
   "pricing.getStarted": { en: "Get started", es: "Comenzar", pt: "Começar" },
-  "pricing.freeFeature1": { en: "3 project analyses", es: "3 análisis de proyectos", pt: "3 análises de projetos" },
+  "pricing.freeFeature1": { en: "3 analyses per month", es: "3 análisis por mes", pt: "3 análises por mês" },
   "pricing.freeFeature2": { en: "Basic PDF export", es: "Exportación PDF básica", pt: "Exportação PDF básica" },
   "pricing.freeFeature3": { en: "All financial metrics (NPV, IRR, ROI)", es: "Todas las métricas financieras (VAN, TIR, ROI)", pt: "Todas as métricas financeiras (VPL, TIR, ROI)" },
   "pricing.premFeature1": { en: "Unlimited analyses", es: "Análisis ilimitados", pt: "Análises ilimitadas" },
