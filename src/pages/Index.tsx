@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown, Eye } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
