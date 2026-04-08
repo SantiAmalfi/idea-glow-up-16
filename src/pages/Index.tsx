@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -9,11 +9,15 @@ import CalculationDetails from "@/components/CalculationDetails";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
+import PricingSection from "@/components/PricingSection";
 import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
 import { exportToExcel } from "@/lib/exportExcel";
 import { useI18n } from "@/lib/i18n";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 interface AnalysisResult {
   projectName: string;
@@ -37,8 +41,24 @@ interface AnalysisResult {
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { t, language } = useI18n();
+  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleAnalyze = (data: {
+  // Handle checkout return
+  useEffect(() => {
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success") {
+      toast.success("🎉 ¡Suscripción activada! Recargando estado...");
+      checkSubscription();
+      window.history.replaceState({}, "", "/");
+    } else if (checkout === "cancel") {
+      toast.info("Checkout cancelado");
+      window.history.replaceState({}, "", "/");
+    }
+  }, [searchParams, checkSubscription]);
+
+  const handleAnalyze = async (data: {
     projectName: string;
     projectDescription: string;
     currency: Currency;
@@ -51,6 +71,28 @@ export default function Index() {
     depreciation: DepreciationConfig;
     reinvestments: number[];
   }) => {
+    // Check auth
+    if (!user) {
+      toast.error(t("auth.loginRequired"));
+      navigate("/auth");
+      return;
+    }
+
+    // Check limits
+    if (!canAnalyze) {
+      toast.error(t("auth.limitReached"));
+      const pricingEl = document.getElementById("pricing");
+      if (pricingEl) pricingEl.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
+    // Record usage
+    const recorded = await recordAnalysis(data.projectName);
+    if (!recorded) {
+      toast.error(t("auth.limitReached"));
+      return;
+    }
+
     const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate, data.depreciation, data.reinvestments);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
@@ -142,6 +184,30 @@ export default function Index() {
         </div>
       </section>
 
+      {/* Usage banner */}
+      {user && !isPremium && (
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              {remainingAnalyses !== null && remainingAnalyses > 0 ? (
+                <>📊 {remainingAnalyses} {t("auth.remaining")}</>
+              ) : (
+                <span className="text-destructive flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5" />
+                  {t("auth.limitReached")}
+                </span>
+              )}
+            </span>
+            {!isPremium && (
+              <a href="#pricing" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                <Crown className="h-3 w-3" />
+                {t("pricing.upgrade")}
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Analyzer */}
       <section id="analyzer" className="max-w-5xl mx-auto px-4 py-8">
         <InvestmentForm onAnalyze={handleAnalyze} />
@@ -231,6 +297,7 @@ export default function Index() {
         )}
       </section>
 
+      <PricingSection />
       <FeaturesSection />
       <Footer />
     </div>
