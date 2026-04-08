@@ -49,6 +49,7 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
   const [savingSettings, setSavingSettings] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const saveReportSettings = async () => {
     if (!user || !isPremium) return;
