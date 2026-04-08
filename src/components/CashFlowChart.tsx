@@ -56,7 +56,7 @@ export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProp
               {data.map((entry, i) => (
                 <Cell
                   key={i}
-                  fill={entry.value >= 0 ? "hsl(155 72% 47%)" : "hsl(0 72% 55%)"}
+                  fill={entry.value >= 0 ? "hsl(152 60% 42%)" : "hsl(0 78% 60%)"}
                   opacity={0.85}
                 />
               ))}
