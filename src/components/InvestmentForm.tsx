@@ -183,7 +183,6 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
     const incRate = customRates.incomeGrowth / 100;
     const fixedRate = customRates.fixedCostGrowth / 100;
     const varRate = customRates.variableUnitsGrowth / 100;
-    const infRate = inflationEnabled ? (Number(inflationRate) || 0) / 100 : 0;
 
     const projected: { income: string; expenses: string }[] = [];
     projected.push({ income: String(year1Income), expenses: String(year1Expenses) });
@@ -192,7 +191,15 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       const incGrowth = Math.pow(1 + incRate, yr - 1);
       const fixedGrowth = Math.pow(1 + fixedRate, yr - 1);
       const varUnitsGrowth = Math.pow(1 + varRate, yr - 1);
-      const inflationFactor = Math.pow(1 + infRate, yr - 1);
+
+      // Cumulative inflation factor from per-year rates
+      let inflationFactor = 1;
+      if (inflationEnabled) {
+        for (let y = 1; y < yr; y++) {
+          const yearRate = (Number(inflationRates[y]) || 0) / 100;
+          inflationFactor *= (1 + yearRate);
+        }
+      }
 
       const projIncome = Math.round(year1Income * incGrowth);
       const projFixed = Math.round(year1Fixed * fixedGrowth * inflationFactor);
@@ -204,7 +211,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       });
     }
     setProjectedData(projected);
-  }, [customRates, inflationEnabled, inflationRate, year1Income, year1Fixed, year1Variable, numYears]);
+  }, [customRates, inflationEnabled, inflationRates, year1Income, year1Fixed, year1Variable, numYears]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
