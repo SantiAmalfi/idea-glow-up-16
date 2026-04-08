@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar, Percent, ChevronDown, Plus, Trash2, Search,
   Building2, Info, TrendingUp, TrendingDown, BarChart3,
-  DollarSign, Package, Layers,
+  DollarSign, Package, Layers, RefreshCw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +58,7 @@ interface InvestmentFormProps {
     yearlyData: YearData[];
     scenario: Scenario;
     depreciation: DepreciationConfig;
+    reinvestments: number[];
   }) => void;
 }
 
@@ -122,6 +123,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [years, setYears] = useState("5");
   const [discountRate, setDiscountRate] = useState("10");
   const [taxRate, setTaxRate] = useState("25");
+
+  // Reinvestment
+  const [reinvestEnabled, setReinvestEnabled] = useState(false);
+  const [reinvestAmounts, setReinvestAmounts] = useState<string[]>([]);
 
   // Depreciation
   const [depEnabled, setDepEnabled] = useState(false);
