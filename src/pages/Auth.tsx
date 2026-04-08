@@ -33,7 +33,14 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success(t("auth.resetLinkSent"));
+        setIsForgotPassword(false);
+      } else if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -97,10 +104,10 @@ export default function Auth() {
             </span>
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            {isSignUp ? t("auth.signUp") : t("auth.signIn")}
+            {isForgotPassword ? t("auth.resetPassword") : isSignUp ? t("auth.signUp") : t("auth.signIn")}
           </h1>
           <p className="text-muted-foreground text-sm mt-2">
-            {isSignUp ? t("auth.signUpDesc") : t("auth.signInDesc")}
+            {isForgotPassword ? t("auth.resetPasswordDesc") : isSignUp ? t("auth.signUpDesc") : t("auth.signInDesc")}
           </p>
         </div>
 
