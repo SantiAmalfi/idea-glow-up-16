@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown, Eye } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -11,6 +11,7 @@ import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import PricingSection from "@/components/PricingSection";
 import ReportSettingsPanel, { useReportSettings } from "@/components/ReportSettingsPanel";
+import PdfPreviewModal from "@/components/PdfPreviewModal";
 import { Button } from "@/components/ui/button";
 import { calculateNPV, calculateIRR, buildCashFlows, calculatePaybackPeriod, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { exportToPdf } from "@/lib/exportPdf";
@@ -48,6 +49,7 @@ export default function Index() {
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
   const [savingSettings, setSavingSettings] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const saveReportSettings = async () => {
     if (!user || !isPremium) return;
@@ -260,6 +262,14 @@ export default function Index() {
 
             <div className="flex gap-3">
               <Button
+                onClick={() => setPreviewOpen(true)}
+                variant="outline"
+                className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Eye className="h-4 w-4" />
+                {t("preview.button")}
+              </Button>
+              <Button
                 onClick={() => exportToPdf(result, language, isPremium ? settings : undefined)}
                 variant="outline"
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
@@ -276,6 +286,13 @@ export default function Index() {
                 {t("results.downloadExcel")}
               </Button>
             </div>
+
+            <PdfPreviewModal
+              open={previewOpen}
+              onOpenChange={setPreviewOpen}
+              data={result}
+              reportSettings={isPremium ? settings : undefined}
+            />
 
             {/* Report customization for premium */}
             <ReportSettingsPanel

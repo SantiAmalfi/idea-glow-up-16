@@ -274,7 +274,7 @@ async function loadImage(url: string): Promise<HTMLImageElement | null> {
   });
 }
 
-export async function exportToPdf(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings) {
+async function buildPdfDoc(data: ExportData, lang: Language, reportSettings?: ReportSettings): Promise<jsPDF> {
   const rs = reportSettings || {
     template_id: "professional",
     header_title: "",
@@ -313,11 +313,9 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
   const hasReinvest = reinvestments.some(r => r > 0);
   const totalReinvest = reinvestments.reduce((s, r) => s + r, 0);
 
-  // ── Render header based on template ──
   const renderHeader = headerRenderers[rs.template_id] || renderHeader_professional;
   let y = renderHeader(doc, cfg, data, lang);
 
-  // ── Conclusion ──
   const conclusionColor: [number, number, number] = data.npv >= 0 ? cfg.secondaryRgb : [220, 38, 38];
   doc.setFillColor(...conclusionColor);
   doc.roundedRect(margin, y, pageW - 2 * margin, 12, 2, 2, "F");
@@ -330,7 +328,6 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
   );
   y += 18;
 
-  // ── Analysis Parameters ──
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(14);
   doc.setFont(cfg.font, "bold");
@@ -377,7 +374,6 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
 
   y = (doc as any).lastAutoTable.finalY + 12;
 
-  // ── Key Metrics ──
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(14);
   doc.setFont(cfg.font, "bold");
@@ -410,7 +406,6 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
 
   y = (doc as any).lastAutoTable.finalY + 14;
 
-  // ── Cash Flow Table ──
   if (y > 220) { doc.addPage(); y = 20; }
 
   doc.setFontSize(14);
@@ -476,7 +471,6 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
 
   y = (doc as any).lastAutoTable.finalY + 14;
 
-  // ── NPV Breakdown ──
   if (y > 220) { doc.addPage(); y = 20; }
 
   doc.setFontSize(14);
@@ -523,7 +517,6 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
     },
   });
 
-  // ── Footer ──
   const pageCount = doc.getNumberOfPages();
   for (let p = 1; p <= pageCount; p++) {
     doc.setPage(p);
@@ -533,5 +526,16 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
     doc.text(`${l("page", lang)} ${p} ${l("of", lang)} ${pageCount}`, pageW - margin, doc.internal.pageSize.getHeight() - 10, { align: "right" });
   }
 
+  return doc;
+}
+
+export async function exportToPdf(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings) {
+  const doc = await buildPdfDoc(data, lang, reportSettings);
   doc.save(`${data.projectName || "investment-analysis"}.pdf`);
+}
+
+
+export async function generatePdfDataUrl(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings): Promise<string> {
+  const doc = await buildPdfDoc(data, lang, reportSettings);
+  return doc.output("dataurlstring");
 }
