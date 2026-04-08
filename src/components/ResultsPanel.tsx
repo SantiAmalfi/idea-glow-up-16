@@ -57,7 +57,7 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, p
     {
       label: t("results.totalTax"),
       value: formatCurrency(totalTax, currency),
-      positive: true,
+      positive: false,
       icon: Receipt,
       description: t("results.estimatedTax"),
     },

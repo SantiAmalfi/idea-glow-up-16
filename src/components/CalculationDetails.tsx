@@ -122,7 +122,7 @@ export default function CalculationDetails({
                     <TableCell className={`font-mono text-sm text-right ${r.preTaxProfit >= 0 ? "text-primary" : "text-destructive"}`}>{formatCurrency(r.preTaxProfit, currency)}</TableCell>
                     {depEnabled && <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(Math.round(r.depreciation), currency)}</TableCell>}
                     {depEnabled && <TableCell className="font-mono text-sm text-right text-primary">{formatCurrency(Math.round(r.taxShield), currency)}</TableCell>}
-                    <TableCell className="font-mono text-sm text-right text-muted-foreground">{formatCurrency(r.tax, currency)}</TableCell>
+                    <TableCell className="font-mono text-sm text-right text-destructive/80">{formatCurrency(r.tax, currency)}</TableCell>
                     <TableCell className={`font-mono text-sm text-right ${r.netCashFlow >= 0 ? "text-primary" : "text-destructive"}`}>
                       {formatCurrency(r.netCashFlow, currency)}
                       {r.hasResidual && <span className="text-xs text-muted-foreground ml-1">*</span>}
@@ -139,7 +139,7 @@ export default function CalculationDetails({
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.preTaxProfit, currency)}</TableCell>
                   {depEnabled && <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(Math.round(annualDep * yearlyData.length), currency)}</TableCell>}
                   {depEnabled && <TableCell className="font-mono text-sm text-right font-bold text-primary">{formatCurrency(Math.round(rows.reduce((s, r) => s + r.taxShield, 0)), currency)}</TableCell>}
-                  <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.tax, currency)}</TableCell>
+                  <TableCell className="font-mono text-sm text-right font-bold text-destructive">{formatCurrency(totals.tax, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(totals.netCashFlow, currency)}</TableCell>
                   <TableCell className="font-mono text-sm text-right font-bold">{formatCurrency(cumulative, currency)}</TableCell>
                 </TableRow>
