@@ -13,14 +13,14 @@ export default function Footer() {
               <TrendingUp className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="font-bold text-foreground">
-              Invest<span className="text-primary">Calc</span> Pro
+              Project <span className="text-primary">Evaluator</span>
             </span>
           </div>
           <p className="text-xs text-muted-foreground text-center">
             {t("footer.disclaimer")}
           </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} InvestCalc Pro
+            © {new Date().getFullYear()} Project Evaluator
           </p>
         </div>
       </div>
