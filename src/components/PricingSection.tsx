@@ -24,7 +24,7 @@ export default function PricingSection() {
     },
     {
       name: t("pricing.monthly"),
-      price: "$9,99",
+      price: "$4,99",
       interval: t("pricing.perMonth"),
       features: [
         t("pricing.premFeature1"),
@@ -37,7 +37,7 @@ export default function PricingSection() {
     },
     {
       name: t("pricing.annual"),
-      price: "$99,90",
+      price: "$49,99",
       interval: t("pricing.perYear"),
       badge: t("pricing.save17"),
       features: [
