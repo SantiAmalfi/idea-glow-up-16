@@ -156,6 +156,15 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [projectedData, setProjectedData] = useState<{ income: string; expenses: string }[]>([]);
 
   const numYears = Math.max(1, Math.min(30, Number(years) || 1));
+
+  // Keep inflationRates array in sync with numYears
+  useEffect(() => {
+    setInflationRates(prev => {
+      const next = [...prev];
+      while (next.length < numYears) next.push(next.length > 0 ? next[next.length - 1] : "5");
+      return next.slice(0, numYears);
+    });
+  }, [numYears]);
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
 
   // Year 1 totals
