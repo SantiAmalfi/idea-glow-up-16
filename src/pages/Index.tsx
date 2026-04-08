@@ -262,6 +262,14 @@ export default function Index() {
 
             <div className="flex gap-3">
               <Button
+                onClick={() => setPreviewOpen(true)}
+                variant="outline"
+                className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
+              >
+                <Eye className="h-4 w-4" />
+                {t("preview.button")}
+              </Button>
+              <Button
                 onClick={() => exportToPdf(result, language, isPremium ? settings : undefined)}
                 variant="outline"
                 className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/10"
@@ -278,6 +286,13 @@ export default function Index() {
                 {t("results.downloadExcel")}
               </Button>
             </div>
+
+            <PdfPreviewModal
+              open={previewOpen}
+              onOpenChange={setPreviewOpen}
+              data={result}
+              reportSettings={isPremium ? settings : undefined}
+            />
 
             {/* Report customization for premium */}
             <ReportSettingsPanel
