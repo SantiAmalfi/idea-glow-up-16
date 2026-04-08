@@ -170,6 +170,15 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       return next.slice(0, numYears);
     });
   }, [numYears]);
+
+  // Keep reinvestAmounts array in sync with numYears
+  useEffect(() => {
+    setReinvestAmounts(prev => {
+      const next = [...prev];
+      while (next.length < numYears) next.push("0");
+      return next.slice(0, numYears);
+    });
+  }, [numYears]);
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
 
   // Year 1 totals
@@ -239,6 +248,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         depreciableValue: Number(depValue) || 0,
         residualValue: Number(depResidual) || 0,
       },
+      reinvestments: reinvestEnabled ? reinvestAmounts.map(v => Number(v) || 0) : Array(numYears).fill(0),
     });
   };
 
