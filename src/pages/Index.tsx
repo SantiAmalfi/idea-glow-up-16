@@ -48,8 +48,9 @@ export default function Index() {
     yearlyData: YearData[];
     scenario: Scenario;
     depreciation: DepreciationConfig;
+    reinvestments: number[];
   }) => {
-    const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate, data.depreciation);
+    const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate, data.depreciation, data.reinvestments);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
     const totalReturn = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);

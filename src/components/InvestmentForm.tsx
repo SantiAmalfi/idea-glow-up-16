@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar, Percent, ChevronDown, Plus, Trash2, Search,
   Building2, Info, TrendingUp, TrendingDown, BarChart3,
-  DollarSign, Package, Layers,
+  DollarSign, Package, Layers, RefreshCw,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +58,7 @@ interface InvestmentFormProps {
     yearlyData: YearData[];
     scenario: Scenario;
     depreciation: DepreciationConfig;
+    reinvestments: number[];
   }) => void;
 }
 
@@ -123,6 +124,10 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
   const [discountRate, setDiscountRate] = useState("10");
   const [taxRate, setTaxRate] = useState("25");
 
+  // Reinvestment
+  const [reinvestEnabled, setReinvestEnabled] = useState(false);
+  const [reinvestAmounts, setReinvestAmounts] = useState<string[]>([]);
+
   // Depreciation
   const [depEnabled, setDepEnabled] = useState(false);
   const [depAssetName, setDepAssetName] = useState("");
@@ -162,6 +167,15 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
     setInflationRates(prev => {
       const next = [...prev];
       while (next.length < numYears) next.push(next.length > 0 ? next[next.length - 1] : "5");
+      return next.slice(0, numYears);
+    });
+  }, [numYears]);
+
+  // Keep reinvestAmounts array in sync with numYears
+  useEffect(() => {
+    setReinvestAmounts(prev => {
+      const next = [...prev];
+      while (next.length < numYears) next.push("0");
       return next.slice(0, numYears);
     });
   }, [numYears]);
@@ -234,6 +248,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
         depreciableValue: Number(depValue) || 0,
         residualValue: Number(depResidual) || 0,
       },
+      reinvestments: reinvestEnabled ? reinvestAmounts.map(v => Number(v) || 0) : Array(numYears).fill(0),
     });
   };
 
@@ -306,6 +321,57 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* ─── Section 3a: Reinvestment ─── */}
+      <div className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="h-5 w-5 text-primary" />
+            <div>
+              <Label className="text-sm font-semibold text-foreground block">{t("form.reinvestToggle")}</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">{t("form.reinvestDesc")}</p>
+            </div>
+          </div>
+          <Switch checked={reinvestEnabled} onCheckedChange={setReinvestEnabled} />
+        </div>
+        <AnimatePresence>
+          {reinvestEnabled && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-3">
+              <p className="text-xs text-muted-foreground">{t("form.reinvestPerYearDesc")}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {reinvestAmounts.map((amt, i) => (
+                  <div key={i}>
+                    <Label className="text-muted-foreground text-xs mb-1 block">
+                      {t("form.year")} {i + 1}
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground">{currencySymbol}</span>
+                      <FormattedNumberInput
+                        value={amt}
+                        onChange={(v) => {
+                          const next = [...reinvestAmounts];
+                          next[i] = v;
+                          setReinvestAmounts(next);
+                        }}
+                        className="pl-8 bg-secondary border-border font-mono text-foreground h-9 text-sm"
+                        min={0}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {reinvestAmounts.some(a => Number(a) > 0) && (
+                <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 text-sm">
+                  <span className="text-xs text-muted-foreground block">{t("form.totalReinvestment")}</span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {formatCurrency(reinvestAmounts.reduce((s, a) => s + (Number(a) || 0), 0), currency)}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ─── Section 3: Depreciation ─── */}

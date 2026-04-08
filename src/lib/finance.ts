@@ -35,7 +35,8 @@ export function buildCashFlows(
   initialInvestment: number,
   yearlyData: YearInput[],
   taxRate: number,
-  depreciation?: DepreciationConfig
+  depreciation?: DepreciationConfig,
+  reinvestments?: number[]
 ): number[] {
   const years = yearlyData.length;
   const annualDep = depreciation?.enabled
@@ -50,6 +51,10 @@ export function buildCashFlows(
     const taxableIncome = preTax - annualDep;
     const tax = taxableIncome > 0 ? taxableIncome * taxRate : 0;
     let netCF = preTax - tax;
+    // Subtract reinvestment for this year
+    if (reinvestments && reinvestments[i]) {
+      netCF -= reinvestments[i];
+    }
     // Add residual value to last year
     if (i === years - 1 && residual > 0) {
       netCF += residual;

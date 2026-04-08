@@ -293,6 +293,20 @@ const translations = {
   "results.totalTaxShield": { en: "Total Tax Shield", es: "Escudo fiscal total", pt: "Escudo fiscal total" },
   "results.totalTaxShieldDesc": { en: "Tax savings from depreciation", es: "Ahorro fiscal por depreciación", pt: "Economia fiscal por depreciação" },
 
+  // Reinvestment
+  "form.reinvestToggle": { en: "Include reinvestment in later years?", es: "¿Incluir reinversión en años posteriores?", pt: "Incluir reinvestimento em anos posteriores?" },
+  "form.reinvestDesc": {
+    en: "Add additional investment amounts in specific years that reduce cash flow.",
+    es: "Agrega montos de inversión adicional en años específicos que reducen el flujo de caja.",
+    pt: "Adicione valores de investimento adicional em anos específicos que reduzem o fluxo de caixa.",
+  },
+  "form.reinvestPerYearDesc": {
+    en: "Enter the reinvestment amount for each year. Leave at 0 for years with no reinvestment.",
+    es: "Ingresa el monto de reinversión para cada año. Deja en 0 los años sin reinversión.",
+    pt: "Insira o valor de reinvestimento para cada ano. Deixe em 0 para anos sem reinvestimento.",
+  },
+  "form.totalReinvestment": { en: "Total Reinvestment", es: "Reinversión total", pt: "Reinvestimento total" },
+
   // Inflation
   "form.inflationToggle": { en: "Include inflation projection?", es: "¿Incluir proyección de inflación?", pt: "Incluir projeção de inflação?" },
   "form.inflationDesc": {
