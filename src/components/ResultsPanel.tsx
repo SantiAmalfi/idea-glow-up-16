@@ -49,7 +49,7 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, p
     },
     {
       label: t("results.payback"),
-      value: paybackPeriod !== null ? `${paybackPeriod.toFixed(1)} ${t("results.years")}` : t("results.never"),
+      value: paybackPeriod !== null ? `${paybackPeriod.toFixed(1).replace('.', ',')} ${t("results.years")}` : t("results.never"),
       positive: paybackPeriod !== null,
       icon: Clock,
       description: paybackPeriod !== null ? t("results.timeToRecover") : t("results.notRecovered"),

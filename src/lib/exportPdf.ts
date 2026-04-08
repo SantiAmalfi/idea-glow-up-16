@@ -8,7 +8,7 @@ import type { Language } from "./i18n";
  */
 function pdfCurrency(value: number, currency: Currency): string {
   const cfg = CURRENCY_CONFIG[currency];
-  const num = new Intl.NumberFormat(cfg.locale, {
+  const num = new Intl.NumberFormat("de-DE", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
@@ -111,8 +111,8 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
   const c = data.currency;
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 20;
-  const taxPct = `${(data.taxRate * 100).toFixed(0)}%`;
-  const discPct = `${(data.discountRate * 100).toFixed(1)}%`;
+  const taxPct = `${(data.taxRate * 100).toFixed(0).replace('.', ',')}%`;
+  const discPct = `${(data.discountRate * 100).toFixed(1).replace('.', ',')}%`;
   const nYears = data.yearlyData.length;
   const hasDep = data.depreciation?.enabled ?? false;
   const annualDep = hasDep
@@ -218,7 +218,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     [l("irr", lang), data.irr !== null ? formatPercent(data.irr) : "N/A"],
     [l("roi", lang), formatPercent(data.roi)],
     [l("totalReturn", lang), pdfCurrency(data.totalReturn, c)],
-    [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1)} ${l("years", lang)}` : l("never", lang)],
+    [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1).replace('.', ',')} ${l("years", lang)}` : l("never", lang)],
     [l("totalTax", lang), pdfCurrency(data.totalTax, c)],
   ];
 
@@ -343,7 +343,7 @@ export function exportToPdf(data: ExportData, lang: Language = "en") {
     const df = 1 / Math.pow(1 + data.discountRate, i + 1);
     const pv = finalNet * df;
     npvRunning += pv;
-    npvBody.push([`${i + 1}`, pdfCurrency(finalNet, c), df.toFixed(4), pdfCurrency(pv, c)]);
+    npvBody.push([`${i + 1}`, pdfCurrency(finalNet, c), df.toFixed(4).replace('.', ','), pdfCurrency(pv, c)]);
   });
 
   npvBody.push(["Total", "", "", pdfCurrency(npvRunning, c)]);

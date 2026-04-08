@@ -90,7 +90,7 @@ export function exportToExcel(data: ExportData, lang: Language = "en") {
     [l("irr", lang), data.irr !== null ? data.irr : "N/A"],
     [l("roi", lang), data.roi],
     [l("totalReturn", lang), data.totalReturn],
-    [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1)} ${l("years", lang)}` : l("never", lang)],
+    [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1).replace('.', ',')} ${l("years", lang)}` : l("never", lang)],
     [l("totalTax", lang), data.totalTax],
     [l("initialInv", lang), data.investment],
     [l("discountRate", lang), data.discountRate],
@@ -177,6 +177,7 @@ export function exportToExcel(data: ExportData, lang: Language = "en") {
     const finalNet = net + residualAdd;
     const df = 1 / Math.pow(1 + data.discountRate, i + 1);
     npvRows.push([i + 1, Math.round(finalNet), Number(df.toFixed(6)), Number((finalNet * df).toFixed(2))]);
+    // Note: Excel handles number formatting via cell format, raw numbers kept for calculations
   });
 
   const ws3 = XLSX.utils.aoa_to_sheet(npvRows);
