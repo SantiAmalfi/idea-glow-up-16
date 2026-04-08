@@ -17,10 +17,7 @@ export default function Header() {
             <TrendingUp className="h-4 w-4 text-primary" />
           </div>
           <span className="font-bold text-foreground text-lg tracking-tight">
-            Invest<span className="text-primary">Calc</span>
-          </span>
-          <span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-            Pro
+            Project <span className="text-primary">Evaluator</span>
           </span>
         </div>
         <div className="flex items-center gap-1 text-sm">
