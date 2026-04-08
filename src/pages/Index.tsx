@@ -79,6 +79,7 @@ export default function Index() {
       taxRate: data.taxRate,
       yearlyData: data.yearlyData,
       depreciation: data.depreciation,
+      reinvestments: data.reinvestments,
     });
   };
 
