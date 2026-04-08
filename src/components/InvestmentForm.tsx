@@ -593,21 +593,33 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
           </div>
           <AnimatePresence>
             {inflationEnabled && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                <div className="max-w-[200px]">
-                  <Label className="text-muted-foreground text-xs uppercase tracking-wider mb-1.5 block">{t("form.inflationRate")}</Label>
-                  <div className="relative">
-                    <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                    <Input
-                      type="number"
-                      value={inflationRate}
-                      onChange={(e) => setInflationRate(e.target.value)}
-                      className="pl-9 bg-secondary border-border font-mono text-foreground h-10"
-                      placeholder="5"
-                      step="0.5"
-                      min={0}
-                    />
-                  </div>
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden space-y-3">
+                <p className="text-xs text-muted-foreground">{t("form.inflationPerYearDesc")}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  {inflationRates.map((rate, i) => (
+                    <div key={i}>
+                      <Label className="text-muted-foreground text-xs mb-1 block">
+                        {t("form.year")} {i + 1}
+                      </Label>
+                      <div className="relative">
+                        <Percent className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                          type="number"
+                          value={rate}
+                          onChange={(e) => {
+                            const next = [...inflationRates];
+                            next[i] = e.target.value;
+                            setInflationRates(next);
+                          }}
+                          className="pl-8 bg-secondary border-border font-mono text-foreground h-9 text-sm"
+                          step="0.5"
+                          min={0}
+                          readOnly={i === 0}
+                        />
+                      </div>
+                      {i === 0 && <p className="text-[10px] text-muted-foreground mt-0.5">{t("form.inflationYear1Note")}</p>}
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             )}
