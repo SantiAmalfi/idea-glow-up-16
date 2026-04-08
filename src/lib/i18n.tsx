@@ -296,11 +296,21 @@ const translations = {
   // Inflation
   "form.inflationToggle": { en: "Include inflation projection?", es: "¿Incluir proyección de inflación?", pt: "Incluir projeção de inflação?" },
   "form.inflationDesc": {
-    en: "Apply an annual inflation rate that increases costs over time.",
-    es: "Aplica una tasa de inflación anual que incrementa los costos con el tiempo.",
-    pt: "Aplica uma taxa de inflação anual que aumenta os custos ao longo do tempo.",
+    en: "Apply annual inflation rates that increase costs over time.",
+    es: "Aplica tasas de inflación anuales que incrementan los costos con el tiempo.",
+    pt: "Aplica taxas de inflação anuais que aumentam os custos ao longo do tempo.",
   },
   "form.inflationRate": { en: "Annual Inflation (%)", es: "Inflación anual (%)", pt: "Inflação anual (%)" },
+  "form.inflationPerYearDesc": {
+    en: "Set a different inflation rate for each year. Year 1 is the base (no inflation applied).",
+    es: "Define una tasa de inflación diferente para cada año. El año 1 es la base (sin inflación aplicada).",
+    pt: "Defina uma taxa de inflação diferente para cada ano. O ano 1 é a base (sem inflação aplicada).",
+  },
+  "form.inflationYear1Note": {
+    en: "Base year",
+    es: "Año base",
+    pt: "Ano base",
+  },
 
   // Editable growth rates
   "form.customRates": { en: "Custom Growth Rates", es: "Tasas de crecimiento personalizadas", pt: "Taxas de crescimento personalizadas" },
