@@ -375,12 +375,12 @@ const translations = {
   "pricing.signUpFirst": { en: "Sign up to upgrade", es: "Registrate para mejorar", pt: "Cadastre-se para melhorar" },
   "pricing.getStarted": { en: "Get started", es: "Comenzar", pt: "Começar" },
   "pricing.freeFeature1": { en: "3 project analyses", es: "3 análisis de proyectos", pt: "3 análises de projetos" },
-  "pricing.freeFeature2": { en: "PDF & Excel export", es: "Exportar PDF y Excel", pt: "Exportar PDF e Excel" },
-  "pricing.freeFeature3": { en: "All financial metrics", es: "Todas las métricas financieras", pt: "Todas as métricas financeiras" },
+  "pricing.freeFeature2": { en: "Basic PDF export", es: "Exportación PDF básica", pt: "Exportação PDF básica" },
+  "pricing.freeFeature3": { en: "All financial metrics (NPV, IRR, ROI)", es: "Todas las métricas financieras (VAN, TIR, ROI)", pt: "Todas as métricas financeiras (VPL, TIR, ROI)" },
   "pricing.premFeature1": { en: "Unlimited analyses", es: "Análisis ilimitados", pt: "Análises ilimitadas" },
-  "pricing.premFeature2": { en: "PDF & Excel export", es: "Exportar PDF y Excel", pt: "Exportar PDF e Excel" },
-  "pricing.premFeature3": { en: "All financial metrics", es: "Todas las métricas financieras", pt: "Todas as métricas financeiras" },
-  "pricing.premFeature4": { en: "Priority support", es: "Soporte prioritario", pt: "Suporte prioritário" },
+  "pricing.premFeature2": { en: "4 premium PDF templates with custom branding", es: "4 plantillas PDF premium con marca personalizada", pt: "4 modelos PDF premium com marca personalizada" },
+  "pricing.premFeature3": { en: "Custom logo, colors & fonts on reports", es: "Logo, colores y fuentes personalizados en reportes", pt: "Logo, cores e fontes personalizados nos relatórios" },
+  "pricing.premFeature4": { en: "Excel export & priority support", es: "Exportación Excel y soporte prioritario", pt: "Exportação Excel e suporte prioritário" },
 
   // Nav pricing
   "nav.pricing": { en: "Pricing", es: "Planes", pt: "Planos" },

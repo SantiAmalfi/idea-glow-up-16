@@ -6,12 +6,12 @@ const FREE_ANALYSIS_LIMIT = 3;
 
 const STRIPE_PRODUCTS = {
   monthly: {
-    price_id: "price_1TK1rwBoacFP6CQ0HAchwABr",
-    product_id: "prod_UId8yZKFuDviKs",
+    price_id: "price_1TK2uKBoacFP6CQ0JIabOKxW",
+    product_id: "prod_UIeCPZk88cRV7s",
   },
   annual: {
-    price_id: "price_1TK1sLBoacFP6CQ0SlkVfiTh",
-    product_id: "prod_UId8gXVRYYeAJq",
+    price_id: "price_1TK2ulBoacFP6CQ01B6tJ8Rj",
+    product_id: "prod_UIeD6eb4uFUyi2",
   },
 } as const;
 
