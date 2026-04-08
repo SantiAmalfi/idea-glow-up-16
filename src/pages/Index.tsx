@@ -31,6 +31,7 @@ interface AnalysisResult {
   taxRate: number;
   yearlyData: YearData[];
   depreciation: DepreciationConfig;
+  reinvestments: number[];
 }
 
 export default function Index() {
