@@ -354,6 +354,9 @@ const translations = {
   "auth.remaining": { en: "analyses left", es: "análisis restantes", pt: "análises restantes" },
   "auth.loginRequired": { en: "Sign in to analyze projects", es: "Iniciá sesión para analizar proyectos", pt: "Entre para analisar projetos" },
   "auth.limitReached": { en: "Free limit reached. Upgrade to Premium for unlimited analyses.", es: "Límite gratuito alcanzado. Actualizá a Premium para análisis ilimitados.", pt: "Limite gratuito atingido. Atualize para Premium para análises ilimitadas." },
+  "auth.continueGoogle": { en: "Continue with Google", es: "Continuar con Google", pt: "Continuar com Google" },
+  "auth.orEmail": { en: "or continue with email", es: "o continuar con email", pt: "ou continuar com email" },
+  "auth.verificationNote": { en: "A verification link will be sent to your email to complete registration.", es: "Se enviará un enlace de verificación a tu correo para completar el registro.", pt: "Um link de verificação será enviado ao seu e-mail para completar o cadastro." },
 
   // Pricing
   "pricing.badge": { en: "Plans", es: "Planes", pt: "Planos" },
