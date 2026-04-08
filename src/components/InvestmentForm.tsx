@@ -150,7 +150,7 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
 
   // Inflation
   const [inflationEnabled, setInflationEnabled] = useState(false);
-  const [inflationRate, setInflationRate] = useState("5");
+  const [inflationRates, setInflationRates] = useState<string[]>([]);
 
   // Projected data (editable override)
   const [projectedData, setProjectedData] = useState<{ income: string; expenses: string }[]>([]);
