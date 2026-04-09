@@ -113,7 +113,7 @@ function FormattedNumberInput({
 }
 
 /* ── Main component ── */
-export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
+export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFormProps) {
   const { t } = useI18n();
 
   // Project info
