@@ -27,7 +27,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkSubscription: () => Promise<void>;
   refreshAnalysisCount: () => Promise<void>;
-  recordAnalysis: (projectName?: string) => Promise<boolean>;
+  recordAnalysis: (projectName?: string, inputData?: Record<string, unknown>) => Promise<boolean>;
   createCheckout: (interval: "monthly" | "annual") => Promise<void>;
   openCustomerPortal: () => Promise<void>;
   stripeProducts: typeof STRIPE_PRODUCTS;
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  const recordAnalysis = useCallback(async (projectName?: string): Promise<boolean> => {
+  const recordAnalysis = useCallback(async (projectName?: string, inputData?: Record<string, unknown>): Promise<boolean> => {
     if (!user) return false;
     if (!isPremium && analysisCount >= FREE_ANALYSIS_LIMIT) return false;
 
@@ -79,7 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.from("analysis_usage").insert({
         user_id: user.id,
         project_name: projectName || null,
-      });
+        input_data: isPremium && inputData ? inputData : null,
+      } as any);
       if (error) throw error;
       setAnalysisCount((c) => c + 1);
       return true;
