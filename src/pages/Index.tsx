@@ -111,8 +111,21 @@ export default function Index() {
       return;
     }
 
-    // Record usage
-    const recorded = await recordAnalysis(data.projectName);
+    const inputData = {
+      projectName: data.projectName,
+      projectDescription: data.projectDescription,
+      currency: data.currency,
+      investment: data.investment,
+      years: data.years,
+      discountRate: data.discountRate,
+      taxRate: data.taxRate,
+      yearlyData: data.yearlyData,
+      scenario: data.scenario,
+      depreciation: data.depreciation,
+      reinvestments: data.reinvestments,
+    };
+
+    const recorded = await recordAnalysis(data.projectName, inputData);
     if (!recorded) {
       toast.error(t("auth.limitReached"));
       return;
