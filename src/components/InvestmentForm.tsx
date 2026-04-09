@@ -46,20 +46,23 @@ interface VariableCostItem {
   units: string;
 }
 
+export interface AnalysisInputData {
+  projectName: string;
+  projectDescription: string;
+  currency: Currency;
+  investment: number;
+  years: number;
+  discountRate: number;
+  taxRate: number;
+  yearlyData: YearData[];
+  scenario: Scenario;
+  depreciation: DepreciationConfig;
+  reinvestments: number[];
+}
+
 interface InvestmentFormProps {
-  onAnalyze: (data: {
-    projectName: string;
-    projectDescription: string;
-    currency: Currency;
-    investment: number;
-    years: number;
-    discountRate: number;
-    taxRate: number;
-    yearlyData: YearData[];
-    scenario: Scenario;
-    depreciation: DepreciationConfig;
-    reinvestments: number[];
-  }) => void;
+  onAnalyze: (data: AnalysisInputData) => void;
+  initialData?: AnalysisInputData | null;
 }
 
 /* ── Scenario growth rates ── */
