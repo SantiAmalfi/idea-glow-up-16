@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, Crown, BarChart3, User, Calendar, FileText } from "lucide-react";
+import { ArrowLeft, Crown, BarChart3, User, Calendar, FileText, Edit, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import { toast } from "sonner";
 
 interface AnalysisRecord {
   id: string;
   project_name: string | null;
   created_at: string;
+  input_data: Record<string, unknown> | null;
 }
 
 export default function Settings() {
@@ -34,16 +36,26 @@ export default function Settings() {
     try {
       const { data, error } = await supabase
         .from("analysis_usage")
-        .select("id, project_name, created_at")
+        .select("id, project_name, created_at, input_data" as any)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      setAnalyses(data || []);
+      setAnalyses((data as any) || []);
     } catch (e) {
       console.error("Error fetching analyses:", e);
     } finally {
       setLoadingAnalyses(false);
     }
+  };
+
+  const handleLoadAnalysis = (analysis: AnalysisRecord) => {
+    if (!analysis.input_data) {
+      toast.info(t("settings.noDataSaved"));
+      return;
+    }
+    // Store in sessionStorage and navigate to home
+    sessionStorage.setItem("loadAnalysis", JSON.stringify(analysis.input_data));
+    navigate("/");
   };
 
   if (!user) return null;
@@ -111,19 +123,25 @@ export default function Settings() {
                     </p>
                   )}
                 </div>
-                <Button onClick={openCustomerPortal} variant="outline" className="w-full">
-                  {t("pricing.manage")}
-                </Button>
+                <div className="flex gap-3">
+                  <Button onClick={openCustomerPortal} variant="outline" className="flex-1 gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    {t("pricing.manage")}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center">
+                  {t("settings.cancelSub")} · {t("settings.changePlan")}
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">{t("settings.upgradeDesc")}</p>
                 <div className="flex gap-3">
                   <Button onClick={() => createCheckout("monthly")} className="flex-1">
-                    {t("pricing.monthly")} — $9.99/{t("pricing.perMonth")}
+                    {t("pricing.monthly")} — $4,99/{t("pricing.perMonth")}
                   </Button>
                   <Button onClick={() => createCheckout("annual")} variant="outline" className="flex-1">
-                    {t("pricing.annual")} — $99.90/{t("pricing.perYear")}
+                    {t("pricing.annual")} — $49,99/{t("pricing.perYear")}
                   </Button>
                 </div>
               </div>
@@ -153,10 +171,23 @@ export default function Settings() {
                         {a.project_name || t("settings.untitledProject")}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(a.created_at).toLocaleDateString()}
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(a.created_at).toLocaleDateString()}
+                      </span>
+                      {isPremium && a.input_data && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleLoadAnalysis(a)}
+                          className="gap-1 text-primary text-xs h-7 px-2"
+                        >
+                          <Edit className="h-3 w-3" />
+                          {t("settings.loadAnalysis")}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

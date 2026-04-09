@@ -46,20 +46,23 @@ interface VariableCostItem {
   units: string;
 }
 
+export interface AnalysisInputData {
+  projectName: string;
+  projectDescription: string;
+  currency: Currency;
+  investment: number;
+  years: number;
+  discountRate: number;
+  taxRate: number;
+  yearlyData: YearData[];
+  scenario: Scenario;
+  depreciation: DepreciationConfig;
+  reinvestments: number[];
+}
+
 interface InvestmentFormProps {
-  onAnalyze: (data: {
-    projectName: string;
-    projectDescription: string;
-    currency: Currency;
-    investment: number;
-    years: number;
-    discountRate: number;
-    taxRate: number;
-    yearlyData: YearData[];
-    scenario: Scenario;
-    depreciation: DepreciationConfig;
-    reinvestments: number[];
-  }) => void;
+  onAnalyze: (data: AnalysisInputData) => void;
+  initialData?: AnalysisInputData | null;
 }
 
 /* ── Scenario growth rates ── */
@@ -110,7 +113,7 @@ function FormattedNumberInput({
 }
 
 /* ── Main component ── */
-export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
+export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFormProps) {
   const { t } = useI18n();
 
   // Project info
@@ -179,6 +182,30 @@ export default function InvestmentForm({ onAnalyze }: InvestmentFormProps) {
       return next.slice(0, numYears);
     });
   }, [numYears]);
+
+  // Load initial data when provided
+  useEffect(() => {
+    if (!initialData) return;
+    setProjectName(initialData.projectName || "");
+    setProjectDescription(initialData.projectDescription || "");
+    setCurrency(initialData.currency || "USD");
+    setInvestment(String(initialData.investment || 100000));
+    setYears(String(initialData.years || 5));
+    setDiscountRate(String((initialData.discountRate || 0.1) * 100));
+    setTaxRate(String((initialData.taxRate || 0.25) * 100));
+    setScenario(initialData.scenario || "base");
+    if (initialData.depreciation?.enabled) {
+      setDepEnabled(true);
+      setDepAssetName(initialData.depreciation.assetName || "");
+      setDepValue(String(initialData.depreciation.depreciableValue || ""));
+      setDepResidual(String(initialData.depreciation.residualValue || "0"));
+    }
+    if (initialData.reinvestments?.some(r => r > 0)) {
+      setReinvestEnabled(true);
+      setReinvestAmounts(initialData.reinvestments.map(String));
+    }
+  }, [initialData]);
+
   const currencySymbol = CURRENCY_CONFIG[currency]?.symbol || "$";
 
   // Year 1 totals

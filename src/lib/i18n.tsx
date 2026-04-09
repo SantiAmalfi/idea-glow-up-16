@@ -416,6 +416,10 @@ const translations = {
   "settings.loading": { en: "Loading...", es: "Cargando...", pt: "Carregando..." },
   "settings.noAnalyses": { en: "No evaluations yet. Run your first analysis!", es: "Sin evaluaciones aún. ¡Realizá tu primer análisis!", pt: "Sem avaliações ainda. Faça sua primeira análise!" },
   "settings.untitledProject": { en: "Untitled Project", es: "Proyecto sin nombre", pt: "Projeto sem nome" },
+  "settings.loadAnalysis": { en: "Load & Edit", es: "Cargar y editar", pt: "Carregar e editar" },
+  "settings.noDataSaved": { en: "No data saved for this analysis", es: "No hay datos guardados para este análisis", pt: "Sem dados salvos para esta análise" },
+  "settings.cancelSub": { en: "Cancel subscription", es: "Cancelar suscripción", pt: "Cancelar assinatura" },
+  "settings.changePlan": { en: "Change plan", es: "Cambiar plan", pt: "Mudar plano" },
 
   // Report customization
   "report.premiumOnly": { en: "Premium Feature", es: "Función Premium", pt: "Recurso Premium" },
