@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown, Eye } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
-import type { YearData, Scenario } from "@/components/InvestmentForm";
+import type { YearData, Scenario, AnalysisInputData } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
 import CashFlowChart from "@/components/CashFlowChart";
 import CalculationDetails from "@/components/CalculationDetails";
@@ -50,6 +50,20 @@ export default function Index() {
   const { settings, setSettings } = useReportSettings();
   const [savingSettings, setSavingSettings] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [loadedData, setLoadedData] = useState<AnalysisInputData | null>(null);
+
+  // Check for loaded analysis from Settings
+  useEffect(() => {
+    const stored = sessionStorage.getItem("loadAnalysis");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setLoadedData(parsed);
+        toast.success("📂 Análisis cargado. Ajustá los datos y volvé a evaluar.");
+      } catch { /* ignore */ }
+      sessionStorage.removeItem("loadAnalysis");
+    }
+  }, []);
 
   const saveReportSettings = async () => {
     if (!user || !isPremium) return;
