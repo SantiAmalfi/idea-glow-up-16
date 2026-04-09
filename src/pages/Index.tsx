@@ -262,7 +262,7 @@ export default function Index() {
 
       {/* Analyzer */}
       <section id="analyzer" className="max-w-5xl mx-auto px-4 py-8">
-        <InvestmentForm onAnalyze={handleAnalyze} />
+        <InvestmentForm onAnalyze={handleAnalyze} initialData={loadedData} />
 
         {result && (
           <motion.div
