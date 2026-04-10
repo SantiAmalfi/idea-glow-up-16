@@ -317,16 +317,17 @@ async function buildPdfDoc(data: ExportData, lang: Language, reportSettings?: Re
   let y = renderHeader(doc, cfg, data, lang);
 
   const conclusionColor: [number, number, number] = data.npv >= 0 ? cfg.secondaryRgb : [220, 38, 38];
-  doc.setFillColor(...conclusionColor);
-  doc.roundedRect(margin, y, pageW - 2 * margin, 12, 2, 2, "F");
+  const conclusionText = `${data.npv >= 0 ? l("conclusionPos", lang) : l("conclusionNeg", lang)} (${pdfCurrency(data.npv, c)})`;
+  const maxTextW = pageW - 2 * margin - 8;
   doc.setFontSize(10);
   doc.setFont(cfg.font, "bold");
+  const lines = doc.splitTextToSize(conclusionText, maxTextW);
+  const boxH = Math.max(12, lines.length * 5 + 6);
+  doc.setFillColor(...conclusionColor);
+  doc.roundedRect(margin, y, pageW - 2 * margin, boxH, 2, 2, "F");
   doc.setTextColor(255, 255, 255);
-  doc.text(
-    `${data.npv >= 0 ? l("conclusionPos", lang) : l("conclusionNeg", lang)} (${pdfCurrency(data.npv, c)})`,
-    margin + 4, y + 8, { maxWidth: pageW - 2 * margin - 8 }
-  );
-  y += 18;
+  doc.text(lines, margin + 4, y + 5 + 3);
+  y += boxH + 6;
 
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(14);
