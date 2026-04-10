@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileDown, Loader2, Eye, RefreshCw } from "lucide-react";
-import { generatePdfDataUrl, exportToPdf } from "@/lib/exportPdf";
+import { generatePdfBlob, exportToPdf } from "@/lib/exportPdf";
 import type { Language } from "@/lib/i18n";
 import type { Currency, DepreciationConfig } from "@/lib/finance";
 import type { ReportSettings } from "@/components/ReportSettingsPanel";
@@ -43,7 +43,8 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
     setLoading(true);
     setPdfUrl(null);
     try {
-      const url = await generatePdfDataUrl(data, language, reportSettings);
+      const blob = await generatePdfBlob(data, language, reportSettings);
+      const url = URL.createObjectURL(blob);
       setPdfUrl(url);
     } catch (e) {
       console.error("Error generating PDF preview:", e);
@@ -56,8 +57,12 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
     if (open) {
       generatePreview();
     } else {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
       setPdfUrl(null);
     }
+    return () => {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    };
   }, [open, generatePreview]);
 
   const handleDownload = async () => {
@@ -68,12 +73,12 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col p-0 gap-0">
-        <DialogHeader className="px-6 py-4 border-b border-border shrink-0">
+        <div className="px-6 py-4 border-b border-border shrink-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2 text-foreground">
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
               <Eye className="h-5 w-5 text-primary" />
               {t("preview.title")}
-            </DialogTitle>
+            </h2>
             <div className="flex items-center gap-2">
               <Button
                 variant="ghost"
@@ -96,7 +101,7 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
               </Button>
             </div>
           </div>
-        </DialogHeader>
+        </div>
 
         <div className="flex-1 bg-muted/30 overflow-hidden">
           {loading ? (
