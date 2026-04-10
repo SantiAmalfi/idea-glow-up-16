@@ -129,11 +129,25 @@ interface TemplateConfig {
 function renderHeader_professional(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 20;
+  const maxTextW = pageW - margin * 2 - 60; // reserve space for date on right
+
+  // Calculate title height
+  doc.setFontSize(22);
+  doc.setFont(cfg.font, "bold");
+  const titleLines = doc.splitTextToSize(cfg.headerTitle, maxTextW);
+  const titleH = titleLines.length * 8;
+
+  doc.setFontSize(10);
+  doc.setFont(cfg.font, "normal");
+  const subLines = doc.splitTextToSize(cfg.headerSubtitle, maxTextW);
+  const subH = subLines.length * 4.5;
+
+  const headerH = Math.max(45, 12 + titleH + 3 + subH + 8);
 
   doc.setFillColor(...cfg.primaryRgb);
-  doc.rect(0, 0, pageW, 45, "F");
+  doc.rect(0, 0, pageW, headerH, "F");
   doc.setFillColor(...cfg.secondaryRgb);
-  doc.rect(0, 42, pageW, 3, "F");
+  doc.rect(0, headerH - 3, pageW, 3, "F");
 
   let textX = margin;
   if (cfg.logoImg) {
@@ -146,28 +160,44 @@ function renderHeader_professional(doc: jsPDF, cfg: TemplateConfig, _data: Expor
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont(cfg.font, "bold");
-  doc.text(cfg.headerTitle, textX, 22, { maxWidth: pageW - textX - margin });
+  const titleY = 12 + 7;
+  doc.text(titleLines, textX, titleY);
+
   doc.setFontSize(10);
   doc.setFont(cfg.font, "normal");
-  doc.text(cfg.headerSubtitle, textX, 33, { maxWidth: pageW - textX - margin });
+  const subY = titleY + titleH + 2;
+  doc.text(subLines, textX, subY);
 
   doc.setFontSize(9);
   doc.setTextColor(...cfg.accentRgb);
   doc.text(`${l("reportDate", lang)}: ${new Date().toLocaleDateString()}`, pageW - margin, 22, { align: "right" });
   doc.text(`${l("currency", lang)}: ${_data.currency}`, pageW - margin, 30, { align: "right" });
 
-  return 52;
+  return headerH + 7;
 }
 
 function renderHeader_modern(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 20;
+  const maxTextW = pageW - margin * 2 - 70;
 
-  // Gradient-like effect with two rectangles
+  doc.setFontSize(20);
+  doc.setFont(cfg.font, "bold");
+  const titleLines = doc.splitTextToSize(cfg.headerTitle, maxTextW);
+  const titleH = titleLines.length * 7.5;
+
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  const subLines = doc.splitTextToSize(cfg.headerSubtitle, maxTextW);
+  const subH = subLines.length * 4;
+
+  const boxH = Math.max(40, 10 + titleH + 3 + subH + 8);
+  const bgH = boxH + 10;
+
   doc.setFillColor(...cfg.secondaryRgb);
-  doc.rect(0, 0, pageW, 50, "F");
+  doc.rect(0, 0, pageW, bgH, "F");
   doc.setFillColor(255, 255, 255);
-  doc.roundedRect(margin - 5, 5, pageW - 2 * margin + 10, 40, 4, 4, "F");
+  doc.roundedRect(margin - 5, 5, pageW - 2 * margin + 10, boxH, 4, 4, "F");
 
   let textX = margin + 5;
   if (cfg.logoImg) {
@@ -180,21 +210,34 @@ function renderHeader_modern(doc: jsPDF, cfg: TemplateConfig, _data: ExportData,
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(20);
   doc.setFont(cfg.font, "bold");
-  doc.text(cfg.headerTitle, textX, 22, { maxWidth: pageW - textX - margin - 50 });
+  const titleY = 10 + 7;
+  doc.text(titleLines, textX, titleY);
+
   doc.setFontSize(9);
   doc.setFont(cfg.font, "normal");
   doc.setTextColor(...cfg.accentRgb);
-  doc.text(cfg.headerSubtitle, textX, 32, { maxWidth: pageW - textX - margin - 50 });
+  doc.text(subLines, textX, titleY + titleH + 2);
 
   doc.setFontSize(8);
   doc.text(`${new Date().toLocaleDateString()} | ${_data.currency}`, pageW - margin, 25, { align: "right" });
 
-  return 58;
+  return bgH + 8;
 }
 
 function renderHeader_minimal(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 20;
+  const maxTextW = pageW - margin * 2 - 60;
+
+  doc.setFontSize(18);
+  doc.setFont(cfg.font, "bold");
+  const titleLines = doc.splitTextToSize(cfg.headerTitle, maxTextW);
+  const titleH = titleLines.length * 7;
+
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  const subLines = doc.splitTextToSize(cfg.headerSubtitle, maxTextW);
+  const subH = subLines.length * 4;
 
   let textX = margin;
   if (cfg.logoImg) {
@@ -207,54 +250,73 @@ function renderHeader_minimal(doc: jsPDF, cfg: TemplateConfig, _data: ExportData
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(18);
   doc.setFont(cfg.font, "bold");
-  doc.text(cfg.headerTitle, textX, 22);
+  const titleY = 15 + 5;
+  doc.text(titleLines, textX, titleY);
 
   doc.setFontSize(9);
   doc.setFont(cfg.font, "normal");
   doc.setTextColor(...cfg.accentRgb);
-  doc.text(cfg.headerSubtitle, textX, 30);
+  const subY = titleY + titleH + 2;
+  doc.text(subLines, textX, subY);
 
+  const lineY = subY + subH + 4;
   doc.setDrawColor(...cfg.accentRgb);
   doc.setLineWidth(0.5);
-  doc.line(margin, 36, pageW - margin, 36);
+  doc.line(margin, lineY, pageW - margin, lineY);
 
   doc.setFontSize(8);
   doc.text(`${new Date().toLocaleDateString()} | ${_data.currency}`, pageW - margin, 22, { align: "right" });
 
-  return 44;
+  return lineY + 8;
 }
 
 function renderHeader_corporate(doc: jsPDF, cfg: TemplateConfig, _data: ExportData, lang: Language) {
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 20;
+  const leftBar = 8;
+  const maxTextW = pageW - leftBar - margin * 2 - 60;
+
+  doc.setFontSize(20);
+  doc.setFont(cfg.font, "bold");
+  const titleLines = doc.splitTextToSize(cfg.headerTitle, maxTextW);
+  const titleH = titleLines.length * 7.5;
+
+  doc.setFontSize(9);
+  doc.setFont(cfg.font, "normal");
+  const subLines = doc.splitTextToSize(cfg.headerSubtitle, maxTextW);
+  const subH = subLines.length * 4;
+
+  const contentH = Math.max(40, 14 + titleH + 3 + subH + 8);
 
   doc.setFillColor(...cfg.primaryRgb);
-  doc.rect(0, 0, 8, doc.internal.pageSize.getHeight(), "F");
+  doc.rect(0, 0, leftBar, doc.internal.pageSize.getHeight(), "F");
   doc.setFillColor(...cfg.secondaryRgb);
   doc.rect(0, 0, pageW, 6, "F");
 
-  let textX = 16 + margin;
+  let textX = leftBar + margin;
   if (cfg.logoImg) {
     const logoH = 18;
     const logoW = (cfg.logoImg.naturalWidth / cfg.logoImg.naturalHeight) * logoH;
-    doc.addImage(cfg.logoImg, "PNG", 16 + margin, 14, Math.min(logoW, 40), logoH);
-    textX = 16 + margin + Math.min(logoW, 40) + 6;
+    doc.addImage(cfg.logoImg, "PNG", leftBar + margin, 14, Math.min(logoW, 40), logoH);
+    textX = leftBar + margin + Math.min(logoW, 40) + 6;
   }
 
   doc.setTextColor(...cfg.primaryRgb);
   doc.setFontSize(20);
   doc.setFont(cfg.font, "bold");
-  doc.text(cfg.headerTitle, textX, 22);
+  const titleY = 14 + 7;
+  doc.text(titleLines, textX, titleY);
+
   doc.setFontSize(9);
   doc.setFont(cfg.font, "normal");
   doc.setTextColor(...cfg.accentRgb);
-  doc.text(cfg.headerSubtitle, textX, 32);
+  doc.text(subLines, textX, titleY + titleH + 2);
 
   doc.setFontSize(8);
   doc.text(`${l("reportDate", lang)}: ${new Date().toLocaleDateString()}`, pageW - margin, 18, { align: "right" });
   doc.text(`${l("currency", lang)}: ${_data.currency}`, pageW - margin, 26, { align: "right" });
 
-  return 46;
+  return contentH + 6;
 }
 
 const headerRenderers: Record<string, typeof renderHeader_professional> = {

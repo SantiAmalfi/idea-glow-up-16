@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileDown, Loader2, Eye, RefreshCw } from "lucide-react";
-import { generatePdfBlob, exportToPdf } from "@/lib/exportPdf";
-import type { Language } from "@/lib/i18n";
+import { generatePdfDataUrl, exportToPdf } from "@/lib/exportPdf";
 import type { Currency, DepreciationConfig } from "@/lib/finance";
 import type { ReportSettings } from "@/components/ReportSettingsPanel";
 import { useI18n } from "@/lib/i18n";
@@ -35,17 +34,17 @@ interface PdfPreviewModalProps {
 }
 
 export default function PdfPreviewModal({ open, onOpenChange, data, reportSettings }: PdfPreviewModalProps) {
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfDataUrl, setPdfDataUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { language, t } = useI18n();
+  const embedRef = useRef<HTMLEmbedElement>(null);
 
   const generatePreview = useCallback(async () => {
     setLoading(true);
-    setPdfUrl(null);
+    setPdfDataUrl(null);
     try {
-      const blob = await generatePdfBlob(data, language, reportSettings);
-      const url = URL.createObjectURL(blob);
-      setPdfUrl(url);
+      const dataUrl = await generatePdfDataUrl(data, language, reportSettings);
+      setPdfDataUrl(dataUrl);
     } catch (e) {
       console.error("Error generating PDF preview:", e);
     } finally {
@@ -57,13 +56,9 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
     if (open) {
       generatePreview();
     } else {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-      setPdfUrl(null);
+      setPdfDataUrl(null);
     }
-    return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
-    };
-  }, [open, generatePreview]);
+  }, [open]);
 
   const handleDownload = async () => {
     await exportToPdf(data, language, reportSettings);
@@ -111,11 +106,12 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
                 <p className="text-sm text-muted-foreground">{t("preview.generating")}</p>
               </div>
             </div>
-          ) : pdfUrl ? (
-            <iframe
-              src={pdfUrl}
-              className="w-full h-full border-0"
-              title="PDF Preview"
+          ) : pdfDataUrl ? (
+            <embed
+              ref={embedRef}
+              src={pdfDataUrl}
+              type="application/pdf"
+              className="w-full h-full"
             />
           ) : (
             <div className="flex items-center justify-center h-full">

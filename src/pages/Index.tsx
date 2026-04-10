@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown, Eye } from "lucide-react";
+import { Sparkles, FileDown, FileSpreadsheet, ArrowDown, TrendingUp, Lock, Crown, Eye, Plus } from "lucide-react";
 import InvestmentForm from "@/components/InvestmentForm";
 import type { YearData, Scenario, AnalysisInputData } from "@/components/InvestmentForm";
 import ResultsPanel from "@/components/ResultsPanel";
@@ -51,6 +51,7 @@ export default function Index() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [loadedData, setLoadedData] = useState<AnalysisInputData | null>(null);
+  const [formKey, setFormKey] = useState(0);
 
   // Check for loaded analysis from Settings
   useEffect(() => {
@@ -59,7 +60,9 @@ export default function Index() {
       try {
         const parsed = JSON.parse(stored);
         setLoadedData(parsed);
-        toast.success("📂 Análisis cargado. Ajustá los datos y volvé a evaluar.");
+        setResult(null);
+        setFormKey(k => k + 1);
+        toast.success(t("settings.analysisLoaded"));
       } catch { /* ignore */ }
       sessionStorage.removeItem("loadAnalysis");
     }
@@ -75,6 +78,14 @@ export default function Index() {
       }, 300);
     }
   }, []);
+
+  const handleNewAnalysis = () => {
+    setResult(null);
+    setLoadedData(null);
+    setFormKey(k => k + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    toast.success(t("form.newAnalysisStarted"));
+  };
 
   const saveReportSettings = async () => {
     if (!user || !isPremium) return;
@@ -121,14 +132,12 @@ export default function Index() {
     depreciation: DepreciationConfig;
     reinvestments: number[];
   }) => {
-    // Check auth
     if (!user) {
       toast.error(t("auth.loginRequired"));
       navigate("/auth");
       return;
     }
 
-    // Check limits
     if (!canAnalyze) {
       toast.error(t("auth.limitReached"));
       const pricingEl = document.getElementById("pricing");
@@ -273,7 +282,21 @@ export default function Index() {
 
       {/* Analyzer */}
       <section id="analyzer" className="max-w-5xl mx-auto px-4 py-8">
-        <InvestmentForm onAnalyze={handleAnalyze} initialData={loadedData} />
+        {/* New Analysis button */}
+        {(result || loadedData) && (
+          <div className="mb-4 flex justify-end">
+            <Button
+              onClick={handleNewAnalysis}
+              variant="outline"
+              className="gap-2 border-primary/30 text-primary hover:bg-primary/10"
+            >
+              <Plus className="h-4 w-4" />
+              {t("form.newAnalysis")}
+            </Button>
+          </div>
+        )}
+
+        <InvestmentForm key={formKey} onAnalyze={handleAnalyze} initialData={loadedData} />
 
         {result && (
           <motion.div
@@ -298,7 +321,15 @@ export default function Index() {
               <div className="h-px flex-1 bg-border" />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
+              <Button
+                onClick={handleNewAnalysis}
+                variant="outline"
+                className="flex-1 gap-2 border-secondary text-foreground hover:bg-secondary"
+              >
+                <Plus className="h-4 w-4" />
+                {t("form.newAnalysis")}
+              </Button>
               {isPremium ? (
                 <Button
                   onClick={() => setPreviewOpen(true)}
