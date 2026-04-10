@@ -1,10 +1,21 @@
 import { motion } from "framer-motion";
 import { TrendingUp, Globe } from "lucide-react";
 import { useI18n, LANGUAGE_CONFIG, type Language } from "@/lib/i18n";
+import { useLocation, useNavigate } from "react-router-dom";
 import UserMenu from "@/components/UserMenu";
 
 export default function Header() {
   const { language, setLanguage, t } = useI18n();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === "/";
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    if (!isHome) {
+      e.preventDefault();
+      navigate("/" + hash);
+    }
+  };
 
   return (
     <motion.header
@@ -22,13 +33,13 @@ export default function Header() {
           </span>
         </div>
         <div className="flex items-center gap-1 text-sm">
-          <a href="#analyzer" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <a href="#analyzer" onClick={(e) => handleNavClick(e, "#analyzer")} className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {t("nav.analyzer")}
           </a>
-          <a href="#pricing" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <a href="#pricing" onClick={(e) => handleNavClick(e, "#pricing")} className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {t("nav.pricing")}
           </a>
-          <a href="#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <a href="#features" onClick={(e) => handleNavClick(e, "#features")} className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             {t("nav.features")}
           </a>
           <div className="ml-2 h-5 w-px bg-border" />

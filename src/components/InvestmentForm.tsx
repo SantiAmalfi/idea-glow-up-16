@@ -183,6 +183,9 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
     });
   }, [numYears]);
 
+  // Track whether we're loading saved data to skip auto-recalculation
+  const [manualProjection, setManualProjection] = useState(false);
+
   // Load initial data when provided
   useEffect(() => {
     if (!initialData) return;
@@ -199,10 +202,24 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
       setDepAssetName(initialData.depreciation.assetName || "");
       setDepValue(String(initialData.depreciation.depreciableValue || ""));
       setDepResidual(String(initialData.depreciation.residualValue || "0"));
+    } else {
+      setDepEnabled(false);
     }
     if (initialData.reinvestments?.some(r => r > 0)) {
       setReinvestEnabled(true);
       setReinvestAmounts(initialData.reinvestments.map(String));
+    }
+    // Load projected yearlyData directly if available
+    if (initialData.yearlyData?.length > 0) {
+      setManualProjection(true);
+      setProjectedData(initialData.yearlyData.map(yd => ({
+        income: String(yd.income),
+        expenses: String(yd.expenses),
+      })));
+      // Also populate year 1 detail items from the saved data
+      setIncomeItems([{ name: "Total", description: "", amount: String(initialData.yearlyData[0].income) }]);
+      setFixedCosts([{ name: "Total", description: "", amount: String(initialData.yearlyData[0].expenses) }]);
+      setVariableCosts([{ name: "", description: "", unitCost: "", units: "" }]);
     }
   }, [initialData]);
 
@@ -221,6 +238,11 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
 
   // Project years 2..N whenever rates, inflation, year1 data, or numYears change
   useEffect(() => {
+    // Skip auto-recalculation when we loaded saved projections
+    if (manualProjection) {
+      setManualProjection(false);
+      return;
+    }
     const incRate = customRates.incomeGrowth / 100;
     const fixedRate = customRates.fixedCostGrowth / 100;
     const varRate = customRates.variableUnitsGrowth / 100;
