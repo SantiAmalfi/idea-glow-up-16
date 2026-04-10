@@ -535,6 +535,11 @@ export async function exportToPdf(data: ExportData, lang: Language = "en", repor
 }
 
 
+export async function generatePdfBlob(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings): Promise<Blob> {
+  const doc = await buildPdfDoc(data, lang, reportSettings);
+  return doc.output("blob");
+}
+
 export async function generatePdfDataUrl(data: ExportData, lang: Language = "en", reportSettings?: ReportSettings): Promise<string> {
   const doc = await buildPdfDoc(data, lang, reportSettings);
   return doc.output("dataurlstring");
