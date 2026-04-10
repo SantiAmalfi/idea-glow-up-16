@@ -65,6 +65,17 @@ export default function Index() {
     }
   }, []);
 
+  // Scroll to hash section when arriving from another page
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        const el = document.querySelector(hash);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 300);
+    }
+  }, []);
+
   const saveReportSettings = async () => {
     if (!user || !isPremium) return;
     setSavingSettings(true);
