@@ -38,7 +38,8 @@ export default function Settings() {
         .from("analysis_usage")
         .select("id, project_name, created_at, input_data" as any)
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10);
       if (error) throw error;
       setAnalyses((data as any) || []);
     } catch (e) {
@@ -53,7 +54,6 @@ export default function Settings() {
       toast.info(t("settings.noDataSaved"));
       return;
     }
-    // Store in sessionStorage and navigate to home
     sessionStorage.setItem("loadAnalysis", JSON.stringify(analysis.input_data));
     navigate("/");
   };
@@ -148,12 +148,17 @@ export default function Settings() {
             )}
           </div>
 
-          {/* Analysis history */}
+          {/* Analysis history — limited to 10, ordered by date desc */}
           <div className="rounded-2xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              {t("settings.myAnalyses")}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                {t("settings.myAnalyses")}
+              </h2>
+              <span className="text-xs text-muted-foreground">
+                {analyses.length}/10
+              </span>
+            </div>
             {loadingAnalyses ? (
               <p className="text-sm text-muted-foreground">{t("settings.loading")}</p>
             ) : analyses.length === 0 ? (
@@ -165,13 +170,13 @@ export default function Settings() {
               <div className="space-y-2">
                 {analyses.map((a) => (
                   <div key={a.id} className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <BarChart3 className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium text-foreground">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <BarChart3 className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-sm font-medium text-foreground truncate">
                         {a.project_name || t("settings.untitledProject")}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(a.created_at).toLocaleDateString()}
