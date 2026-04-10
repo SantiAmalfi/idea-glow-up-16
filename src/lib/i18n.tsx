@@ -313,6 +313,9 @@ const translations = {
     pt: "Insira o valor de reinvestimento para cada ano. Deixe em 0 para anos sem reinvestimento.",
   },
   "form.totalReinvestment": { en: "Total Reinvestment", es: "Reinversión total", pt: "Reinvestimento total" },
+  "form.newAnalysis": { en: "New Analysis", es: "Nuevo análisis", pt: "Nova análise" },
+  "form.newAnalysisStarted": { en: "Form cleared. Start a new analysis.", es: "Formulario limpio. Comenzá un nuevo análisis.", pt: "Formulário limpo. Comece uma nova análise." },
+  "settings.analysisLoaded": { en: "Analysis loaded. Adjust and re-evaluate.", es: "Análisis cargado. Ajustá los datos y volvé a evaluar.", pt: "Análise carregada. Ajuste e reavalie." },
 
   // Inflation
   "form.inflationToggle": { en: "Include inflation projection?", es: "¿Incluir proyección de inflación?", pt: "Incluir projeção de inflação?" },
