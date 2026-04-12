@@ -20,9 +20,9 @@ interface CalculationDetailsProps {
   depreciation?: DepreciationConfig;
 }
 
-export default function CalculationDetails({
+const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(function CalculationDetails({
   investment, discountRate, taxRate, yearlyData, cashFlows, npv, irr, currency, depreciation,
-}: CalculationDetailsProps) {
+}, ref) {
   const { t } = useI18n();
 
   const depEnabled = depreciation?.enabled ?? false;
@@ -247,4 +247,6 @@ export default function CalculationDetails({
       </Tabs>
     </motion.div>
   );
-}
+});
+
+export default CalculationDetails;
