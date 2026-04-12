@@ -12,6 +12,19 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+const toSafeIsoDate = (value: unknown) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return new Date(value * 1000).toISOString();
+  }
+
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
+  }
+
+  return null;
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -65,10 +78,9 @@ serve(async (req) => {
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
       const endVal = subscription.current_period_end;
-      if (typeof endVal === "number") {
-        subscriptionEnd = new Date(endVal * 1000).toISOString();
-      } else if (typeof endVal === "string") {
-        subscriptionEnd = endVal;
+      subscriptionEnd = toSafeIsoDate(endVal);
+      if (!subscriptionEnd && endVal != null) {
+        logStep("Invalid subscription end value received", { endVal });
       }
       productId = subscription.items.data[0].price.product;
       priceId = subscription.items.data[0].price.id;
