@@ -67,4 +67,6 @@ const CashFlowChart = forwardRef<HTMLDivElement, CashFlowChartProps>(function Ca
       </div>
     </motion.div>
   );
-}
+});
+
+export default CashFlowChart;

@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
