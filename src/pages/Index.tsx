@@ -159,12 +159,6 @@ export default function Index() {
       reinvestments: data.reinvestments,
     };
 
-    const recorded = await recordAnalysis(data.projectName, inputData);
-    if (!recorded) {
-      toast.error(t("auth.limitReached"));
-      return;
-    }
-
     const cashFlows = buildCashFlows(data.investment, data.yearlyData, data.taxRate, data.depreciation, data.reinvestments);
     const npv = calculateNPV(data.discountRate, cashFlows);
     const irr = calculateIRR(cashFlows);
@@ -195,6 +189,8 @@ export default function Index() {
       depreciation: data.depreciation,
       reinvestments: data.reinvestments,
     });
+
+    await recordAnalysis(data.projectName, inputData);
   };
 
   return (
