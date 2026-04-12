@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FileDown, Loader2, Eye, RefreshCw } from "lucide-react";
 import { generatePdfDataUrl, exportToPdf } from "@/lib/exportPdf";
@@ -67,7 +67,8 @@ export default function PdfPreviewModal({ open, onOpenChange, data, reportSettin
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent className="max-w-4xl w-[95vw] h-[90vh] flex flex-col p-0 gap-0" aria-describedby={undefined}>
+        <DialogTitle className="sr-only">{t("preview.title")}</DialogTitle>
         <div className="px-6 py-4 border-b border-border shrink-0">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">

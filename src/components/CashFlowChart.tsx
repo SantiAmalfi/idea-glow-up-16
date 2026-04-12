@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from "recharts";
 import { formatCurrency, type Currency } from "@/lib/finance";
@@ -8,7 +9,7 @@ interface CashFlowChartProps {
   currency: Currency;
 }
 
-export default function CashFlowChart({ cashFlows, currency }: CashFlowChartProps) {
+const CashFlowChart = forwardRef<HTMLDivElement, CashFlowChartProps>(function CashFlowChart({ cashFlows, currency }, ref) {
   const { t } = useI18n();
 
   const data = cashFlows.map((cf, i) => ({
