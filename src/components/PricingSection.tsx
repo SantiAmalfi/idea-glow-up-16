@@ -23,9 +23,9 @@ export default function PricingSection() {
       current: user && !isPremium,
     },
     {
-      name: t("pricing.monthly"),
-      price: "$4,99",
-      interval: t("pricing.perMonth"),
+      name: t("pricing.annual"),
+      price: "$10.000",
+      interval: t("pricing.perYear"),
       features: [
         t("pricing.premFeature1"),
         t("pricing.premFeature2"),
@@ -33,20 +33,20 @@ export default function PricingSection() {
         t("pricing.premFeature4"),
       ],
       highlight: true,
-      stripeInterval: "monthly" as const,
+      stripeInterval: "annual" as const,
     },
     {
-      name: t("pricing.annual"),
-      price: "$49,99",
-      interval: t("pricing.perYear"),
-      badge: t("pricing.save17"),
+      name: t("pricing.lifetime"),
+      price: "$25.000",
+      interval: t("pricing.oneTime"),
+      badge: t("pricing.bestValue"),
       features: [
         t("pricing.premFeature1"),
         t("pricing.premFeature2"),
         t("pricing.premFeature3"),
         t("pricing.premFeature4"),
       ],
-      stripeInterval: "annual" as const,
+      stripeInterval: "lifetime" as const,
     },
   ];
 
@@ -111,7 +111,7 @@ export default function PricingSection() {
               ) : user ? (
                 <Button
                   onClick={() => createCheckout(plan.stripeInterval!)}
-                  className={`w-full ${plan.highlight ? "" : "variant-outline"}`}
+                  className="w-full"
                   variant={plan.highlight ? "default" : "outline"}
                 >
                   <Zap className="h-4 w-4 mr-1" />
