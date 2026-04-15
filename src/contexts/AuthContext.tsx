@@ -5,13 +5,13 @@ import type { User, Session } from "@supabase/supabase-js";
 const FREE_ANALYSIS_LIMIT = 3;
 
 const STRIPE_PRODUCTS = {
-  monthly: {
-    price_id: "price_1TK2uKBoacFP6CQ0JIabOKxW",
-    product_id: "prod_UIeCPZk88cRV7s",
-  },
   annual: {
-    price_id: "price_1TK2ulBoacFP6CQ01B6tJ8Rj",
-    product_id: "prod_UIeD6eb4uFUyi2",
+    price_id: "price_1TMajiBoacFP6CQ0COA5ZISH",
+    product_id: "prod_ULHI70azfrsWA0",
+  },
+  lifetime: {
+    price_id: "price_1TMak4BoacFP6CQ09y6Xd8SS",
+    product_id: "prod_ULHIluUM0dziWf",
   },
 } as const;
 
