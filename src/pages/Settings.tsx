@@ -137,11 +137,11 @@ export default function Settings() {
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">{t("settings.upgradeDesc")}</p>
                 <div className="flex gap-3">
-                  <Button onClick={() => createCheckout("monthly")} className="flex-1">
-                    {t("pricing.monthly")} — $4,99/{t("pricing.perMonth")}
+                  <Button onClick={() => createCheckout("annual")} className="flex-1">
+                    {t("pricing.annual")} — $10.000/{t("pricing.perYear")}
                   </Button>
-                  <Button onClick={() => createCheckout("annual")} variant="outline" className="flex-1">
-                    {t("pricing.annual")} — $49,99/{t("pricing.perYear")}
+                  <Button onClick={() => createCheckout("lifetime")} variant="outline" className="flex-1">
+                    {t("pricing.lifetime")} — $25.000
                   </Button>
                 </div>
               </div>

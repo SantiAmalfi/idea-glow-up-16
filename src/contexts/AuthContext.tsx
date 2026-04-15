@@ -28,7 +28,7 @@ interface AuthContextType {
   checkSubscription: () => Promise<void>;
   refreshAnalysisCount: () => Promise<void>;
   recordAnalysis: (projectName?: string, inputData?: Record<string, unknown>) => Promise<boolean>;
-  createCheckout: (interval: "monthly" | "annual") => Promise<void>;
+  createCheckout: (interval: "annual" | "lifetime") => Promise<void>;
   openCustomerPortal: () => Promise<void>;
   stripeProducts: typeof STRIPE_PRODUCTS;
 }
