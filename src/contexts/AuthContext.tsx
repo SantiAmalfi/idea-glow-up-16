@@ -90,10 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isPremium, analysisCount]);
 
-  const createCheckout = useCallback(async (interval: "monthly" | "annual") => {
+  const createCheckout = useCallback(async (interval: "annual" | "lifetime") => {
     if (!session) return;
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+      const fnName = interval === "lifetime" ? "create-payment" : "create-checkout";
+      const { data, error } = await supabase.functions.invoke(fnName, {
         headers: { Authorization: `Bearer ${session.access_token}` },
         body: { priceId: STRIPE_PRODUCTS[interval].price_id },
       });
