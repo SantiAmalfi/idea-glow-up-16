@@ -7,6 +7,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const LIFETIME_PRODUCT_ID = "prod_ULHIluUM0dziWf";
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
@@ -16,12 +18,10 @@ const toSafeIsoDate = (value: unknown) => {
   if (typeof value === "number" && Number.isFinite(value)) {
     return new Date(value * 1000).toISOString();
   }
-
   if (typeof value === "string") {
     const parsed = Date.parse(value);
     return Number.isNaN(parsed) ? null : new Date(parsed).toISOString();
   }
-
   return null;
 };
 
@@ -64,35 +64,67 @@ serve(async (req) => {
     }
 
     const customerId = customers.data[0].id;
+
+    // 1) Check for active subscription (annual plan)
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
       status: "active",
       limit: 1,
     });
 
-    const hasActiveSub = subscriptions.data.length > 0;
-    let productId = null;
-    let subscriptionEnd = null;
-    let priceId = null;
-
-    if (hasActiveSub) {
+    if (subscriptions.data.length > 0) {
       const subscription = subscriptions.data[0];
       const endVal = subscription.current_period_end;
-      subscriptionEnd = toSafeIsoDate(endVal);
-      if (!subscriptionEnd && endVal != null) {
-        logStep("Invalid subscription end value received", { endVal });
-      }
-      productId = subscription.items.data[0].price.product;
-      priceId = subscription.items.data[0].price.id;
-      logStep("Active subscription found", { subscriptionId: subscription.id, endVal });
+      const subscriptionEnd = toSafeIsoDate(endVal);
+      const productId = subscription.items.data[0].price.product;
+      const priceId = subscription.items.data[0].price.id;
+      logStep("Active subscription found", { subscriptionId: subscription.id });
+
+      return new Response(JSON.stringify({
+        subscribed: true,
+        product_id: productId,
+        price_id: priceId,
+        subscription_end: subscriptionEnd,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    return new Response(JSON.stringify({
-      subscribed: hasActiveSub,
-      product_id: productId,
-      price_id: priceId,
-      subscription_end: subscriptionEnd,
-    }), {
+    // 2) Check for completed lifetime one-time payment
+    const sessions = await stripe.checkout.sessions.list({
+      customer: customerId,
+      limit: 100,
+    });
+
+    const lifetimeSession = sessions.data.find(
+      (s) => s.payment_status === "paid" && s.mode === "payment"
+    );
+
+    if (lifetimeSession) {
+      // Verify it's actually the lifetime product
+      const lineItems = await stripe.checkout.sessions.listLineItems(lifetimeSession.id, { limit: 5 });
+      const hasLifetime = lineItems.data.some((item) => {
+        const prod = item.price?.product;
+        return prod === LIFETIME_PRODUCT_ID;
+      });
+
+      if (hasLifetime) {
+        logStep("Lifetime payment found", { sessionId: lifetimeSession.id });
+        return new Response(JSON.stringify({
+          subscribed: true,
+          product_id: LIFETIME_PRODUCT_ID,
+          price_id: null,
+          subscription_end: null,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+    }
+
+    logStep("No active subscription or lifetime payment found");
+    return new Response(JSON.stringify({ subscribed: false }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
