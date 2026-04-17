@@ -87,13 +87,11 @@ const COLORS = {
   subHeader: "FFCBD5E1",     // Section sub-headers
 };
 
-const currencySymbols: Record<Currency, string> = {
-  USD: "$", EUR: "€", GBP: "£", JPY: "¥", BRL: "R$", ARS: "$", MXN: "$", COP: "$", CLP: "$", PEN: "S/",
-};
-
 function getCurrencyFormat(c: Currency): string {
-  const sym = currencySymbols[c] || "$";
-  return `"${sym}"#,##0;[Red]("${sym}"#,##0);"-"`;
+  const sym = CURRENCY_CONFIG[c]?.symbol || "$";
+  // Escape any double-quotes in symbol just in case
+  const safe = sym.replace(/"/g, '');
+  return `"${safe}"#,##0;[Red]("${safe}"#,##0);"-"`;
 }
 
 function applyTitleStyle(cell: ExcelJS.Cell, font: string) {
