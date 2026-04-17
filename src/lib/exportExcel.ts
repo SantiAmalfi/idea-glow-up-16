@@ -1,5 +1,5 @@
-import * as XLSX from "xlsx";
-import { formatPercent, type Currency, type DepreciationConfig } from "./finance";
+import ExcelJS from "exceljs";
+import { CURRENCY_CONFIG, type Currency, type DepreciationConfig } from "./finance";
 import type { Language } from "./i18n";
 
 interface ExportData {
@@ -22,52 +22,138 @@ interface ExportData {
 }
 
 const labels: Record<string, Record<Language, string>> = {
-  reportTitle:  { en: "Investment Analysis Report", es: "Reporte de Analisis de Inversion", pt: "Relatorio de Analise de Investimento" },
+  reportTitle:  { en: "Investment Analysis Report", es: "Reporte de Análisis de Inversión", pt: "Relatório de Análise de Investimento" },
   project:      { en: "Project",         es: "Proyecto",           pt: "Projeto" },
-  description:  { en: "Description",     es: "Descripcion",        pt: "Descricao" },
+  description:  { en: "Description",     es: "Descripción",        pt: "Descrição" },
   currency:     { en: "Currency",         es: "Moneda",             pt: "Moeda" },
   date:         { en: "Date",             es: "Fecha",              pt: "Data" },
-  keyMetrics:   { en: "Key Metrics",      es: "Metricas clave",     pt: "Metricas chave" },
-  npv:          { en: "Net Present Value (NPV)", es: "Valor Actual Neto (VAN)", pt: "Valor Presente Liquido (VPL)" },
+  keyMetrics:   { en: "Key Metrics",      es: "Métricas clave",     pt: "Métricas chave" },
+  metric:       { en: "Metric",           es: "Métrica",            pt: "Métrica" },
+  value:        { en: "Value",            es: "Valor",              pt: "Valor" },
+  npv:          { en: "Net Present Value (NPV)", es: "Valor Actual Neto (VAN)", pt: "Valor Presente Líquido (VPL)" },
   irr:          { en: "Internal Rate of Return (IRR)", es: "Tasa Interna de Retorno (TIR)", pt: "Taxa Interna de Retorno (TIR)" },
-  roi:          { en: "Return on Investment (ROI)", es: "Retorno sobre inversion (ROI)", pt: "Retorno sobre investimento (ROI)" },
-  totalReturn:  { en: "Total Net Return", es: "Retorno neto total",  pt: "Retorno liquido total" },
-  payback:      { en: "Payback Period",   es: "Periodo de recuperacion", pt: "Periodo de retorno" },
+  roi:          { en: "Return on Investment (ROI)", es: "Retorno sobre inversión (ROI)", pt: "Retorno sobre investimento (ROI)" },
+  totalReturn:  { en: "Total Net Return", es: "Retorno neto total",  pt: "Retorno líquido total" },
+  payback:      { en: "Payback Period",   es: "Período de recuperación", pt: "Período de retorno" },
   totalTax:     { en: "Total Tax Paid",   es: "Impuestos totales",  pt: "Impostos totais" },
-  initialInv:   { en: "Initial Investment", es: "Inversion inicial", pt: "Investimento inicial" },
+  initialInv:   { en: "Initial Investment", es: "Inversión inicial", pt: "Investimento inicial" },
   discountRate: { en: "Discount Rate",    es: "Tasa de descuento",  pt: "Taxa de desconto" },
   taxRate:      { en: "Tax Rate",         es: "Tasa impositiva",    pt: "Taxa de impostos" },
-  years:        { en: "years",            es: "anos",               pt: "anos" },
+  years:        { en: "years",            es: "años",               pt: "anos" },
   never:        { en: "Never",            es: "Nunca",              pt: "Nunca" },
-  year:         { en: "Year",             es: "Ano",                pt: "Ano" },
+  year:         { en: "Year",             es: "Año",                pt: "Ano" },
   income:       { en: "Income",           es: "Ingresos",           pt: "Receita" },
   expenses:     { en: "Expenses",         es: "Gastos",             pt: "Despesas" },
-  preTax:       { en: "Pre-Tax Profit",   es: "Ganancia antes imp.", pt: "Lucro pre-imp." },
+  preTax:       { en: "Pre-Tax Profit",   es: "Ganancia pre-imp.",  pt: "Lucro pré-imp." },
   tax:          { en: "Tax",              es: "Impuesto",           pt: "Imposto" },
-  netCF:        { en: "Net Cash Flow",    es: "Flujo neto",         pt: "Fluxo liquido" },
+  netCF:        { en: "Net Cash Flow",    es: "Flujo neto",         pt: "Fluxo líquido" },
   cumulative:   { en: "Cumulative",       es: "Acumulado",          pt: "Acumulado" },
   cashFlows:    { en: "Cash Flows",       es: "Flujos de caja",     pt: "Fluxos de caixa" },
   summary:      { en: "Summary",          es: "Resumen",            pt: "Resumo" },
   npvBreakdown: { en: "NPV Breakdown",    es: "Desglose VAN",       pt: "Detalhamento VPL" },
   discountFactor:{ en: "Discount Factor", es: "Factor de descuento", pt: "Fator de desconto" },
   presentValue: { en: "Present Value",    es: "Valor presente",     pt: "Valor presente" },
-  depreciation: { en: "Depreciation",     es: "Depreciacion",       pt: "Depreciacao" },
-  taxableIncome:{ en: "Taxable Income",   es: "Ingreso imponible",  pt: "Renda tributavel" },
+  depreciation: { en: "Depreciation",     es: "Depreciación",       pt: "Depreciação" },
+  taxableIncome:{ en: "Taxable Income",   es: "Ingreso imponible",  pt: "Renda tributável" },
   depAsset:     { en: "Asset",            es: "Activo",             pt: "Ativo" },
-  depValue:     { en: "Depreciable Value",es: "Valor depreciable",  pt: "Valor depreciavel" },
+  depValue:     { en: "Depreciable Value",es: "Valor depreciable",  pt: "Valor depreciável" },
   depResidual:  { en: "Residual Value",   es: "Valor residual",     pt: "Valor residual" },
-  depAnnual:    { en: "Annual Depreciation", es: "Depreciacion anual", pt: "Depreciacao anual" },
-  reinvestment: { en: "Reinvestment",     es: "Reinversion",        pt: "Reinvestimento" },
-  totalReinvest:{ en: "Total Reinvestment", es: "Reinversion total", pt: "Reinvestimento total" },
+  depAnnual:    { en: "Annual Depreciation", es: "Depreciación anual", pt: "Depreciação anual" },
+  reinvestment: { en: "Reinvestment",     es: "Reinversión",        pt: "Reinvestimento" },
+  totalReinvest:{ en: "Total Reinvestment", es: "Reinversión total", pt: "Reinvestimento total" },
+  total:        { en: "TOTAL",            es: "TOTAL",              pt: "TOTAL" },
+  parameters:   { en: "Parameters",       es: "Parámetros",         pt: "Parâmetros" },
+  generatedBy:  { en: "Generated by Project Evaluator", es: "Generado por Project Evaluator", pt: "Gerado por Project Evaluator" },
 };
 
 function l(key: string, lang: Language): string {
   return labels[key]?.[lang] ?? labels[key]?.en ?? key;
 }
 
-export function exportToExcel(data: ExportData, lang: Language = "en") {
-  const wb = XLSX.utils.book_new();
+// Corporate color palette (ARGB hex, no #)
+const COLORS = {
+  primary: "FF0F172A",       // Dark slate - headers
+  primaryLight: "FF1E293B",  // Lighter slate
+  accent: "FF10B981",        // Emerald - positive/highlights
+  accentDark: "FF059669",    
+  danger: "FFDC2626",        // Red - negatives/expenses
+  warning: "FFF59E0B",       // Amber - tax
+  neutral: "FFF1F5F9",       // Light gray - alt rows
+  neutralDark: "FFE2E8F0",   // Border
+  white: "FFFFFFFF",
+  textLight: "FFFFFFFF",
+  textDark: "FF0F172A",
+  textMuted: "FF64748B",
+  subHeader: "FFCBD5E1",     // Section sub-headers
+};
+
+function getCurrencyFormat(c: Currency): string {
+  const sym = CURRENCY_CONFIG[c]?.symbol || "$";
+  // Escape any double-quotes in symbol just in case
+  const safe = sym.replace(/"/g, '');
+  return `"${safe}"#,##0;[Red]("${safe}"#,##0);"-"`;
+}
+
+function applyTitleStyle(cell: ExcelJS.Cell, font: string) {
+  cell.font = { name: font, size: 18, bold: true, color: { argb: COLORS.white } };
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.primary } };
+  cell.alignment = { horizontal: "center", vertical: "middle" };
+}
+
+function applySectionHeader(cell: ExcelJS.Cell, font: string) {
+  cell.font = { name: font, size: 12, bold: true, color: { argb: COLORS.white } };
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.primaryLight } };
+  cell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+}
+
+function applyTableHeader(cell: ExcelJS.Cell, font: string, bgColor = COLORS.primary) {
+  cell.font = { name: font, size: 11, bold: true, color: { argb: COLORS.white } };
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bgColor } };
+  cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
+  cell.border = {
+    top: { style: "thin", color: { argb: COLORS.primary } },
+    bottom: { style: "medium", color: { argb: COLORS.primary } },
+    left: { style: "thin", color: { argb: COLORS.primary } },
+    right: { style: "thin", color: { argb: COLORS.primary } },
+  };
+}
+
+function applyDataCell(cell: ExcelJS.Cell, font: string, isAlt: boolean) {
+  cell.font = { name: font, size: 10, color: { argb: COLORS.textDark } };
+  cell.alignment = { horizontal: "right", vertical: "middle" };
+  cell.fill = isAlt
+    ? { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.neutral } }
+    : { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.white } };
+  cell.border = {
+    top: { style: "hair", color: { argb: COLORS.neutralDark } },
+    bottom: { style: "hair", color: { argb: COLORS.neutralDark } },
+    left: { style: "hair", color: { argb: COLORS.neutralDark } },
+    right: { style: "hair", color: { argb: COLORS.neutralDark } },
+  };
+}
+
+function applyTotalRow(cell: ExcelJS.Cell, font: string) {
+  cell.font = { name: font, size: 11, bold: true, color: { argb: COLORS.white } };
+  cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: COLORS.primaryLight } };
+  cell.alignment = { horizontal: "right", vertical: "middle" };
+  cell.border = {
+    top: { style: "medium", color: { argb: COLORS.primary } },
+    bottom: { style: "medium", color: { argb: COLORS.primary } },
+    left: { style: "thin", color: { argb: COLORS.primary } },
+    right: { style: "thin", color: { argb: COLORS.primary } },
+  };
+}
+
+export async function exportToExcel(data: ExportData, lang: Language = "en") {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Project Evaluator";
+  wb.created = new Date();
+  wb.company = "Project Evaluator";
+
   const c = data.currency;
+  const FONT = "Calibri";
+  const CURR_FMT = getCurrencyFormat(c);
+  const PCT_FMT = "0.00%";
   const nYears = data.yearlyData.length;
   const hasDep = data.depreciation?.enabled ?? false;
   const annualDep = hasDep
@@ -77,64 +163,255 @@ export function exportToExcel(data: ExportData, lang: Language = "en") {
   const hasReinvest = reinvestments.some(r => r > 0);
   const totalReinvest = reinvestments.reduce((s, r) => s + r, 0);
 
-  // Sheet 1: Summary
-  const summary: (string | number)[][] = [
-    [l("reportTitle", lang)],
+  // ========== SHEET 1: SUMMARY ==========
+  const ws1 = wb.addWorksheet(l("summary", lang), {
+    properties: { tabColor: { argb: COLORS.primary } },
+    views: [{ showGridLines: false }],
+  });
+
+  ws1.columns = [{ width: 5 }, { width: 38 }, { width: 28 }, { width: 5 }];
+
+  // Title bar
+  ws1.mergeCells("B2:C3");
+  const titleCell = ws1.getCell("B2");
+  titleCell.value = l("reportTitle", lang);
+  applyTitleStyle(titleCell, FONT);
+  ws1.getRow(2).height = 28;
+  ws1.getRow(3).height = 28;
+
+  // Project info block
+  let row = 5;
+  const infoRows: [string, string][] = [
     [l("project", lang), data.projectName || "-"],
-    [l("description", lang), data.projectDescription || ""],
+    [l("description", lang), data.projectDescription || "-"],
     [l("currency", lang), c],
     [l("date", lang), new Date().toLocaleDateString()],
-    [],
-    [l("keyMetrics", lang)],
-    [l("npv", lang), data.npv],
-    [l("irr", lang), data.irr !== null ? data.irr : "N/A"],
-    [l("roi", lang), data.roi],
-    [l("totalReturn", lang), data.totalReturn],
-    [l("payback", lang), data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1).replace('.', ',')} ${l("years", lang)}` : l("never", lang)],
-    [l("totalTax", lang), data.totalTax],
-    [l("initialInv", lang), data.investment],
-    [l("discountRate", lang), data.discountRate],
-    [l("taxRate", lang), data.taxRate],
+  ];
+  infoRows.forEach(([k, v], i) => {
+    const kc = ws1.getCell(`B${row + i}`);
+    const vc = ws1.getCell(`C${row + i}`);
+    kc.value = k;
+    vc.value = v;
+    kc.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textMuted } };
+    vc.font = { name: FONT, size: 10, color: { argb: COLORS.textDark } };
+    kc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    vc.alignment = { horizontal: "left", vertical: "middle" };
+    const isAlt = i % 2 === 0;
+    [kc, vc].forEach(cell => {
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: isAlt ? COLORS.neutral : COLORS.white } };
+      cell.border = {
+        top: { style: "hair", color: { argb: COLORS.neutralDark } },
+        bottom: { style: "hair", color: { argb: COLORS.neutralDark } },
+      };
+    });
+    ws1.getRow(row + i).height = 20;
+  });
+  row += infoRows.length + 1;
+
+  // Key Metrics section header
+  ws1.mergeCells(`B${row}:C${row}`);
+  const metricsHeader = ws1.getCell(`B${row}`);
+  metricsHeader.value = l("keyMetrics", lang);
+  applySectionHeader(metricsHeader, FONT);
+  ws1.getRow(row).height = 24;
+  row++;
+
+  // Metrics table header
+  const mhA = ws1.getCell(`B${row}`);
+  const mhB = ws1.getCell(`C${row}`);
+  mhA.value = l("metric", lang);
+  mhB.value = l("value", lang);
+  applyTableHeader(mhA, FONT);
+  applyTableHeader(mhB, FONT);
+  ws1.getRow(row).height = 22;
+  row++;
+
+  type Metric = { label: string; value: string | number; format?: string; color?: string };
+  const metrics: Metric[] = [
+    { label: l("npv", lang), value: data.npv, format: CURR_FMT, color: data.npv >= 0 ? COLORS.accentDark : COLORS.danger },
+    { label: l("irr", lang), value: data.irr !== null ? data.irr : "N/A", format: data.irr !== null ? PCT_FMT : undefined, color: COLORS.accentDark },
+    { label: l("roi", lang), value: data.roi, format: PCT_FMT, color: data.roi >= 0 ? COLORS.accentDark : COLORS.danger },
+    { label: l("totalReturn", lang), value: data.totalReturn, format: CURR_FMT, color: data.totalReturn >= 0 ? COLORS.accentDark : COLORS.danger },
+    { label: l("payback", lang), value: data.paybackPeriod !== null ? `${data.paybackPeriod.toFixed(1)} ${l("years", lang)}` : l("never", lang) },
+    { label: l("totalTax", lang), value: data.totalTax, format: CURR_FMT, color: COLORS.warning },
   ];
 
+  metrics.forEach((m, i) => {
+    const labelCell = ws1.getCell(`B${row + i}`);
+    const valueCell = ws1.getCell(`C${row + i}`);
+    labelCell.value = m.label;
+    valueCell.value = m.value;
+    if (m.format && typeof m.value === "number") valueCell.numFmt = m.format;
+    const isAlt = i % 2 === 0;
+    applyDataCell(labelCell, FONT, isAlt);
+    applyDataCell(valueCell, FONT, isAlt);
+    labelCell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    labelCell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+    valueCell.font = { name: FONT, size: 11, bold: true, color: { argb: m.color ?? COLORS.textDark } };
+    ws1.getRow(row + i).height = 22;
+  });
+  row += metrics.length + 1;
+
+  // Parameters section
+  ws1.mergeCells(`B${row}:C${row}`);
+  const paramHeader = ws1.getCell(`B${row}`);
+  paramHeader.value = l("parameters", lang);
+  applySectionHeader(paramHeader, FONT);
+  ws1.getRow(row).height = 24;
+  row++;
+
+  const params: Metric[] = [
+    { label: l("initialInv", lang), value: data.investment, format: CURR_FMT },
+    { label: l("discountRate", lang), value: data.discountRate, format: PCT_FMT },
+    { label: l("taxRate", lang), value: data.taxRate, format: PCT_FMT },
+  ];
+
+  params.forEach((m, i) => {
+    const labelCell = ws1.getCell(`B${row + i}`);
+    const valueCell = ws1.getCell(`C${row + i}`);
+    labelCell.value = m.label;
+    valueCell.value = m.value;
+    if (m.format) valueCell.numFmt = m.format;
+    const isAlt = i % 2 === 0;
+    applyDataCell(labelCell, FONT, isAlt);
+    applyDataCell(valueCell, FONT, isAlt);
+    labelCell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    labelCell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+    ws1.getRow(row + i).height = 20;
+  });
+  row += params.length + 1;
+
+  // Depreciation block
   if (hasDep) {
-    summary.push(
-      [],
-      [l("depreciation", lang)],
-      [l("depAsset", lang), data.depreciation!.assetName || "-"],
-      [l("depValue", lang), data.depreciation!.depreciableValue],
-      [l("depResidual", lang), data.depreciation!.residualValue],
-      [l("depAnnual", lang), Math.round(annualDep)],
-    );
+    ws1.mergeCells(`B${row}:C${row}`);
+    const dh = ws1.getCell(`B${row}`);
+    dh.value = l("depreciation", lang);
+    applySectionHeader(dh, FONT);
+    ws1.getRow(row).height = 24;
+    row++;
+
+    const depRows: Metric[] = [
+      { label: l("depAsset", lang), value: data.depreciation!.assetName || "-" },
+      { label: l("depValue", lang), value: data.depreciation!.depreciableValue, format: CURR_FMT },
+      { label: l("depResidual", lang), value: data.depreciation!.residualValue, format: CURR_FMT },
+      { label: l("depAnnual", lang), value: Math.round(annualDep), format: CURR_FMT },
+    ];
+    depRows.forEach((m, i) => {
+      const lc = ws1.getCell(`B${row + i}`);
+      const vc = ws1.getCell(`C${row + i}`);
+      lc.value = m.label;
+      vc.value = m.value;
+      if (m.format && typeof m.value === "number") vc.numFmt = m.format;
+      const isAlt = i % 2 === 0;
+      applyDataCell(lc, FONT, isAlt);
+      applyDataCell(vc, FONT, isAlt);
+      lc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+      lc.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+      ws1.getRow(row + i).height = 20;
+    });
+    row += depRows.length + 1;
   }
 
+  // Reinvestment block
   if (hasReinvest) {
-    summary.push([], [l("totalReinvest", lang), totalReinvest]);
+    ws1.mergeCells(`B${row}:C${row}`);
+    const rh = ws1.getCell(`B${row}`);
+    rh.value = l("totalReinvest", lang);
+    applySectionHeader(rh, FONT);
+    ws1.getRow(row).height = 24;
+    row++;
+
+    const tlc = ws1.getCell(`B${row}`);
+    const tvc = ws1.getCell(`C${row}`);
+    tlc.value = l("totalReinvest", lang);
+    tvc.value = totalReinvest;
+    tvc.numFmt = CURR_FMT;
+    applyDataCell(tlc, FONT, false);
+    applyDataCell(tvc, FONT, false);
+    tlc.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    tlc.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+    tvc.font = { name: FONT, size: 11, bold: true, color: { argb: COLORS.warning } };
+    row++;
+
     reinvestments.forEach((r, i) => {
       if (r > 0) {
-        summary.push([`  ${l("reinvestment", lang)} ${l("year", lang)} ${i + 1}`, r]);
+        const lc = ws1.getCell(`B${row}`);
+        const vc = ws1.getCell(`C${row}`);
+        lc.value = `   ${l("reinvestment", lang)} · ${l("year", lang)} ${i + 1}`;
+        vc.value = r;
+        vc.numFmt = CURR_FMT;
+        const isAlt = i % 2 === 0;
+        applyDataCell(lc, FONT, isAlt);
+        applyDataCell(vc, FONT, isAlt);
+        lc.alignment = { horizontal: "left", vertical: "middle", indent: 2 };
+        lc.font = { name: FONT, size: 10, color: { argb: COLORS.textMuted } };
+        row++;
       }
     });
   }
 
-  const ws1 = XLSX.utils.aoa_to_sheet(summary);
-  ws1["!cols"] = [{ wch: 35 }, { wch: 25 }];
-  XLSX.utils.book_append_sheet(wb, ws1, l("summary", lang));
+  // Footer
+  row += 2;
+  ws1.mergeCells(`B${row}:C${row}`);
+  const footer = ws1.getCell(`B${row}`);
+  footer.value = l("generatedBy", lang);
+  footer.font = { name: FONT, size: 9, italic: true, color: { argb: COLORS.textMuted } };
+  footer.alignment = { horizontal: "center" };
 
-  // Sheet 2: Cash Flows
-  const cfHeader: string[] = [l("year", lang), l("income", lang), l("expenses", lang), l("preTax", lang)];
-  if (hasDep) cfHeader.push(l("depreciation", lang), l("taxableIncome", lang));
-  cfHeader.push(l("tax", lang));
-  if (hasReinvest) cfHeader.push(l("reinvestment", lang));
-  cfHeader.push(l("netCF", lang), l("cumulative", lang));
+  // ========== SHEET 2: CASH FLOWS ==========
+  const ws2 = wb.addWorksheet(l("cashFlows", lang), {
+    properties: { tabColor: { argb: COLORS.accent } },
+    views: [{ showGridLines: false, state: "frozen", xSplit: 1, ySplit: 4 }],
+  });
 
-  const cfRows: (string | number)[][] = [cfHeader];
+  const cfHeaders: string[] = [l("year", lang), l("income", lang), l("expenses", lang), l("preTax", lang)];
+  if (hasDep) cfHeaders.push(l("depreciation", lang), l("taxableIncome", lang));
+  cfHeaders.push(l("tax", lang));
+  if (hasReinvest) cfHeaders.push(l("reinvestment", lang));
+  cfHeaders.push(l("netCF", lang), l("cumulative", lang));
 
+  ws2.columns = cfHeaders.map((_, i) => ({ width: i === 0 ? 10 : 18 }));
+
+  // Title bar
+  ws2.mergeCells(1, 1, 2, cfHeaders.length);
+  const cfTitle = ws2.getCell(1, 1);
+  cfTitle.value = `${l("cashFlows", lang)} — ${data.projectName || ""}`;
+  applyTitleStyle(cfTitle, FONT);
+  ws2.getRow(1).height = 24;
+  ws2.getRow(2).height = 24;
+
+  // Column headers (row 4)
+  const headerRow = ws2.getRow(4);
+  cfHeaders.forEach((h, i) => {
+    const cell = headerRow.getCell(i + 1);
+    cell.value = h;
+    applyTableHeader(cell, FONT);
+  });
+  headerRow.height = 32;
+
+  // Initial investment row (year 0)
   let cumulative = -data.investment;
-  const initRow: (string | number)[] = [0];
-  for (let i = 1; i < cfHeader.length - 2; i++) initRow.push(0);
-  initRow.push(-data.investment, cumulative);
-  cfRows.push(initRow);
+  const initRow = ws2.getRow(5);
+  initRow.getCell(1).value = 0;
+  for (let i = 2; i < cfHeaders.length - 1; i++) initRow.getCell(i).value = 0;
+  initRow.getCell(cfHeaders.length - 1).value = -data.investment;
+  initRow.getCell(cfHeaders.length).value = cumulative;
+  for (let i = 1; i <= cfHeaders.length; i++) {
+    const cell = initRow.getCell(i);
+    applyDataCell(cell, FONT, false);
+    if (i === 1) {
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+    } else {
+      cell.numFmt = CURR_FMT;
+      if (i >= cfHeaders.length - 1) cell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.danger } };
+    }
+  }
+  initRow.height = 22;
+
+  // Yearly rows
+  let dataRowIdx = 6;
+  let totalIncome = 0, totalExpenses = 0, totalTaxSum = 0, totalReinvSum = 0, totalNet = 0;
 
   data.yearlyData.forEach((yr, i) => {
     const preTax = yr.income - yr.expenses;
@@ -148,22 +425,120 @@ export function exportToExcel(data: ExportData, lang: Language = "en") {
     const finalNet = net + residualAdd;
     cumulative += finalNet;
 
-    const row: (string | number)[] = [i + 1, yr.income, yr.expenses, Math.round(preTax)];
-    if (hasDep) row.push(Math.round(annualDep), Math.round(taxableIncome));
-    row.push(Math.round(tax));
-    if (hasReinvest) row.push(reinv);
-    row.push(Math.round(finalNet), Math.round(cumulative));
-    cfRows.push(row);
+    totalIncome += yr.income;
+    totalExpenses += yr.expenses;
+    totalTaxSum += tax;
+    totalReinvSum += reinv;
+    totalNet += finalNet;
+
+    const r = ws2.getRow(dataRowIdx);
+    const isAlt = i % 2 === 0;
+    let col = 1;
+    r.getCell(col++).value = i + 1;
+    r.getCell(col++).value = yr.income;
+    r.getCell(col++).value = yr.expenses;
+    r.getCell(col++).value = preTax;
+    if (hasDep) {
+      r.getCell(col++).value = annualDep;
+      r.getCell(col++).value = taxableIncome;
+    }
+    r.getCell(col++).value = tax;
+    if (hasReinvest) r.getCell(col++).value = reinv;
+    r.getCell(col++).value = finalNet;
+    r.getCell(col++).value = cumulative;
+
+    for (let k = 1; k <= cfHeaders.length; k++) {
+      const cell = r.getCell(k);
+      applyDataCell(cell, FONT, isAlt);
+      if (k === 1) {
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.textDark } };
+      } else {
+        cell.numFmt = CURR_FMT;
+      }
+    }
+    // Color code special columns
+    r.getCell(2).font = { name: FONT, size: 10, color: { argb: COLORS.accentDark } };          // Income
+    r.getCell(3).font = { name: FONT, size: 10, color: { argb: COLORS.danger } };               // Expenses
+    const taxColIdx = hasDep ? 7 : 5;
+    r.getCell(taxColIdx).font = { name: FONT, size: 10, color: { argb: COLORS.warning } };
+    r.getCell(cfHeaders.length - 1).font = { name: FONT, size: 10, bold: true, color: { argb: finalNet >= 0 ? COLORS.accentDark : COLORS.danger } };
+    r.getCell(cfHeaders.length).font = { name: FONT, size: 10, bold: true, color: { argb: cumulative >= 0 ? COLORS.accentDark : COLORS.danger } };
+    r.height = 22;
+    dataRowIdx++;
   });
 
-  const ws2 = XLSX.utils.aoa_to_sheet(cfRows);
-  ws2["!cols"] = Array(cfHeader.length).fill({ wch: 18 });
-  XLSX.utils.book_append_sheet(wb, ws2, l("cashFlows", lang));
+  // TOTAL row
+  const totalRow = ws2.getRow(dataRowIdx);
+  let tcol = 1;
+  totalRow.getCell(tcol++).value = l("total", lang);
+  totalRow.getCell(tcol++).value = totalIncome;
+  totalRow.getCell(tcol++).value = totalExpenses;
+  totalRow.getCell(tcol++).value = totalIncome - totalExpenses;
+  if (hasDep) {
+    totalRow.getCell(tcol++).value = annualDep * nYears;
+    totalRow.getCell(tcol++).value = (totalIncome - totalExpenses) - annualDep * nYears;
+  }
+  totalRow.getCell(tcol++).value = totalTaxSum;
+  if (hasReinvest) totalRow.getCell(tcol++).value = totalReinvSum;
+  totalRow.getCell(tcol++).value = totalNet;
+  totalRow.getCell(tcol++).value = cumulative;
 
-  // Sheet 3: NPV Breakdown
-  const npvHeader = [l("year", lang), l("netCF", lang), l("discountFactor", lang), l("presentValue", lang)];
-  const npvRows: (string | number)[][] = [npvHeader];
-  npvRows.push([0, -data.investment, 1, -data.investment]);
+  for (let k = 1; k <= cfHeaders.length; k++) {
+    const cell = totalRow.getCell(k);
+    applyTotalRow(cell, FONT);
+    if (k === 1) cell.alignment = { horizontal: "center", vertical: "middle" };
+    else cell.numFmt = CURR_FMT;
+  }
+  totalRow.height = 26;
+
+  // ========== SHEET 3: NPV BREAKDOWN ==========
+  const ws3 = wb.addWorksheet(l("npvBreakdown", lang), {
+    properties: { tabColor: { argb: COLORS.accentDark } },
+    views: [{ showGridLines: false, state: "frozen", xSplit: 1, ySplit: 4 }],
+  });
+
+  const npvHeaders = [l("year", lang), l("netCF", lang), l("discountFactor", lang), l("presentValue", lang)];
+  ws3.columns = [{ width: 10 }, { width: 22 }, { width: 22 }, { width: 22 }];
+
+  ws3.mergeCells(1, 1, 2, npvHeaders.length);
+  const npvTitle = ws3.getCell(1, 1);
+  npvTitle.value = `${l("npvBreakdown", lang)} — ${data.projectName || ""}`;
+  applyTitleStyle(npvTitle, FONT);
+  ws3.getRow(1).height = 24;
+  ws3.getRow(2).height = 24;
+
+  const npvHeaderRow = ws3.getRow(4);
+  npvHeaders.forEach((h, i) => {
+    const cell = npvHeaderRow.getCell(i + 1);
+    cell.value = h;
+    applyTableHeader(cell, FONT);
+  });
+  npvHeaderRow.height = 32;
+
+  // Year 0
+  const npvR0 = ws3.getRow(5);
+  npvR0.getCell(1).value = 0;
+  npvR0.getCell(2).value = -data.investment;
+  npvR0.getCell(3).value = 1;
+  npvR0.getCell(4).value = -data.investment;
+  for (let k = 1; k <= 4; k++) {
+    const cell = npvR0.getCell(k);
+    applyDataCell(cell, FONT, false);
+    if (k === 1) {
+      cell.alignment = { horizontal: "center", vertical: "middle" };
+      cell.font = { name: FONT, size: 10, bold: true };
+    } else if (k === 3) {
+      cell.numFmt = "0.0000";
+    } else {
+      cell.numFmt = CURR_FMT;
+      cell.font = { name: FONT, size: 10, bold: true, color: { argb: COLORS.danger } };
+    }
+  }
+  npvR0.height = 22;
+
+  let npvRow = 6;
+  let pvSum = -data.investment;
 
   data.yearlyData.forEach((yr, i) => {
     const preTax = yr.income - yr.expenses;
@@ -176,13 +551,57 @@ export function exportToExcel(data: ExportData, lang: Language = "en") {
     const residualAdd = (isLast && hasDep) ? data.depreciation!.residualValue : 0;
     const finalNet = net + residualAdd;
     const df = 1 / Math.pow(1 + data.discountRate, i + 1);
-    npvRows.push([i + 1, Math.round(finalNet), Number(df.toFixed(6)), Number((finalNet * df).toFixed(2))]);
-    // Note: Excel handles number formatting via cell format, raw numbers kept for calculations
+    const pv = finalNet * df;
+    pvSum += pv;
+
+    const r = ws3.getRow(npvRow);
+    const isAlt = i % 2 === 0;
+    r.getCell(1).value = i + 1;
+    r.getCell(2).value = finalNet;
+    r.getCell(3).value = df;
+    r.getCell(4).value = pv;
+    for (let k = 1; k <= 4; k++) {
+      const cell = r.getCell(k);
+      applyDataCell(cell, FONT, isAlt);
+      if (k === 1) {
+        cell.alignment = { horizontal: "center", vertical: "middle" };
+        cell.font = { name: FONT, size: 10, bold: true };
+      } else if (k === 3) {
+        cell.numFmt = "0.0000";
+      } else {
+        cell.numFmt = CURR_FMT;
+        cell.font = { name: FONT, size: 10, color: { argb: (k === 4 ? pv : finalNet) >= 0 ? COLORS.accentDark : COLORS.danger } };
+      }
+    }
+    r.height = 22;
+    npvRow++;
   });
 
-  const ws3 = XLSX.utils.aoa_to_sheet(npvRows);
-  ws3["!cols"] = Array(4).fill({ wch: 20 });
-  XLSX.utils.book_append_sheet(wb, ws3, l("npvBreakdown", lang));
+  // NPV Total row
+  const npvTotalRow = ws3.getRow(npvRow);
+  npvTotalRow.getCell(1).value = l("npv", lang);
+  ws3.mergeCells(npvRow, 1, npvRow, 3);
+  npvTotalRow.getCell(4).value = pvSum;
+  for (let k = 1; k <= 4; k++) {
+    const cell = npvTotalRow.getCell(k);
+    applyTotalRow(cell, FONT);
+    if (k === 1) cell.alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    if (k === 4) {
+      cell.numFmt = CURR_FMT;
+      cell.font = { name: FONT, size: 12, bold: true, color: { argb: pvSum >= 0 ? COLORS.accent : COLORS.danger } };
+    }
+  }
+  npvTotalRow.height = 28;
 
-  XLSX.writeFile(wb, `${data.projectName || "investment-analysis"}.xlsx`);
+  // Save
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${data.projectName || "investment-analysis"}.xlsx`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
