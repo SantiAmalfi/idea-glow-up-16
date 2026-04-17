@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "5492227515092";
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
+// Formato wa.me para Argentina: 54 + código de área + número (sin el 9)
+const WHATSAPP_NUMBER = "542227515092";
+const WHATSAPP_MESSAGE = "Hola! Vengo de Project Evaluator y quiero más info.";
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
 export default function WhatsAppButton() {
   return (
