@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { type Currency, type DepreciationConfig } from "./finance";
+import { CURRENCY_CONFIG, type Currency, type DepreciationConfig } from "./finance";
 import type { Language } from "./i18n";
 
 interface ExportData {
