@@ -4,17 +4,6 @@ import type { User, Session } from "@supabase/supabase-js";
 
 const FREE_ANALYSIS_LIMIT = 3;
 
-const STRIPE_PRODUCTS = {
-  annual: {
-    price_id: "price_1TMajiBoacFP6CQ0COA5ZISH",
-    product_id: "prod_ULHI70azfrsWA0",
-  },
-  lifetime: {
-    price_id: "price_1TMak4BoacFP6CQ09y6Xd8SS",
-    product_id: "prod_ULHIluUM0dziWf",
-  },
-} as const;
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -28,9 +17,8 @@ interface AuthContextType {
   checkSubscription: () => Promise<void>;
   refreshAnalysisCount: () => Promise<void>;
   recordAnalysis: (projectName?: string, inputData?: Record<string, unknown>) => Promise<boolean>;
-  createCheckout: (interval: "annual" | "lifetime") => Promise<void>;
-  openCustomerPortal: () => Promise<void>;
-  stripeProducts: typeof STRIPE_PRODUCTS;
+  createSubscription: () => Promise<void>;
+  cancelSubscription: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -49,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkSubscription = useCallback(async () => {
     if (!session) return;
     try {
-      const { data, error } = await supabase.functions.invoke("check-subscription", {
+      const { data, error } = await supabase.functions.invoke("mp-check-subscription", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
@@ -90,33 +78,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isPremium, analysisCount]);
 
-  const createCheckout = useCallback(async (interval: "annual" | "lifetime") => {
+  const createSubscription = useCallback(async () => {
     if (!session) return;
     try {
-      const fnName = interval === "lifetime" ? "create-payment" : "create-checkout";
-      const { data, error } = await supabase.functions.invoke(fnName, {
+      const { data, error } = await supabase.functions.invoke("mp-create-subscription", {
         headers: { Authorization: `Bearer ${session.access_token}` },
-        body: { priceId: STRIPE_PRODUCTS[interval].price_id },
       });
       if (error) throw error;
       if (data?.url) window.open(data.url, "_blank");
     } catch (e) {
-      console.error("Error creating checkout:", e);
+      console.error("Error creating subscription:", e);
     }
   }, [session]);
 
-  const openCustomerPortal = useCallback(async () => {
+  const cancelSubscription = useCallback(async () => {
     if (!session) return;
     try {
-      const { data, error } = await supabase.functions.invoke("customer-portal", {
+      const { error } = await supabase.functions.invoke("mp-cancel-subscription", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      await checkSubscription();
     } catch (e) {
-      console.error("Error opening portal:", e);
+      console.error("Error cancelling subscription:", e);
     }
-  }, [session]);
+  }, [session, checkSubscription]);
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -163,8 +149,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user, session, loading, isPremium, subscriptionEnd,
         analysisCount, canAnalyze, remainingAnalyses,
         signOut, checkSubscription, refreshAnalysisCount,
-        recordAnalysis, createCheckout, openCustomerPortal,
-        stripeProducts: STRIPE_PRODUCTS,
+        recordAnalysis, createSubscription, cancelSubscription,
       }}
     >
       {children}
