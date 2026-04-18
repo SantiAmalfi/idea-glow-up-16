@@ -2,3 +2,6 @@ project_id = "fvioozbuygszdqrwugkl"
 
 [functions.mp-webhook]
 verify_jwt = false
+
+[functions.mp-diagnose]
+verify_jwt = false
