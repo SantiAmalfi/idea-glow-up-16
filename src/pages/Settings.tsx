@@ -18,7 +18,7 @@ interface AnalysisRecord {
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { user, isPremium, subscriptionEnd, analysisCount, remainingAnalyses, openCustomerPortal, createCheckout } = useAuth();
+  const { user, isPremium, subscriptionEnd, analysisCount, remainingAnalyses, createSubscription, cancelSubscription } = useAuth();
   const { t } = useI18n();
   const [analyses, setAnalyses] = useState<AnalysisRecord[]>([]);
   const [loadingAnalyses, setLoadingAnalyses] = useState(true);
@@ -124,24 +124,21 @@ export default function Settings() {
                   )}
                 </div>
                 <div className="flex gap-3">
-                  <Button onClick={openCustomerPortal} variant="outline" className="flex-1 gap-2">
+                  <Button onClick={cancelSubscription} variant="outline" className="flex-1 gap-2">
                     <ExternalLink className="h-4 w-4" />
                     {t("pricing.manage")}
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  {t("settings.cancelSub")} · {t("settings.changePlan")}
+                  {t("settings.cancelSub")}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">{t("settings.upgradeDesc")}</p>
                 <div className="flex gap-3">
-                  <Button onClick={() => createCheckout("annual")} className="flex-1">
-                    {t("pricing.annual")} — $10.000/{t("pricing.perYear")}
-                  </Button>
-                  <Button onClick={() => createCheckout("lifetime")} variant="outline" className="flex-1">
-                    {t("pricing.lifetime")} — $25.000
+                  <Button onClick={createSubscription} className="flex-1">
+                    {t("pricing.annual")} — $25.000 ARS/{t("pricing.perYear")}
                   </Button>
                 </div>
               </div>

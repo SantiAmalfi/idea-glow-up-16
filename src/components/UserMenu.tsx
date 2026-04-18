@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function UserMenu() {
-  const { user, isPremium, remainingAnalyses, signOut, openCustomerPortal } = useAuth();
+  const { user, isPremium, remainingAnalyses, signOut, cancelSubscription } = useAuth();
   const navigate = useNavigate();
   const { t } = useI18n();
 
@@ -63,7 +63,7 @@ export default function UserMenu() {
           {t("settings.myAnalyses")}
         </DropdownMenuItem>
         {isPremium && (
-          <DropdownMenuItem onClick={openCustomerPortal}>
+          <DropdownMenuItem onClick={cancelSubscription}>
             <Crown className="h-4 w-4 mr-2" />
             {t("pricing.manage")}
           </DropdownMenuItem>
