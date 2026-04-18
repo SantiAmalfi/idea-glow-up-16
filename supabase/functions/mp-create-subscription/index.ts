@@ -51,7 +51,6 @@ serve(async (req) => {
       payer_email: user.email,
       external_reference: user.id,
       notification_url: webhookUrl,
-      status: "pending",
     };
 
     log("Creating preapproval", { email: user.email });
