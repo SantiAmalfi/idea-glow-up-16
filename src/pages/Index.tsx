@@ -106,13 +106,18 @@ export default function Index() {
     }
   };
 
-  // Handle checkout return
+  // Handle Mercado Pago / checkout return
   useEffect(() => {
+    const mp = searchParams.get("mp");
     const checkout = searchParams.get("checkout");
-    if (checkout === "success") {
-      toast.success("🎉 ¡Suscripción activada! Recargando estado...");
+    if (mp === "success" || checkout === "success") {
+      toast.success("🎉 ¡Pago recibido! Activando tu suscripción Premium...");
+      // Poll a few times because the MP webhook may take a few seconds
       checkSubscription();
+      const t1 = setTimeout(() => checkSubscription(), 3000);
+      const t2 = setTimeout(() => checkSubscription(), 8000);
       window.history.replaceState({}, "", "/");
+      return () => { clearTimeout(t1); clearTimeout(t2); };
     } else if (checkout === "cancel") {
       toast.info("Checkout cancelado");
       window.history.replaceState({}, "", "/");
