@@ -110,12 +110,61 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          amount: number | null
+          cancelled_at: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          last_payment_date: string | null
+          next_payment_date: string | null
+          payer_email: string | null
+          preapproval_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date?: string | null
+          payer_email?: string | null
+          preapproval_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          cancelled_at?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          last_payment_date?: string | null
+          next_payment_date?: string | null
+          payer_email?: string | null
+          preapproval_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       get_user_analysis_count: { Args: { p_user_id: string }; Returns: number }
+      user_has_active_subscription: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
