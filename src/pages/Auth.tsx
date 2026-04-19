@@ -20,13 +20,24 @@ export default function Auth() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const navigate = useNavigate();
   const { t } = useI18n();
   const { user } = useAuth();
 
   useEffect(() => {
+    setPendingCheckout(sessionStorage.getItem("pendingCheckout") === "1");
+  }, []);
+
+  useEffect(() => {
     if (user) navigate("/");
   }, [user, navigate]);
+
+  const handleAbortCheckout = () => {
+    sessionStorage.removeItem("pendingCheckout");
+    setPendingCheckout(false);
+    navigate("/");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +132,21 @@ export default function Auth() {
           <p className="text-muted-foreground text-sm mt-2">
             {isForgotPassword ? t("auth.resetPasswordDesc") : isSignUp ? t("auth.signUpDesc") : t("auth.signInDesc")}
           </p>
+          {pendingCheckout && (
+            <div className="mt-4 inline-flex flex-col items-center gap-2 px-4 py-3 rounded-xl border border-primary/30 bg-primary/5 text-xs text-primary">
+              <span className="flex items-center gap-1.5">
+                <Lock className="h-3 w-3" />
+                {t("pricing.pendingHint")}
+              </span>
+              <button
+                type="button"
+                onClick={handleAbortCheckout}
+                className="text-[11px] text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+              >
+                {t("pricing.cancelPending")}
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
