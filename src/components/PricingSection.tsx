@@ -1,14 +1,32 @@
 import { motion } from "framer-motion";
-import { Check, Crown, Zap } from "lucide-react";
+import { Check, Crown, Zap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function PricingSection() {
   const { user, isPremium, createSubscription, cancelSubscription } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoadingCheckout(true);
+    try {
+      await createSubscription();
+    } catch (e: any) {
+      toast.error(e?.message || "Error iniciando el pago");
+      setLoadingCheckout(false);
+    }
+  };
+
+  const handleSignUpToPay = () => {
+    sessionStorage.setItem("pendingCheckout", "1");
+    navigate("/auth");
+  };
 
   const plans = [
     {
