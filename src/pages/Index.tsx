@@ -44,7 +44,7 @@ interface AnalysisResult {
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { t, language } = useI18n();
-  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription } = useAuth();
+  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription, createSubscription } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
