@@ -1,4 +1,4 @@
-import { LogOut, Crown, User, Settings, BarChart3 } from "lucide-react";
+import { LogOut, Crown, User, Settings, BarChart3, CreditCard, Zap, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -6,12 +6,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export default function UserMenu() {
-  const { user, isPremium, remainingAnalyses, signOut, cancelSubscription } = useAuth();
+  const { user, isPremium, subscriptionEnd, remainingAnalyses, signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useI18n();
 
@@ -25,6 +26,15 @@ export default function UserMenu() {
       </button>
     );
   }
+
+  const goToPricing = () => {
+    if (window.location.pathname !== "/") {
+      navigate("/#pricing");
+      return;
+    }
+    const el = document.getElementById("pricing");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <DropdownMenu>
@@ -42,18 +52,30 @@ export default function UserMenu() {
           </span>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <div className="px-2 py-1.5">
-          <p className="text-sm font-medium text-foreground">{user.email}</p>
+      <DropdownMenuContent align="end" className="w-64">
+        <div className="px-2 py-2">
+          <p className="text-sm font-medium text-foreground truncate">{user.email}</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             {isPremium ? (
-              <span className="text-primary font-medium">⭐ Premium</span>
+              <span className="text-primary font-medium inline-flex items-center gap-1">
+                <Crown className="h-3 w-3" /> Premium
+              </span>
             ) : (
               <>{t("pricing.free")} · {remainingAnalyses} {t("auth.remaining")}</>
             )}
           </p>
+          {isPremium && subscriptionEnd && (
+            <p className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {t("settings.renewsOn")} {new Date(subscriptionEnd).toLocaleDateString()}
+            </p>
+          )}
         </div>
         <DropdownMenuSeparator />
+
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+          {t("menu.account")}
+        </DropdownMenuLabel>
         <DropdownMenuItem onClick={() => navigate("/settings")}>
           <Settings className="h-4 w-4 mr-2" />
           {t("nav.settings")}
@@ -62,21 +84,24 @@ export default function UserMenu() {
           <BarChart3 className="h-4 w-4 mr-2" />
           {t("settings.myAnalyses")}
         </DropdownMenuItem>
-        {isPremium && (
-          <DropdownMenuItem onClick={cancelSubscription}>
-            <Crown className="h-4 w-4 mr-2" />
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+          {t("menu.subscription")}
+        </DropdownMenuLabel>
+        {isPremium ? (
+          <DropdownMenuItem onClick={() => navigate("/settings")}>
+            <CreditCard className="h-4 w-4 mr-2" />
             {t("pricing.manage")}
           </DropdownMenuItem>
-        )}
-        {!isPremium && (
-          <DropdownMenuItem onClick={() => {
-            const el = document.getElementById("pricing");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-          }}>
-            <Crown className="h-4 w-4 mr-2" />
-            {t("pricing.upgrade")}
+        ) : (
+          <DropdownMenuItem onClick={goToPricing}>
+            <Zap className="h-4 w-4 mr-2 text-primary" />
+            <span className="text-primary font-medium">{t("pricing.upgrade")}</span>
           </DropdownMenuItem>
         )}
+
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut}>
           <LogOut className="h-4 w-4 mr-2" />

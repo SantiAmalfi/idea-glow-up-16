@@ -395,6 +395,12 @@ const translations = {
   "pricing.manage": { en: "Manage subscription", es: "Gestionar suscripción", pt: "Gerenciar assinatura" },
   "pricing.signUpFirst": { en: "Sign up to upgrade", es: "Registrate para mejorar", pt: "Cadastre-se para melhorar" },
   "pricing.getStarted": { en: "Get started", es: "Comenzar", pt: "Começar" },
+  "pricing.redirecting": { en: "Redirecting to Mercado Pago...", es: "Redirigiendo a Mercado Pago...", pt: "Redirecionando para o Mercado Pago..." },
+  "pricing.cancelCheckout": { en: "Cancel and return", es: "Cancelar y volver", pt: "Cancelar e voltar" },
+  "pricing.checkoutCancelled": { en: "Checkout cancelled. You can subscribe later.", es: "Pago cancelado. Podés suscribirte más tarde.", pt: "Pagamento cancelado. Você pode assinar depois." },
+  "pricing.backToApp": { en: "Back to app", es: "Volver a la app", pt: "Voltar ao app" },
+  "pricing.pendingHint": { en: "After signing in, we'll take you to checkout.", es: "Después de iniciar sesión, te llevamos al pago.", pt: "Após entrar, levaremos você ao pagamento." },
+  "pricing.cancelPending": { en: "Cancel — I'll subscribe later", es: "Cancelar — me suscribo después", pt: "Cancelar — assino depois" },
   "pricing.freeFeature1": { en: "3 analyses per month", es: "3 análisis por mes", pt: "3 análises por mês" },
   "pricing.freeFeature2": { en: "Basic PDF export", es: "Exportación PDF básica", pt: "Exportação PDF básica" },
   "pricing.freeFeature3": { en: "All financial metrics (NPV, IRR, ROI)", es: "Todas las métricas financieras (VAN, TIR, ROI)", pt: "Todas as métricas financeiras (VPL, TIR, ROI)" },
@@ -423,6 +429,9 @@ const translations = {
   "settings.noDataSaved": { en: "No data saved for this analysis", es: "No hay datos guardados para este análisis", pt: "Sem dados salvos para esta análise" },
   "settings.cancelSub": { en: "Cancel subscription", es: "Cancelar suscripción", pt: "Cancelar assinatura" },
   "settings.changePlan": { en: "Change plan", es: "Cambiar plan", pt: "Mudar plano" },
+  "menu.account": { en: "My account", es: "Mi cuenta", pt: "Minha conta" },
+  "menu.subscription": { en: "Manage subscription", es: "Gestionar suscripción", pt: "Gerenciar assinatura" },
+  "menu.billingHistory": { en: "Billing & history", es: "Facturación e historial", pt: "Faturamento e histórico" },
 
   // Report customization
   "report.premiumOnly": { en: "Premium Feature", es: "Función Premium", pt: "Recurso Premium" },
