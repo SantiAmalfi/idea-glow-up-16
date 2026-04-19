@@ -85,9 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (error) throw error;
-      if (data?.url) window.open(data.url, "_blank");
+      if (data?.url) {
+        // Same-tab redirect avoids popup blockers and keeps the flow continuous
+        window.location.href = data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
     } catch (e) {
       console.error("Error creating subscription:", e);
+      throw e;
     }
   }, [session]);
 
