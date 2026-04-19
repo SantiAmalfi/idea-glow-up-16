@@ -19,22 +19,29 @@ serve(async (req) => {
     const mpToken = Deno.env.get("MERCADOPAGO_ACCESS_TOKEN");
     if (!mpToken) throw new Error("MERCADOPAGO_ACCESS_TOKEN is not set");
 
-    const supabaseClient = createClient(
+    // Admin client (service role) for DB writes — RLS only allows SELECT for users
+    const adminClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
 
+    // User client just to validate JWT
+    const userClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
+    );
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
     const token = authHeader.replace("Bearer ", "");
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
+    const { data: userData, error: userError } = await userClient.auth.getUser(token);
     if (userError) throw new Error(`Auth error: ${userError.message}`);
     const user = userData.user;
     if (!user?.id) throw new Error("User not authenticated");
 
-    // Find active subscription
-    const { data: sub } = await supabaseClient
+    // Find active subscription using admin (bypasses RLS for safety)
+    const { data: sub } = await adminClient
       .from("subscriptions")
       .select("*")
       .eq("user_id", user.id)
@@ -61,10 +68,17 @@ serve(async (req) => {
       throw new Error(`MP cancel failed [${mpRes.status}]: ${JSON.stringify(mpData)}`);
     }
 
-    await supabaseClient
+    const { error: updateError } = await adminClient
       .from("subscriptions")
       .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
       .eq("preapproval_id", sub.preapproval_id);
+
+    if (updateError) {
+      log("DB update failed", { error: updateError.message });
+      throw new Error(`DB update failed: ${updateError.message}`);
+    }
+
+    log("Subscription cancelled successfully", { preapprovalId: sub.preapproval_id });
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
