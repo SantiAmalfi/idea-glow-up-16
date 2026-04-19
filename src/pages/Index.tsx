@@ -44,7 +44,7 @@ interface AnalysisResult {
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { t, language } = useI18n();
-  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription } = useAuth();
+  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription, createSubscription } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
@@ -112,7 +112,6 @@ export default function Index() {
     const checkout = searchParams.get("checkout");
     if (mp === "success" || checkout === "success") {
       toast.success("🎉 ¡Pago recibido! Activando tu suscripción Premium...");
-      // Poll a few times because the MP webhook may take a few seconds
       checkSubscription();
       const t1 = setTimeout(() => checkSubscription(), 3000);
       const t2 = setTimeout(() => checkSubscription(), 8000);
@@ -123,6 +122,21 @@ export default function Index() {
       window.history.replaceState({}, "", "/");
     }
   }, [searchParams, checkSubscription]);
+
+  // Resume checkout after signup/login if user clicked "Upgrade" before authenticating
+  useEffect(() => {
+    if (!user || isPremium) return;
+    const pending = sessionStorage.getItem("pendingCheckout");
+    if (pending === "1") {
+      sessionStorage.removeItem("pendingCheckout");
+      toast.success("✅ Sesión iniciada. Te llevamos al pago...");
+      setTimeout(() => {
+        createSubscription().catch((e) => {
+          toast.error(e?.message || "Error iniciando el pago");
+        });
+      }, 600);
+    }
+  }, [user, isPremium, createSubscription]);
 
   const handleAnalyze = async (data: {
     projectName: string;

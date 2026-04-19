@@ -41,7 +41,7 @@ export default function Auth() {
         toast.success(t("auth.resetLinkSent"));
         setIsForgotPassword(false);
       } else if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -50,7 +50,19 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success(t("auth.checkEmail"));
+        // With auto-confirm enabled, signUp returns a session immediately
+        if (data.session) {
+          toast.success("¡Bienvenido!");
+          navigate("/");
+        } else {
+          // Fallback: try sign in (in case session wasn't returned)
+          const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInErr) {
+            toast.success(t("auth.checkEmail"));
+          } else {
+            navigate("/");
+          }
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;

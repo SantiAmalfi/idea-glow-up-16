@@ -1,14 +1,32 @@
 import { motion } from "framer-motion";
-import { Check, Crown, Zap } from "lucide-react";
+import { Check, Crown, Zap, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useI18n } from "@/lib/i18n";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function PricingSection() {
   const { user, isPremium, createSubscription, cancelSubscription } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+
+  const handleUpgrade = async () => {
+    setLoadingCheckout(true);
+    try {
+      await createSubscription();
+    } catch (e: any) {
+      toast.error(e?.message || "Error iniciando el pago");
+      setLoadingCheckout(false);
+    }
+  };
+
+  const handleSignUpToPay = () => {
+    sessionStorage.setItem("pendingCheckout", "1");
+    navigate("/auth");
+  };
 
   const plans = [
     {
@@ -92,15 +110,20 @@ export default function PricingSection() {
                 </Button>
               ) : user ? (
                 <Button
-                  onClick={createSubscription}
+                  onClick={handleUpgrade}
+                  disabled={loadingCheckout}
                   className="w-full"
                   variant="default"
                 >
-                  <Zap className="h-4 w-4 mr-1" />
-                  {t("pricing.upgrade")}
+                  {loadingCheckout ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Zap className="h-4 w-4 mr-1" />
+                  )}
+                  {loadingCheckout ? "Redirigiendo..." : t("pricing.upgrade")}
                 </Button>
               ) : (
-                <Button onClick={() => navigate("/auth")} variant="default" className="w-full">
+                <Button onClick={handleSignUpToPay} variant="default" className="w-full">
                   {t("pricing.signUpFirst")}
                 </Button>
               )
