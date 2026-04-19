@@ -112,16 +112,18 @@ export default function Index() {
     const checkout = searchParams.get("checkout");
     if (mp === "success" || checkout === "success") {
       toast.success("🎉 ¡Pago recibido! Activando tu suscripción Premium...");
+      sessionStorage.removeItem("pendingCheckout");
       checkSubscription();
       const t1 = setTimeout(() => checkSubscription(), 3000);
       const t2 = setTimeout(() => checkSubscription(), 8000);
       window.history.replaceState({}, "", "/");
       return () => { clearTimeout(t1); clearTimeout(t2); };
-    } else if (checkout === "cancel") {
-      toast.info("Checkout cancelado");
+    } else if (mp === "cancel" || mp === "failure" || checkout === "cancel") {
+      toast.info(t("pricing.checkoutCancelled"));
+      sessionStorage.removeItem("pendingCheckout");
       window.history.replaceState({}, "", "/");
     }
-  }, [searchParams, checkSubscription]);
+  }, [searchParams, checkSubscription, t]);
 
   // Resume checkout after signup/login if user clicked "Upgrade" before authenticating
   useEffect(() => {

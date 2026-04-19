@@ -23,6 +23,12 @@ export default function PricingSection() {
     }
   };
 
+  const handleCancelCheckout = () => {
+    setLoadingCheckout(false);
+    sessionStorage.removeItem("pendingCheckout");
+    toast.info(t("pricing.checkoutCancelled"));
+  };
+
   const handleSignUpToPay = () => {
     sessionStorage.setItem("pendingCheckout", "1");
     navigate("/auth");
@@ -109,19 +115,30 @@ export default function PricingSection() {
                   {t("pricing.manage")}
                 </Button>
               ) : user ? (
-                <Button
-                  onClick={handleUpgrade}
-                  disabled={loadingCheckout}
-                  className="w-full"
-                  variant="default"
-                >
-                  {loadingCheckout ? (
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                  ) : (
-                    <Zap className="h-4 w-4 mr-1" />
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleUpgrade}
+                    disabled={loadingCheckout}
+                    className="w-full"
+                    variant="default"
+                  >
+                    {loadingCheckout ? (
+                      <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    ) : (
+                      <Zap className="h-4 w-4 mr-1" />
+                    )}
+                    {loadingCheckout ? t("pricing.redirecting") : t("pricing.upgrade")}
+                  </Button>
+                  {loadingCheckout && (
+                    <button
+                      type="button"
+                      onClick={handleCancelCheckout}
+                      className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+                    >
+                      {t("pricing.cancelCheckout")}
+                    </button>
                   )}
-                  {loadingCheckout ? "Redirigiendo..." : t("pricing.upgrade")}
-                </Button>
+                </div>
               ) : (
                 <Button onClick={handleSignUpToPay} variant="default" className="w-full">
                   {t("pricing.signUpFirst")}
