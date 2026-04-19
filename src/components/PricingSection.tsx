@@ -110,15 +110,20 @@ export default function PricingSection() {
                 </Button>
               ) : user ? (
                 <Button
-                  onClick={createSubscription}
+                  onClick={handleUpgrade}
+                  disabled={loadingCheckout}
                   className="w-full"
                   variant="default"
                 >
-                  <Zap className="h-4 w-4 mr-1" />
-                  {t("pricing.upgrade")}
+                  {loadingCheckout ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Zap className="h-4 w-4 mr-1" />
+                  )}
+                  {loadingCheckout ? "Redirigiendo..." : t("pricing.upgrade")}
                 </Button>
               ) : (
-                <Button onClick={() => navigate("/auth")} variant="default" className="w-full">
+                <Button onClick={handleSignUpToPay} variant="default" className="w-full">
                   {t("pricing.signUpFirst")}
                 </Button>
               )
