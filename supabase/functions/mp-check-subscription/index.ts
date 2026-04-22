@@ -76,8 +76,8 @@ serve(async (req) => {
         sub.next_payment_date = nextDate;
       }
       log("MP status synced", { status: mpSub.status });
-    } else {
-      log("MP fetch failed, using DB state", { status: mpRes.status });
+    } else if (!isAdminGrant) {
+      log("MP fetch failed, using DB state", { status: mpRes?.status });
     }
 
     const isActive =
