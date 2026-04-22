@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPremium, setIsPremium] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [analysisCount, setAnalysisCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const canAnalyze = isPremium || analysisCount < FREE_ANALYSIS_LIMIT;
   const remainingAnalyses = isPremium ? null : FREE_ANALYSIS_LIMIT - analysisCount;
