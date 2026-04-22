@@ -61,6 +61,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  const checkAdmin = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from("user_roles" as any)
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) throw error;
+      setIsAdmin(!!data);
+    } catch (e) {
+      console.error("Error checking admin role:", e);
+      setIsAdmin(false);
+    }
+  }, [user]);
+
   const recordAnalysis = useCallback(async (projectName?: string, inputData?: Record<string, unknown>): Promise<boolean> => {
     if (!user) return false;
     if (!isPremium && analysisCount >= FREE_ANALYSIS_LIMIT) return false;
