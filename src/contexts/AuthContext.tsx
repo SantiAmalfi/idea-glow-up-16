@@ -9,6 +9,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isPremium: boolean;
+  isAdmin: boolean;
   subscriptionEnd: string | null;
   analysisCount: number;
   canAnalyze: boolean;
