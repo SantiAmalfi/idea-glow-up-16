@@ -9,6 +9,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   isPremium: boolean;
+  isAdmin: boolean;
   subscriptionEnd: string | null;
   analysisCount: number;
   canAnalyze: boolean;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPremium, setIsPremium] = useState(false);
   const [subscriptionEnd, setSubscriptionEnd] = useState<string | null>(null);
   const [analysisCount, setAnalysisCount] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const canAnalyze = isPremium || analysisCount < FREE_ANALYSIS_LIMIT;
   const remainingAnalyses = isPremium ? null : FREE_ANALYSIS_LIMIT - analysisCount;
@@ -56,6 +58,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setAnalysisCount(data ?? 0);
     } catch (e) {
       console.error("Error fetching analysis count:", e);
+    }
+  }, [user]);
+
+  const checkAdmin = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from("user_roles" as any)
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) throw error;
+      setIsAdmin(!!data);
+    } catch (e) {
+      console.error("Error checking admin role:", e);
+      setIsAdmin(false);
     }
   }, [user]);
 
@@ -117,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsPremium(false);
     setSubscriptionEnd(null);
     setAnalysisCount(0);
+    setIsAdmin(false);
   }, []);
 
   useEffect(() => {
@@ -139,8 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (session) {
       checkSubscription();
       refreshAnalysisCount();
+      checkAdmin();
     }
-  }, [session, checkSubscription, refreshAnalysisCount]);
+  }, [session, checkSubscription, refreshAnalysisCount, checkAdmin]);
 
   // Periodic subscription check
   useEffect(() => {
@@ -152,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user, session, loading, isPremium, subscriptionEnd,
+        user, session, loading, isPremium, isAdmin, subscriptionEnd,
         analysisCount, canAnalyze, remainingAnalyses,
         signOut, checkSubscription, refreshAnalysisCount,
         recordAnalysis, createSubscription, cancelSubscription,

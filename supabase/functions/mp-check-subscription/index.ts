@@ -50,12 +50,17 @@ serve(async (req) => {
       });
     }
 
-    // Refresh status from MP
-    const mpRes = await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
-      headers: { Authorization: `Bearer ${mpToken}` },
-    });
+    // Skip MP sync for admin-granted subscriptions
+    const isAdminGrant = sub.preapproval_id?.startsWith("admin-grant-");
 
-    if (mpRes.ok) {
+    // Refresh status from MP (skip for admin grants)
+    const mpRes = isAdminGrant
+      ? null
+      : await fetch(`https://api.mercadopago.com/preapproval/${sub.preapproval_id}`, {
+          headers: { Authorization: `Bearer ${mpToken}` },
+        });
+
+    if (mpRes && mpRes.ok) {
       const mpSub = await mpRes.json();
       const nextDate = mpSub.next_payment_date ?? null;
 
@@ -71,8 +76,8 @@ serve(async (req) => {
         sub.next_payment_date = nextDate;
       }
       log("MP status synced", { status: mpSub.status });
-    } else {
-      log("MP fetch failed, using DB state", { status: mpRes.status });
+    } else if (!isAdminGrant) {
+      log("MP fetch failed, using DB state", { status: mpRes?.status });
     }
 
     const isActive =

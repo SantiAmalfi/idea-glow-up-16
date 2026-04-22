@@ -1,4 +1,4 @@
-import { LogOut, Crown, User, Settings, BarChart3, CreditCard, Zap, Calendar } from "lucide-react";
+import { LogOut, Crown, User, Settings, BarChart3, CreditCard, Zap, Calendar, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function UserMenu() {
-  const { user, isPremium, subscriptionEnd, remainingAnalyses, signOut } = useAuth();
+  const { user, isPremium, isAdmin, subscriptionEnd, remainingAnalyses, signOut } = useAuth();
   const navigate = useNavigate();
   const { t } = useI18n();
 
@@ -100,6 +100,19 @@ export default function UserMenu() {
             <Zap className="h-4 w-4 mr-2 text-primary" />
             <span className="text-primary font-medium">{t("pricing.upgrade")}</span>
           </DropdownMenuItem>
+        )}
+
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+              Administración
+            </DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => navigate("/admin")}>
+              <Shield className="h-4 w-4 mr-2 text-primary" />
+              <span className="font-medium">Panel admin</span>
+            </DropdownMenuItem>
+          </>
         )}
 
         <DropdownMenuSeparator />
