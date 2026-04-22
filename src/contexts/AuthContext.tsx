@@ -136,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsPremium(false);
     setSubscriptionEnd(null);
     setAnalysisCount(0);
+    setIsAdmin(false);
   }, []);
 
   useEffect(() => {
