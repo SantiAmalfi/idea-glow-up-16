@@ -159,8 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (session) {
       checkSubscription();
       refreshAnalysisCount();
+      checkAdmin();
     }
-  }, [session, checkSubscription, refreshAnalysisCount]);
+  }, [session, checkSubscription, refreshAnalysisCount, checkAdmin]);
 
   // Periodic subscription check
   useEffect(() => {
