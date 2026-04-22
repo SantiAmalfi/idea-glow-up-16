@@ -173,7 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user, session, loading, isPremium, subscriptionEnd,
+        user, session, loading, isPremium, isAdmin, subscriptionEnd,
         analysisCount, canAnalyze, remainingAnalyses,
         signOut, checkSubscription, refreshAnalysisCount,
         recordAnalysis, createSubscription, cancelSubscription,
