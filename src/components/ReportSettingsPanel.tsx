@@ -49,6 +49,18 @@ export function useReportSettings() {
   const [settings, setSettings] = useState<ReportSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
 
+  const resolveLogoUrl = useCallback(async (logoUrl: string | null) => {
+    if (!logoUrl) return null;
+    const storagePath = logoUrl.match(/company-logos\/(.+?)(?:\?|$)/)?.[1] ?? logoUrl;
+    if (storagePath.startsWith("http")) return logoUrl;
+
+    const { data } = await supabase.storage
+      .from("company-logos")
+      .createSignedUrl(storagePath, 60 * 60);
+
+    return data?.signedUrl ?? null;
+  }, []);
+
   const fetchSettings = useCallback(async () => {
     if (!user || !isPremium) {
       setSettings(DEFAULT_SETTINGS);
@@ -63,6 +75,7 @@ export function useReportSettings() {
         .maybeSingle();
       if (error) throw error;
       if (data) {
+        const logoUrl = await resolveLogoUrl(data.logo_url);
         setSettings({
           template_id: data.template_id,
           header_title: data.header_title || "",
@@ -71,7 +84,7 @@ export function useReportSettings() {
           secondary_color: data.secondary_color || "#10b981",
           accent_color: data.accent_color || "#94a3b8",
           font_family: data.font_family || "helvetica",
-          logo_url: data.logo_url,
+          logo_url: logoUrl,
         });
       }
     } catch (e) {
@@ -79,7 +92,7 @@ export function useReportSettings() {
     } finally {
       setLoading(false);
     }
-  }, [user, isPremium]);
+  }, [user, isPremium, resolveLogoUrl]);
 
   useEffect(() => { fetchSettings(); }, [fetchSettings]);
 
@@ -131,11 +144,12 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
         .upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData, error: signedUrlError } = await supabase.storage
         .from("company-logos")
-        .getPublicUrl(path);
+        .createSignedUrl(path, 60 * 60);
+      if (signedUrlError) throw signedUrlError;
 
-      update({ logo_url: urlData.publicUrl });
+      update({ logo_url: urlData.signedUrl });
       toast.success(t("report.logoUploaded"));
     } catch (err: any) {
       toast.error(err.message || "Error uploading logo");

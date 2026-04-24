@@ -91,11 +91,13 @@ export default function Index() {
     if (!user || !isPremium) return;
     setSavingSettings(true);
     try {
+      const logoPath = settings.logo_url?.match(/company-logos\/(.+?)(?:\?|$)/)?.[1] ?? settings.logo_url;
       const { error } = await supabase
         .from("report_settings")
         .upsert({
           user_id: user.id,
           ...settings,
+          logo_url: logoPath || null,
         }, { onConflict: "user_id" });
       if (error) throw error;
       toast.success("✅");
