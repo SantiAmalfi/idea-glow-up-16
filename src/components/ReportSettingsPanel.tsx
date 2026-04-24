@@ -51,11 +51,12 @@ export function useReportSettings() {
 
   const resolveLogoUrl = useCallback(async (logoUrl: string | null) => {
     if (!logoUrl) return null;
-    if (logoUrl.startsWith("http")) return logoUrl;
+    const storagePath = logoUrl.match(/company-logos\/(.+?)(?:\?|$)/)?.[1] ?? logoUrl;
+    if (storagePath.startsWith("http")) return logoUrl;
 
     const { data } = await supabase.storage
       .from("company-logos")
-      .createSignedUrl(logoUrl, 60 * 60);
+      .createSignedUrl(storagePath, 60 * 60);
 
     return data?.signedUrl ?? null;
   }, []);
