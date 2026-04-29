@@ -171,6 +171,7 @@ const translations = {
   "calc.cashFlows": { en: "Cash Flows", es: "Flujos de caja", pt: "Fluxos de caixa" },
   "calc.npvBreakdown": { en: "NPV Breakdown", es: "Desglose VAN", pt: "Detalhamento VPL" },
   "calc.formulas": { en: "Formulas", es: "Fórmulas", pt: "Fórmulas" },
+  "calc.indicators": { en: "Indicators", es: "Indicadores", pt: "Indicadores" },
   "calc.preTax": { en: "Pre-Tax", es: "Antes imp.", pt: "Pré-imp." },
   "calc.tax": { en: "Tax", es: "Impuesto", pt: "Imposto" },
   "calc.netCF": { en: "Net Cash Flow", es: "Flujo neto", pt: "Fluxo líquido" },
@@ -184,6 +185,11 @@ const translations = {
     es: "Un VAN positivo significa que el proyecto genera más que la tasa de descuento.",
     pt: "Um VPL positivo significa que o projeto rende mais que a taxa de desconto.",
   },
+  "calc.npvPurpose": {
+    en: "Shows how much value the project creates or destroys in today's money after considering the required return.",
+    es: "Muestra cuánto valor crea o destruye el proyecto en dinero de hoy, considerando la rentabilidad exigida.",
+    pt: "Mostra quanto valor o projeto cria ou destrói em dinheiro de hoje, considerando o retorno exigido.",
+  },
   "calc.irrFormula": { en: "Internal Rate of Return (IRR)", es: "Tasa Interna de Retorno (TIR)", pt: "Taxa Interna de Retorno (TIR)" },
   "calc.irrDesc": {
     en: "IRR is the discount rate that makes NPV exactly zero. Solved iteratively using the Newton-Raphson method.",
@@ -195,17 +201,48 @@ const translations = {
     es: "Si TIR > tasa de descuento, el proyecto agrega valor.",
     pt: "Se TIR > taxa de desconto, o projeto agrega valor.",
   },
+  "calc.irrPurpose": {
+    en: "Expresses the project's expected profitability as a percentage, making it easy to compare against other alternatives.",
+    es: "Expresa la rentabilidad esperada del proyecto en porcentaje, para compararla fácilmente contra otras alternativas.",
+    pt: "Expressa a rentabilidade esperada do projeto em porcentagem, facilitando a comparação com outras alternativas.",
+  },
   "calc.netCFFormula": { en: "Net Cash Flow per Year", es: "Flujo de caja neto por año", pt: "Fluxo de caixa líquido por ano" },
   "calc.netCFDesc": {
     en: "Tax is only applied when pre-tax profit is positive (no tax on losses).",
     es: "El impuesto solo se aplica cuando la ganancia antes de impuestos es positiva.",
     pt: "O imposto só é aplicado quando o lucro pré-impostos é positivo.",
   },
+  "calc.netCFPurpose": {
+    en: "Shows the cash the project would generate after operating costs and estimated taxes during the analyzed period.",
+    es: "Muestra el efectivo que generaría el proyecto luego de costos operativos e impuestos estimados durante el período analizado.",
+    pt: "Mostra o caixa que o projeto geraria após custos operacionais e impostos estimados durante o período analisado.",
+  },
   "calc.roiFormula": { en: "Return on Investment (ROI)", es: "Retorno sobre inversión (ROI)", pt: "Retorno sobre investimento (ROI)" },
   "calc.roiDesc": {
     en: "Simple measure of profitability as a percentage of the initial investment. Does not account for the time value of money.",
     es: "Medida simple de rentabilidad como porcentaje de la inversión inicial. No considera el valor del dinero en el tiempo.",
     pt: "Medida simples de rentabilidade como porcentagem do investimento inicial. Não considera o valor do dinheiro no tempo.",
+  },
+  "calc.roiPurpose": {
+    en: "Summarizes how much net return the project produces compared with the initial investment.",
+    es: "Resume cuánto retorno neto produce el proyecto en relación con la inversión inicial.",
+    pt: "Resume quanto retorno líquido o projeto produz em relação ao investimento inicial.",
+  },
+  "calc.paybackTitle": { en: "Payback Period", es: "Período de recupero", pt: "Prazo de retorno" },
+  "calc.paybackPurpose": {
+    en: "Estimates how long it takes to recover the initial investment with the project's generated cash flows.",
+    es: "Estima cuánto tiempo tarda en recuperarse la inversión inicial con los flujos generados por el proyecto.",
+    pt: "Estima quanto tempo leva para recuperar o investimento inicial com os fluxos gerados pelo projeto.",
+  },
+  "calc.paybackDesc": {
+    en: "Shorter recovery periods usually reduce exposure to future uncertainty.",
+    es: "Plazos de recupero más cortos suelen reducir la exposición a la incertidumbre futura.",
+    pt: "Prazos de retorno mais curtos geralmente reduzem a exposição à incerteza futura.",
+  },
+  "calc.depreciationPurpose": {
+    en: "Reflects the annual accounting wear of the asset and its effect on estimated taxes.",
+    es: "Refleja el desgaste contable anual del activo y su impacto en los impuestos estimados.",
+    pt: "Reflete o desgaste contábil anual do ativo e seu impacto nos impostos estimados.",
   },
   "calc.couldNotConverge": { en: "Could not converge", es: "No convergió", pt: "Não convergiu" },
   "calc.result": { en: "Result", es: "Resultado", pt: "Resultado" },

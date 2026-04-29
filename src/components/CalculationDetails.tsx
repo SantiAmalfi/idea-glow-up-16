@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { motion } from "framer-motion";
-import { formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "@/lib/finance";
+import { calculatePaybackPeriod, formatCurrency, formatPercent, type Currency, type DepreciationConfig } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter,
@@ -30,6 +30,9 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
     ? (depreciation!.depreciableValue - depreciation!.residualValue) / yearlyData.length
     : 0;
   const residualValue = depEnabled ? depreciation!.residualValue : 0;
+  const totalReturn = cashFlows.slice(1).reduce((sum, cf) => sum + cf, 0);
+  const roi = investment > 0 ? (totalReturn - investment) / investment : 0;
+  const paybackPeriod = calculatePaybackPeriod(cashFlows);
 
   const rows = yearlyData.map((y, i) => {
     const preTaxProfit = y.income - y.expenses;
@@ -74,7 +77,7 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
         <TabsList className="mb-4">
           <TabsTrigger value="cashflows">{t("calc.cashFlows")}</TabsTrigger>
           <TabsTrigger value="npv">{t("calc.npvBreakdown")}</TabsTrigger>
-          <TabsTrigger value="formulas">{t("calc.formulas")}</TabsTrigger>
+          <TabsTrigger value="formulas">{t("calc.indicators")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="cashflows">
@@ -196,30 +199,39 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
           <div className="space-y-6">
             <div className="rounded-xl bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.npvFormula")}</h3>
-              <p className="font-mono text-sm text-muted-foreground">NPV = Σ (CF_t / (1 + r)^t) for t = 0 to n</p>
-              <p className="text-xs text-muted-foreground">
-                r = {(discountRate * 100).toFixed(1).replace('.', ',')}%, n = {yearlyData.length}. {t("calc.npvDesc")}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("calc.npvPurpose")}</p>
+              <p className="text-xs text-muted-foreground">{t("calc.npvDesc")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(npv, currency)}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.irrFormula")}</h3>
-              <p className="font-mono text-sm text-muted-foreground">Find r such that: Σ (CF_t / (1 + r)^t) = 0</p>
-              <p className="text-xs text-muted-foreground">{t("calc.irrDesc")} {t("calc.irrAbove")}</p>
+              <p className="text-sm text-muted-foreground">{t("calc.irrPurpose")}</p>
+              <p className="text-xs text-muted-foreground">{t("calc.irrAbove")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {irr !== null ? formatPercent(irr) : t("calc.couldNotConverge")}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.netCFFormula")}</h3>
-              <p className="font-mono text-sm text-muted-foreground">Net CF = (Income − Expenses) × (1 − Tax Rate)</p>
+              <p className="text-sm text-muted-foreground">{t("calc.netCFPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.tax")}: {(taxRate * 100).toFixed(0).replace('.', ',')}%. {t("calc.netCFDesc")}</p>
+              <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(totalReturn, currency)}</p>
             </div>
 
             <div className="rounded-xl bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.roiFormula")}</h3>
-              <p className="font-mono text-sm text-muted-foreground">ROI = (Total Net Return − Investment) / Investment</p>
+              <p className="text-sm text-muted-foreground">{t("calc.roiPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.roiDesc")}</p>
+              <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatPercent(roi)}</p>
+            </div>
+
+            <div className="rounded-xl bg-secondary p-5 space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">{t("calc.paybackTitle")}</h3>
+              <p className="text-sm text-muted-foreground">{t("calc.paybackPurpose")}</p>
+              <p className="text-xs text-muted-foreground">{t("calc.paybackDesc")}</p>
+              <p className="font-mono text-sm text-primary font-bold">
+                {t("calc.result")}: {paybackPeriod !== null ? `${paybackPeriod.toFixed(1).replace('.', ',')} ${t("results.years")}` : t("results.never")}
+              </p>
             </div>
 
             {depEnabled && (
@@ -228,13 +240,11 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
                   <Building2 className="h-4 w-4 text-primary" />
                   {t("calc.depreciationFormula")}
                 </h3>
-                <p className="font-mono text-sm text-muted-foreground">
-                  D = (Depreciable Value − Residual Value) / n = ({formatCurrency(depreciation!.depreciableValue, currency)} − {formatCurrency(residualValue, currency)}) / {yearlyData.length} = {formatCurrency(Math.round(annualDep), currency)}
-                </p>
-                <p className="font-mono text-sm text-muted-foreground">
-                  Tax Shield = D × t = {formatCurrency(Math.round(annualDep), currency)} × {(taxRate * 100).toFixed(0).replace('.', ',')}% = {formatCurrency(Math.round(annualDep * taxRate), currency)}/año
-                </p>
+                <p className="text-sm text-muted-foreground">{t("calc.depreciationPurpose")}</p>
                 <p className="text-xs text-muted-foreground">{t("calc.depreciationFormulaDesc")}</p>
+                <p className="font-mono text-sm text-primary font-bold">
+                  {t("calc.result")}: {formatCurrency(Math.round(annualDep), currency)}/{t("form.year").toLowerCase()}
+                </p>
                 {residualValue > 0 && (
                   <p className="font-mono text-sm text-primary font-bold">
                     {t("calc.residualValue")} ({t("form.year")} {yearlyData.length}): +{formatCurrency(residualValue, currency)}
