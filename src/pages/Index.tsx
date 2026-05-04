@@ -221,11 +221,8 @@ export default function Index() {
       <Header />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 rounded-sm blur-[120px] pointer-events-none" />
-        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-primary/3 rounded-sm blur-[100px] pointer-events-none" />
-
-        <div className="max-w-5xl mx-auto px-4 pt-20 pb-12 md:pt-28 md:pb-16 relative">
+      <section className="relative border-b border-border">
+        <div className="max-w-5xl mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 relative">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
