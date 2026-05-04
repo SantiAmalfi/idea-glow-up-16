@@ -236,23 +236,23 @@ export default function Index() {
               {t("hero.title1")}{" "}
               <span className="text-muted-foreground">{t("hero.title2")}</span>
             </h1>
-            <p className="text-muted-foreground mt-5 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground mt-5 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
               {t("hero.subtitle")}
             </p>
 
             <div className="flex items-center justify-center gap-6 mt-8 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                <TrendingUp className="h-3.5 w-3.5" />
                 {t("hero.currencies")}
               </span>
               <span className="h-3 w-px bg-border" />
               <span className="flex items-center gap-1.5">
-                <FileDown className="h-3.5 w-3.5 text-primary" />
+                <FileDown className="h-3.5 w-3.5" />
                 PDF & Excel
               </span>
               <span className="h-3 w-px bg-border" />
               <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <Sparkles className="h-3.5 w-3.5" />
                 {t("hero.scenarios")}
               </span>
             </div>
@@ -261,8 +261,8 @@ export default function Index() {
               href="#analyzer"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="inline-flex items-center gap-2 mt-10 px-6 py-3 rounded-sm bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all "
+              transition={{ delay: 0.3 }}
+              className="inline-flex items-center gap-2 mt-10 px-5 py-2.5 rounded-md bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90"
             >
               {t("hero.cta")}
               <ArrowDown className="h-4 w-4" />
