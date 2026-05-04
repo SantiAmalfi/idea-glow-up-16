@@ -228,14 +228,13 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-6">
-              <Sparkles className="h-3 w-3" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-border bg-secondary text-[11px] text-muted-foreground uppercase tracking-[0.12em] mb-6 font-medium">
+              <span className="h-1.5 w-1.5 rounded-sm bg-primary" />
               {t("hero.badge")}
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground tracking-tight leading-[1.1]">
-              {t("hero.title1")}
-              <br />
-              <span className="text-primary">{t("hero.title2")}</span>
+            <h1 className="text-4xl md:text-5xl font-semibold text-foreground tracking-tight leading-[1.1]">
+              {t("hero.title1")}{" "}
+              <span className="text-muted-foreground">{t("hero.title2")}</span>
             </h1>
             <p className="text-muted-foreground mt-5 text-lg md:text-xl max-w-xl mx-auto leading-relaxed">
               {t("hero.subtitle")}
