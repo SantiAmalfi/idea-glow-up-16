@@ -22,7 +22,7 @@ const CashFlowChart = forwardRef<HTMLDivElement, CashFlowChartProps>(function Ca
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      className="rounded-2xl border border-border bg-card p-6 md:p-8"
+      className="rounded-md border border-border bg-card p-6 md:p-8"
     >
       <h2 className="text-xl font-semibold text-foreground mb-1">{t("chart.title")}</h2>
       <p className="text-sm text-muted-foreground mb-6">{t("chart.subtitle")}</p>

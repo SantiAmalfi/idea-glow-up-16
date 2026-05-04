@@ -64,7 +64,7 @@ export default function PricingSection() {
   return (
     <section id="pricing" className="max-w-4xl mx-auto px-4 py-16">
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-4">
           <Crown className="h-3 w-3" />
           {t("pricing.badge")}
         </div>
@@ -80,16 +80,16 @@ export default function PricingSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
             viewport={{ once: true }}
-            className={`rounded-2xl border p-6 flex flex-col ${
+            className={`rounded-md border p-6 flex flex-col ${
               plan.highlight
-                ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20"
+                ? "border-primary/50 bg-primary/5 "
                 : "border-border bg-card"
-            } ${plan.current ? "ring-2 ring-primary" : ""}`}
+            } ${plan.current ? "ring-1 ring-primary" : ""}`}
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
               {plan.current && (
-                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full font-medium">
+                <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-sm font-medium">
                   {t("pricing.current")}
                 </span>
               )}

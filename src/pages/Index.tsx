@@ -222,8 +222,8 @@ export default function Index() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-primary/3 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/5 rounded-sm blur-[120px] pointer-events-none" />
+        <div className="absolute top-40 right-0 w-[300px] h-[300px] bg-primary/3 rounded-sm blur-[100px] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-4 pt-20 pb-12 md:pt-28 md:pb-16 relative">
           <motion.div
@@ -231,7 +231,7 @@ export default function Index() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-sm border border-primary/20 bg-primary/5 text-xs text-primary uppercase tracking-widest mb-6">
               <Sparkles className="h-3 w-3" />
               {t("hero.badge")}
             </div>
@@ -266,7 +266,7 @@ export default function Index() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="inline-flex items-center gap-2 mt-10 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:brightness-110 transition-all shadow-lg shadow-primary/20"
+              className="inline-flex items-center gap-2 mt-10 px-6 py-3 rounded-sm bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-all "
             >
               {t("hero.cta")}
               <ArrowDown className="h-4 w-4" />
@@ -278,7 +278,7 @@ export default function Index() {
       {/* Usage banner */}
       {user && !isPremium && (
         <div className="max-w-5xl mx-auto px-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 flex items-center justify-between">
+          <div className="rounded-md border border-primary/20 bg-primary/5 px-4 py-3 flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
               {remainingAnalyses !== null && remainingAnalyses > 0 ? (
                 <>📊 {remainingAnalyses} {t("auth.remaining")}</>
@@ -324,7 +324,7 @@ export default function Index() {
             className="mt-8 space-y-6"
           >
             {(result.projectName || result.projectDescription) && (
-              <div className="rounded-2xl border border-border bg-card p-6">
+              <div className="rounded-md border border-border bg-card p-6">
                 {result.projectName && (
                   <h2 className="text-2xl font-bold text-foreground">{result.projectName}</h2>
                 )}
@@ -433,7 +433,7 @@ export default function Index() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className={`rounded-2xl border p-6 text-center ${
+              className={`rounded-md border p-6 text-center ${
                 result.npv >= 0
                   ? "border-primary/30 bg-primary/5"
                   : "border-destructive/30 bg-destructive/5"

@@ -113,7 +113,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
 
   if (!user || !isPremium) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-6 text-center">
+      <div className="rounded-md border border-border bg-card p-6 text-center">
         <Lock className="h-8 w-8 text-muted-foreground/50 mx-auto mb-3" />
         <p className="text-sm font-medium text-foreground">{t("report.premiumOnly")}</p>
         <p className="text-xs text-muted-foreground mt-1">{t("report.premiumOnlyDesc")}</p>
@@ -164,7 +164,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-border bg-card p-6 space-y-6"
+      className="rounded-md border border-border bg-card p-6 space-y-6"
     >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
             <button
               key={tpl.id}
               onClick={() => update({ template_id: tpl.id })}
-              className={`rounded-xl border p-3 text-left transition-all ${
+              className={`rounded-md border p-3 text-left transition-all ${
                 settings.template_id === tpl.id
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/30"
@@ -215,7 +215,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
             </Button>
           </div>
         ) : (
-          <label className="flex items-center gap-2 cursor-pointer rounded-xl border border-dashed border-border hover:border-primary/30 p-4 transition-colors">
+          <label className="flex items-center gap-2 cursor-pointer rounded-md border border-dashed border-border hover:border-primary/30 p-4 transition-colors">
             <Upload className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
               {uploading ? "..." : t("report.uploadLogo")}
@@ -309,7 +309,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
             <button
               key={f.id}
               onClick={() => update({ font_family: f.id })}
-              className={`flex-1 rounded-xl border px-3 py-2 text-sm transition-all ${
+              className={`flex-1 rounded-md border px-3 py-2 text-sm transition-all ${
                 settings.font_family === f.id
                   ? "border-primary bg-primary/5 text-foreground font-medium"
                   : "border-border text-muted-foreground hover:border-primary/30"

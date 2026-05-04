@@ -32,9 +32,9 @@ export default function FeaturesSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08 * i }}
-            className="rounded-2xl border border-border bg-card p-5 hover:border-primary/30 transition-colors group"
+            className="rounded-md border border-border bg-card p-5 hover:border-primary/30 transition-colors group"
           >
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+            <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
               <f.icon className="h-5 w-5 text-primary" />
             </div>
             <h3 className="font-semibold text-foreground text-sm">{f.title}</h3>

@@ -171,7 +171,7 @@ export default function Admin() {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-sm bg-primary/15 flex items-center justify-center">
               <Shield className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -188,7 +188,7 @@ export default function Admin() {
               { label: "Admins", value: stats.admins, icon: Shield },
               { label: "Análisis", value: stats.analyses, icon: BarChart3 },
             ].map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
+              <div key={s.label} className="rounded-md border border-border bg-card p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">{s.label}</p>
                   <s.icon className="h-4 w-4 text-primary" />
@@ -199,7 +199,7 @@ export default function Admin() {
           </div>
 
           {/* Users table */}
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="rounded-md border border-border bg-card p-6">
             <div className="flex items-center justify-between mb-4 gap-3">
               <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <UserCog className="h-5 w-5 text-primary" /> Usuarios

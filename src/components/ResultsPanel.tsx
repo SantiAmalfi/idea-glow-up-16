@@ -71,7 +71,7 @@ export default function ResultsPanel({ npv, irr, totalReturn, roi, investment, p
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 * i, duration: 0.4 }}
-          className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-2"
+          className="rounded-md border border-border bg-card p-5 flex flex-col gap-2"
         >
           <div className="flex items-center gap-2">
             <div className={`p-2 rounded-lg ${m.positive ? "bg-primary/10" : "bg-destructive/10"}`}>
