@@ -20,7 +20,7 @@ export default function UserMenu() {
     return (
       <button
         onClick={() => navigate("/auth")}
-        className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:brightness-110 transition-all"
+        className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all"
       >
         {t("auth.signIn")}
       </button>
@@ -40,7 +40,7 @@ export default function UserMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-secondary transition-colors">
-          <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+          <div className="h-7 w-7 rounded-sm bg-primary/15 flex items-center justify-center">
             {isPremium ? (
               <Crown className="h-3.5 w-3.5 text-primary" />
             ) : (

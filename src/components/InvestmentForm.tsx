@@ -319,7 +319,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-2xl border border-border bg-card p-6 md:p-8 space-y-8"
+      className="rounded-md border border-border bg-card p-6 md:p-8 space-y-8"
     >
       {/* ─── Section 1: Project Info ─── */}
       <div>
@@ -373,7 +373,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
       </div>
 
       {/* ─── Section 3a: Reinvestment ─── */}
-      <div className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+      <div className="rounded-md border border-border bg-secondary/30 p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <RefreshCw className="h-5 w-5 text-primary" />
@@ -424,7 +424,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
       </div>
 
       {/* ─── Section 3: Depreciation ─── */}
-      <div className="rounded-xl border border-border bg-secondary/30 p-5 space-y-4">
+      <div className="rounded-md border border-border bg-secondary/30 p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Building2 className="h-5 w-5 text-primary" />
@@ -553,7 +553,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         </div>
 
         {/* Fixed costs */}
-        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
+        <div className="rounded-md border border-border bg-secondary/20 p-4 space-y-3">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
             <DollarSign className="h-3.5 w-3.5" />{t("form.fixedCosts")}
           </span>
@@ -590,7 +590,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         </div>
 
         {/* Variable costs */}
-        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
+        <div className="rounded-md border border-border bg-secondary/20 p-4 space-y-3">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
             <Package className="h-3.5 w-3.5" />{t("form.variableCosts")}
           </span>
@@ -652,7 +652,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
             return (
               <button key={s} type="button" onClick={() => setScenario(s)}
                 className={cn(
-                  "rounded-xl border p-4 text-left transition-all",
+                  "rounded-md border p-4 text-left transition-all",
                   scenario === s ? scenarioColors[s] + " border-current" : "border-border bg-secondary text-muted-foreground hover:border-muted-foreground/40"
                 )}>
                 <div className="flex items-center gap-2 mb-1">
@@ -666,7 +666,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         </div>
 
         {/* Editable growth rates */}
-        <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-4">
+        <div className="rounded-md border border-border bg-secondary/20 p-4 space-y-4">
           <div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">{t("form.customRates")}</span>
             <p className="text-xs text-muted-foreground">{t("form.customRatesDesc")}</p>
@@ -695,7 +695,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         </div>
 
         {/* Inflation toggle */}
-        <div className="rounded-xl border border-border bg-secondary/30 p-4 space-y-4">
+        <div className="rounded-md border border-border bg-secondary/30 p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -743,7 +743,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
 
         {/* Projected summary table */}
         {projectedData.length > 0 && (
-          <div className="rounded-xl border border-border bg-secondary/20 p-4">
+          <div className="rounded-md border border-border bg-secondary/20 p-4">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-3">{t("form.projectedSummary")}</span>
             <div className="space-y-1">
               <div className="grid grid-cols-[60px_1fr_1fr_120px] gap-3 text-xs text-muted-foreground uppercase tracking-wider px-1 mb-1">
@@ -787,7 +787,7 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         )}
       </div>
 
-      <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-semibold text-base hover:brightness-110 transition-all">
+      <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition-all">
         {t("form.analyze")}
       </Button>
     </motion.form>

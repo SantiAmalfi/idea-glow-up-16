@@ -25,11 +25,11 @@ export default function Header() {
     >
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-            <TrendingUp className="h-4 w-4 text-primary" />
+          <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center border border-primary/20">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
           </div>
-          <span className="font-bold text-foreground text-lg tracking-tight">
-            Project <span className="text-primary">Evaluator</span>
+          <span className="font-semibold text-foreground text-[15px] tracking-tight">
+            Project<span className="text-muted-foreground"> Evaluator</span>
           </span>
         </div>
         <div className="flex items-center gap-1 text-sm">

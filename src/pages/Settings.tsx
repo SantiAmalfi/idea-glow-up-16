@@ -74,9 +74,9 @@ export default function Settings() {
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           {/* Profile */}
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="rounded-md border border-border bg-card p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+              <div className="h-10 w-10 rounded-sm bg-primary/15 flex items-center justify-center">
                 <User className="h-5 w-5 text-primary" />
               </div>
               <div>
@@ -85,7 +85,7 @@ export default function Settings() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="rounded-xl border border-border bg-background p-4">
+              <div className="rounded-md border border-border bg-background p-4">
                 <p className="text-muted-foreground text-xs mb-1">{t("settings.plan")}</p>
                 <p className="font-semibold text-foreground flex items-center gap-1.5">
                   {isPremium ? (
@@ -95,7 +95,7 @@ export default function Settings() {
                   )}
                 </p>
               </div>
-              <div className="rounded-xl border border-border bg-background p-4">
+              <div className="rounded-md border border-border bg-background p-4">
                 <p className="text-muted-foreground text-xs mb-1">{t("settings.analysesUsed")}</p>
                 <p className="font-semibold text-foreground">
                   {analysisCount}
@@ -108,14 +108,14 @@ export default function Settings() {
           </div>
 
           {/* Subscription */}
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="rounded-md border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 mb-4">
               <Crown className="h-5 w-5 text-primary" />
               {t("settings.subscription")}
             </h2>
             {isPremium ? (
               <div className="space-y-4">
-                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <div className="rounded-md border border-primary/20 bg-primary/5 p-4">
                   <p className="text-sm text-foreground font-medium">⭐ {t("settings.premiumActive")}</p>
                   {subscriptionEnd && (
                     <p className="text-xs text-muted-foreground mt-1">
@@ -146,7 +146,7 @@ export default function Settings() {
           </div>
 
           {/* Analysis history — limited to 10, ordered by date desc */}
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="rounded-md border border-border bg-card p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-primary" />
@@ -166,7 +166,7 @@ export default function Settings() {
             ) : (
               <div className="space-y-2">
                 {analyses.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between rounded-xl border border-border bg-background px-4 py-3">
+                  <div key={a.id} className="flex items-center justify-between rounded-md border border-border bg-background px-4 py-3">
                     <div className="flex items-center gap-3 min-w-0">
                       <BarChart3 className="h-4 w-4 text-primary shrink-0" />
                       <span className="text-sm font-medium text-foreground truncate">

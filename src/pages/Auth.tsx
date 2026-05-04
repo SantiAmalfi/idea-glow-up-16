@@ -119,7 +119,7 @@ export default function Auth() {
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2.5 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-md bg-primary/15 flex items-center justify-center">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <span className="font-bold text-foreground text-xl tracking-tight">
@@ -133,7 +133,7 @@ export default function Auth() {
             {isForgotPassword ? t("auth.resetPasswordDesc") : isSignUp ? t("auth.signUpDesc") : t("auth.signInDesc")}
           </p>
           {pendingCheckout && (
-            <div className="mt-4 inline-flex flex-col items-center gap-2 px-4 py-3 rounded-xl border border-primary/30 bg-primary/5 text-xs text-primary">
+            <div className="mt-4 inline-flex flex-col items-center gap-2 px-4 py-3 rounded-md border border-primary/30 bg-primary/5 text-xs text-primary">
               <span className="flex items-center gap-1.5">
                 <Lock className="h-3 w-3" />
                 {t("pricing.pendingHint")}
@@ -149,7 +149,7 @@ export default function Auth() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-md border border-border bg-card p-6 space-y-4">
           {!isForgotPassword && (
             <>
               {/* Google Sign In */}

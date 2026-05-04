@@ -62,7 +62,7 @@ export default function ResetPassword() {
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2.5 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-md bg-primary/15 flex items-center justify-center">
               <TrendingUp className="h-5 w-5 text-primary" />
             </div>
             <span className="font-bold text-foreground text-xl tracking-tight">
@@ -72,7 +72,7 @@ export default function ResetPassword() {
           <h1 className="text-2xl font-bold text-foreground">{t("auth.resetPassword")}</h1>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <div className="rounded-md border border-border bg-card p-6 space-y-4">
           {ready ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">

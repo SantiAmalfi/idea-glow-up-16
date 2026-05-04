@@ -68,7 +68,7 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4, duration: 0.5 }}
-      className="rounded-2xl border border-border bg-card p-6 md:p-8"
+      className="rounded-md border border-border bg-card p-6 md:p-8"
     >
       <h2 className="text-xl font-semibold text-foreground mb-1">{t("calc.title")}</h2>
       <p className="text-sm text-muted-foreground mb-6">{t("calc.subtitle")}</p>
@@ -197,35 +197,35 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
 
         <TabsContent value="formulas">
           <div className="space-y-6">
-            <div className="rounded-xl bg-secondary p-5 space-y-3">
+            <div className="rounded-md bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.npvFormula")}</h3>
               <p className="text-sm text-muted-foreground">{t("calc.npvPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.npvDesc")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(npv, currency)}</p>
             </div>
 
-            <div className="rounded-xl bg-secondary p-5 space-y-3">
+            <div className="rounded-md bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.irrFormula")}</h3>
               <p className="text-sm text-muted-foreground">{t("calc.irrPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.irrAbove")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {irr !== null ? formatPercent(irr) : t("calc.couldNotConverge")}</p>
             </div>
 
-            <div className="rounded-xl bg-secondary p-5 space-y-3">
+            <div className="rounded-md bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.netCFFormula")}</h3>
               <p className="text-sm text-muted-foreground">{t("calc.netCFPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.tax")}: {(taxRate * 100).toFixed(0).replace('.', ',')}%. {t("calc.netCFDesc")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatCurrency(totalReturn, currency)}</p>
             </div>
 
-            <div className="rounded-xl bg-secondary p-5 space-y-3">
+            <div className="rounded-md bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.roiFormula")}</h3>
               <p className="text-sm text-muted-foreground">{t("calc.roiPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.roiDesc")}</p>
               <p className="font-mono text-sm text-primary font-bold">{t("calc.result")}: {formatPercent(roi)}</p>
             </div>
 
-            <div className="rounded-xl bg-secondary p-5 space-y-3">
+            <div className="rounded-md bg-secondary p-5 space-y-3">
               <h3 className="text-sm font-semibold text-foreground">{t("calc.paybackTitle")}</h3>
               <p className="text-sm text-muted-foreground">{t("calc.paybackPurpose")}</p>
               <p className="text-xs text-muted-foreground">{t("calc.paybackDesc")}</p>
@@ -235,7 +235,7 @@ const CalculationDetails = forwardRef<HTMLDivElement, CalculationDetailsProps>(f
             </div>
 
             {depEnabled && (
-              <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 space-y-3">
+              <div className="rounded-md bg-primary/5 border border-primary/20 p-5 space-y-3">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-primary" />
                   {t("calc.depreciationFormula")}
