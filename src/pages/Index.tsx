@@ -218,13 +218,6 @@ export default function Index() {
     await recordAnalysis(data.projectName, inputData);
   };
 
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">{t("auth.loginRequired")}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
