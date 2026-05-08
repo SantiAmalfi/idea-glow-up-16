@@ -44,8 +44,15 @@ interface AnalysisResult {
 export default function Index() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { t, language } = useI18n();
-  const { user, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription, createSubscription } = useAuth();
+  const { user, loading, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription, createSubscription } = useAuth();
   const navigate = useNavigate();
+
+  // Require authentication to access the system
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth", { replace: true });
+    }
+  }, [loading, user, navigate]);
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
   const [savingSettings, setSavingSettings] = useState(false);
