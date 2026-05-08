@@ -47,12 +47,7 @@ export default function Index() {
   const { user, loading, canAnalyze, remainingAnalyses, isPremium, recordAnalysis, checkSubscription, createSubscription } = useAuth();
   const navigate = useNavigate();
 
-  // Require authentication to access the system
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth", { replace: true });
-    }
-  }, [loading, user, navigate]);
+  // Note: landing page is public. Auth is enforced when user tries to analyze.
   const [searchParams] = useSearchParams();
   const { settings, setSettings } = useReportSettings();
   const [savingSettings, setSavingSettings] = useState(false);
