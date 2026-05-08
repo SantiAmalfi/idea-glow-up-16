@@ -227,6 +227,18 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       <Header />
 
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">{t("auth.loginRequired")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
       {/* Hero */}
       <section className="relative border-b border-border">
         <div className="max-w-5xl mx-auto px-4 pt-20 pb-16 md:pt-28 md:pb-20 relative">
