@@ -10,7 +10,7 @@ export const LANGUAGE_CONFIG: Record<Language, { label: string; flag: string }> 
 
 const translations = {
   // Header / Hero
-  "hero.badge": { en: "Free · No Sign-Up Required", es: "Gratis · Sin registro", pt: "Grátis · Sem cadastro" },
+  "hero.badge": { en: "Free · Registration Required", es: "Gratis · Registro obligatorio", pt: "Grátis · Cadastro obrigatório" },
   "hero.title1": { en: "Make smarter", es: "Toma decisiones de", pt: "Tome decisões de" },
   "hero.title2": { en: "investment decisions", es: "inversión más inteligentes", pt: "investimento mais inteligentes" },
   "hero.subtitle": {
