@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
