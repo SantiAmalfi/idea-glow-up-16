@@ -48,7 +48,12 @@ export default function Header() {
             {(Object.keys(LANGUAGE_CONFIG) as Language[]).map((lang) => (
               <button
                 key={lang}
-                onClick={() => setLanguage(lang)}
+                onClick={() => {
+                  setLanguage(lang);
+                  if (/^\/(es|en|pt)(\/|$)/.test(location.pathname)) {
+                    navigate(`/${lang}${location.search}${location.hash}`);
+                  }
+                }}
                 className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
                   language === lang
                     ? "bg-primary/10 text-primary"
