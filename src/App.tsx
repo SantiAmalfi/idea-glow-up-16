@@ -12,6 +12,7 @@ import Admin from "./pages/Admin.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import WhatsAppButton from "./components/WhatsAppButton.tsx";
+import { LangRoute, RootLangRedirect } from "./components/LangRoute.tsx";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +26,10 @@ const App = () => (
           <BrowserRouter>
             <main>
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<RootLangRedirect />} />
+                <Route path="/es" element={<LangRoute lang="es" />} />
+                <Route path="/en" element={<LangRoute lang="en" />} />
+                <Route path="/pt" element={<LangRoute lang="pt" />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/admin" element={<Admin />} />
