@@ -8,12 +8,12 @@ export default function Header() {
   const { language, setLanguage, t } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = location.pathname === "/";
+  const isHome = location.pathname === "/" || /^\/(es|en|pt)$/.test(location.pathname);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     if (!isHome) {
       e.preventDefault();
-      navigate("/" + hash);
+      navigate(`/${language}${hash}`);
     }
   };
 
