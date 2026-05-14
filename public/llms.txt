@@ -1,0 +1,14 @@
+# Project Evaluator
+
+> Professional investment analysis web app for calculating NPV, IRR, ROI and payback period with multi-currency support and PDF/Excel exports.
+
+Project Evaluator helps founders, analysts and small businesses evaluate investment projects. Users enter cash flows, discount rate, tax rate and depreciation, then receive financial metrics and exportable reports.
+
+## Pages
+
+- [Home](/): Landing page and the investment analyzer (NPV, IRR, ROI, payback).
+- [Sign In](/auth): Create an account or sign in to use the analyzer.
+
+## Optional
+
+- [Account Settings](/settings): Manage account, subscription and saved analyses (requires sign-in).

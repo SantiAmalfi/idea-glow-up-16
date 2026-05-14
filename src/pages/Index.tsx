@@ -21,6 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 interface AnalysisResult {
   projectName: string;
@@ -221,6 +222,11 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Project Evaluator — NPV, IRR & ROI Investment Analyzer"
+        description="Professional investment analysis tool. Calculate NPV, IRR, ROI and payback period with multi-currency support. Export to PDF & Excel."
+        path="/"
+      />
       <Header />
 
       {/* Hero */}

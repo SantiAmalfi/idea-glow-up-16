@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 interface AnalysisRecord {
   id: string;
@@ -62,6 +63,11 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Account Settings — Project Evaluator"
+        description="Manage your account, subscription and saved investment analyses."
+        path="/settings"
+      />
       <Header />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <button

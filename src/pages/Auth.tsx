@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -112,6 +113,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Seo
+        title="Sign In — Project Evaluator"
+        description="Sign in or create a free account to analyze investments with NPV, IRR, ROI and payback metrics."
+        path="/auth"
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
