@@ -223,9 +223,22 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Project Evaluator — NPV, IRR & ROI Investment Analyzer"
-        description="Professional investment analysis tool. Calculate NPV, IRR, ROI and payback period with multi-currency support. Export to PDF & Excel."
-        path="/"
+        title={
+          language === "es"
+            ? "Project Evaluator — Análisis Financiero con IA"
+            : language === "pt"
+            ? "Project Evaluator — Análise Financeira com IA"
+            : "Project Evaluator — AI-Powered Financial Analysis"
+        }
+        description={
+          language === "es"
+            ? "Calculá VAN, TIR y ROI de tus proyectos en segundos con inteligencia artificial."
+            : language === "pt"
+            ? "Calcule VPL, TIR e ROI dos seus projetos em segundos com inteligência artificial."
+            : "Calculate NPV, IRR and ROI of your projects in seconds with artificial intelligence."
+        }
+        path={`/${language}`}
+        lang={language}
       />
       <Header />
 

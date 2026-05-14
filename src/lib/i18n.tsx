@@ -511,9 +511,15 @@ const I18nContext = createContext<I18nContextType | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem("investcalc-lang");
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      if (path.startsWith("/es")) return "es";
+      if (path.startsWith("/en")) return "en";
+      if (path.startsWith("/pt")) return "pt";
+    }
+    const saved = typeof localStorage !== "undefined" ? localStorage.getItem("investcalc-lang") : null;
     if (saved && (saved === "en" || saved === "es" || saved === "pt")) return saved;
-    return "en";
+    return "es";
   });
 
   const changeLanguage = (lang: Language) => {

@@ -8,12 +8,12 @@ export default function Header() {
   const { language, setLanguage, t } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = location.pathname === "/";
+  const isHome = location.pathname === "/" || /^\/(es|en|pt)$/.test(location.pathname);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     if (!isHome) {
       e.preventDefault();
-      navigate("/" + hash);
+      navigate(`/${language}${hash}`);
     }
   };
 
@@ -48,7 +48,12 @@ export default function Header() {
             {(Object.keys(LANGUAGE_CONFIG) as Language[]).map((lang) => (
               <button
                 key={lang}
-                onClick={() => setLanguage(lang)}
+                onClick={() => {
+                  setLanguage(lang);
+                  if (/^\/(es|en|pt)(\/|$)/.test(location.pathname)) {
+                    navigate(`/${lang}${location.search}${location.hash}`);
+                  }
+                }}
                 className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
                   language === lang
                     ? "bg-primary/10 text-primary"
