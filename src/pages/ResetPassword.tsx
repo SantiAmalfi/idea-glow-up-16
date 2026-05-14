@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -55,6 +56,11 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Seo
+        title="Reset Password — Project Evaluator"
+        description="Set a new password for your Project Evaluator account."
+        path="/reset-password"
+      />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

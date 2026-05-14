@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { toast } from "sonner";
+import Seo from "@/components/Seo";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -160,6 +161,11 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Admin Panel — Project Evaluator"
+        description="Administer users, roles and platform analytics for Project Evaluator."
+        path="/admin"
+      />
       <Header />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <button
