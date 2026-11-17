@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { type Currency, type DepreciationConfig, CURRENCY_CONFIG, formatCurrency } from "@/lib/finance";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export type Scenario = "optimistic" | "base" | "pessimistic";
 
@@ -63,6 +64,9 @@ export interface AnalysisInputData {
 interface InvestmentFormProps {
   onAnalyze: (data: AnalysisInputData) => void;
   initialData?: AnalysisInputData | null;
+  isAuthenticated?: boolean;
+  authLoading?: boolean;
+  onRequireAuth?: (data: AnalysisInputData) => void;
 }
 
 /* ── Scenario growth rates ── */
@@ -113,7 +117,7 @@ function FormattedNumberInput({
 }
 
 /* ── Main component ── */
-export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFormProps) {
+export default function InvestmentForm({ onAnalyze, initialData, isAuthenticated = true, authLoading = false, onRequireAuth }: InvestmentFormProps) {
   const { t } = useI18n();
 
   // Project info
@@ -276,29 +280,35 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
     setProjectedData(projected);
   }, [customRates, inflationEnabled, inflationRates, year1Income, year1Fixed, year1Variable, numYears]);
 
+  const buildPayload = (): AnalysisInputData => ({
+    projectName,
+    projectDescription,
+    currency,
+    investment: Number(investment),
+    years: numYears,
+    discountRate: Number(discountRate) / 100,
+    taxRate: Number(taxRate) / 100,
+    yearlyData: projectedData.map((y) => ({
+      income: Number(y.income),
+      expenses: Number(y.expenses),
+    })),
+    scenario,
+    depreciation: {
+      enabled: depEnabled,
+      assetName: depAssetName,
+      depreciableValue: Number(depValue) || 0,
+      residualValue: Number(depResidual) || 0,
+    },
+    reinvestments: reinvestEnabled ? reinvestAmounts.map(v => Number(v) || 0) : Array(numYears).fill(0),
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAnalyze({
-      projectName,
-      projectDescription,
-      currency,
-      investment: Number(investment),
-      years: numYears,
-      discountRate: Number(discountRate) / 100,
-      taxRate: Number(taxRate) / 100,
-      yearlyData: projectedData.map((y) => ({
-        income: Number(y.income),
-        expenses: Number(y.expenses),
-      })),
-      scenario,
-      depreciation: {
-        enabled: depEnabled,
-        assetName: depAssetName,
-        depreciableValue: Number(depValue) || 0,
-        residualValue: Number(depResidual) || 0,
-      },
-      reinvestments: reinvestEnabled ? reinvestAmounts.map(v => Number(v) || 0) : Array(numYears).fill(0),
-    });
+    if (!isAuthenticated) {
+      onRequireAuth?.(buildPayload());
+      return;
+    }
+    onAnalyze(buildPayload());
   };
 
   const scenarioLabels: Record<Scenario, { label: string; desc: string; detail: string; icon: typeof TrendingUp }> = {
@@ -787,7 +797,20 @@ export default function InvestmentForm({ onAnalyze, initialData }: InvestmentFor
         )}
       </div>
 
-      <Button type="submit" className="w-full h-12 bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition-all">
+      <Button
+        type="submit"
+        onClick={(e) => {
+          if (isAuthenticated) return;
+          // Intercept before browser validation so the click always reaches registration
+          e.preventDefault();
+          if (authLoading) {
+            toast.info(t("auth.loadingSession"));
+            return;
+          }
+          onRequireAuth?.(buildPayload());
+        }}
+        className="w-full h-12 bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/90 transition-all"
+      >
         {t("form.analyze")}
       </Button>
     </motion.form>

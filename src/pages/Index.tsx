@@ -145,6 +145,36 @@ export default function Index() {
     }
   }, [user, isPremium, createSubscription]);
 
+  // Clicking "Analyze" while signed out must always lead to registration
+  const handleRequireAuth = (data: AnalysisInputData) => {
+    try {
+      sessionStorage.setItem("pendingAnalysis", "1");
+      sessionStorage.setItem("pendingAnalysisData", JSON.stringify(data));
+    } catch { /* storage full or blocked */ }
+    toast.info(t("auth.registerToAnalyze"));
+    navigate("/auth");
+  };
+
+  // After signup/login: bring the user back to the analyzer with their data restored
+  useEffect(() => {
+    if (!user) return;
+    if (sessionStorage.getItem("pendingAnalysis") !== "1") return;
+    sessionStorage.removeItem("pendingAnalysis");
+    const raw = sessionStorage.getItem("pendingAnalysisData");
+    sessionStorage.removeItem("pendingAnalysisData");
+    if (raw) {
+      try {
+        setLoadedData(JSON.parse(raw) as AnalysisInputData);
+        setResult(null);
+        setFormKey(k => k + 1);
+      } catch { /* ignore malformed payload */ }
+    }
+    toast.success(t("auth.analysisRestored"));
+    setTimeout(() => {
+      document.getElementById("analyzer")?.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+  }, [user, t]);
+
   const handleAnalyze = async (data: {
     projectName: string;
     projectDescription: string;
@@ -333,7 +363,14 @@ export default function Index() {
           </div>
         )}
 
-        <InvestmentForm key={formKey} onAnalyze={handleAnalyze} initialData={loadedData} />
+        <InvestmentForm
+          key={formKey}
+          onAnalyze={handleAnalyze}
+          initialData={loadedData}
+          isAuthenticated={!!user}
+          authLoading={loading}
+          onRequireAuth={handleRequireAuth}
+        />
 
         {result && (
           <motion.div
