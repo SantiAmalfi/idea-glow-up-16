@@ -406,6 +406,7 @@ const translations = {
   "auth.loadingSession": { en: "One moment, signing you in...", es: "Un segundo, iniciando tu sesión...", pt: "Um segundo, iniciando sua sessão..." },
   "auth.limitReached": { en: "Free limit reached. Upgrade to Premium for unlimited analyses.", es: "Límite gratuito alcanzado. Actualizá a Premium para análisis ilimitados.", pt: "Limite gratuito atingido. Atualize para Premium para análises ilimitadas." },
   "auth.continueGoogle": { en: "Continue with Google", es: "Continuar con Google", pt: "Continuar com Google" },
+  "auth.googleError": { en: "We couldn't sign you in with Google. Please try again.", es: "No pudimos iniciar sesión con Google. Intentá de nuevo.", pt: "Não foi possível entrar com o Google. Tente novamente." },
   "auth.orEmail": { en: "or continue with email", es: "o continuar con email", pt: "ou continuar com email" },
   "auth.verificationNote": { en: "A verification link will be sent to your email to complete registration.", es: "Se enviará un enlace de verificación a tu correo para completar el registro.", pt: "Um link de verificação será enviado ao seu e-mail para completar o cadastro." },
   "auth.forgotPassword": { en: "Forgot your password?", es: "¿Olvidaste tu contraseña?", pt: "Esqueceu sua senha?" },
