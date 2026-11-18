@@ -22,12 +22,14 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [pendingCheckout, setPendingCheckout] = useState(false);
+  const [pendingAnalysis, setPendingAnalysis] = useState(false);
   const navigate = useNavigate();
   const { t } = useI18n();
   const { user } = useAuth();
 
   useEffect(() => {
     setPendingCheckout(sessionStorage.getItem("pendingCheckout") === "1");
+    setPendingAnalysis(sessionStorage.getItem("pendingAnalysis") === "1");
   }, []);
 
   useEffect(() => {
@@ -138,6 +140,12 @@ export default function Auth() {
           <p className="text-muted-foreground text-sm mt-2">
             {isForgotPassword ? t("auth.resetPasswordDesc") : isSignUp ? t("auth.signUpDesc") : t("auth.signInDesc")}
           </p>
+          {pendingAnalysis && !pendingCheckout && (
+            <div className="mt-4 inline-flex items-center gap-1.5 px-4 py-3 rounded-md border border-primary/30 bg-primary/5 text-xs text-primary">
+              <Lock className="h-3 w-3 shrink-0" />
+              {t("auth.registerToAnalyzeHint")}
+            </div>
+          )}
           {pendingCheckout && (
             <div className="mt-4 inline-flex flex-col items-center gap-2 px-4 py-3 rounded-md border border-primary/30 bg-primary/5 text-xs text-primary">
               <span className="flex items-center gap-1.5">
