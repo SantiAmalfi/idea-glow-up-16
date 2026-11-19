@@ -39,7 +39,7 @@ export default function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-secondary transition-colors">
+        <button aria-label={`Menú de cuenta: ${user.email ?? ""}`} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-secondary transition-colors">
           <div className="h-7 w-7 rounded-sm bg-primary/15 flex items-center justify-center">
             {isPremium ? (
               <Crown className="h-3.5 w-3.5 text-primary" />
