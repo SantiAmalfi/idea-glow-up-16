@@ -48,6 +48,9 @@ export default function Header() {
             {(Object.keys(LANGUAGE_CONFIG) as Language[]).map((lang) => (
               <button
                 key={lang}
+                aria-label={LANGUAGE_CONFIG[lang].label}
+                title={LANGUAGE_CONFIG[lang].label}
+                aria-pressed={language === lang}
                 onClick={() => {
                   setLanguage(lang);
                   if (/^\/(es|en|pt)(\/|$)/.test(location.pathname)) {

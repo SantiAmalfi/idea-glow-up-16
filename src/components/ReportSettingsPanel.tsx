@@ -207,7 +207,7 @@ export default function ReportSettingsPanel({ settings, onChange, onSave, saving
         {settings.logo_url ? (
           <div className="flex items-center gap-3">
             <div className="h-12 w-24 rounded-lg border border-border bg-background flex items-center justify-center overflow-hidden">
-              <img src={settings.logo_url} alt="Logo" className="max-h-10 max-w-20 object-contain" />
+              <img src={settings.logo_url} alt="Logo de tu empresa para el informe" className="max-h-10 max-w-20 object-contain" />
             </div>
             <Button variant="ghost" size="sm" onClick={removeLogo} className="text-destructive">
               <X className="h-3.5 w-3.5 mr-1" />

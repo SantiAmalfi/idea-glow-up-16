@@ -529,7 +529,7 @@ export default function InvestmentForm({ onAnalyze, initialData, isAuthenticated
                   }}
                   className="pl-8 bg-secondary border-border font-mono text-foreground h-10 text-sm" min={0} />
               </div>
-              <button type="button" onClick={() => setIncomeItems(incomeItems.filter((_, i) => i !== idx))}
+              <button type="button" aria-label={`Eliminar ingreso ${idx + 1}`} onClick={() => setIncomeItems(incomeItems.filter((_, i) => i !== idx))}
                 className="h-10 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
                 disabled={incomeItems.length <= 1}>
                 <Trash2 className="h-3.5 w-3.5" />
@@ -582,7 +582,7 @@ export default function InvestmentForm({ onAnalyze, initialData, isAuthenticated
                     onChange={(v) => { const next = [...fixedCosts]; next[idx] = { ...next[idx], amount: v }; setFixedCosts(next); }}
                     className="pl-8 bg-background border-border font-mono text-foreground h-9 text-sm" min={0} />
                 </div>
-                <button type="button" onClick={() => setFixedCosts(fixedCosts.filter((_, i) => i !== idx))}
+                <button type="button" aria-label={`Eliminar costo fijo ${idx + 1}`} onClick={() => setFixedCosts(fixedCosts.filter((_, i) => i !== idx))}
                   className="h-9 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
                   disabled={fixedCosts.length <= 1}>
                   <Trash2 className="h-3.5 w-3.5" />
@@ -622,7 +622,7 @@ export default function InvestmentForm({ onAnalyze, initialData, isAuthenticated
                 <Input type="number" value={item.units} placeholder={t("form.units")}
                   onChange={(e) => { const next = [...variableCosts]; next[idx] = { ...next[idx], units: e.target.value }; setVariableCosts(next); }}
                   className="bg-background border-border font-mono text-foreground h-9 text-sm" min={0} />
-                <button type="button" onClick={() => setVariableCosts(variableCosts.filter((_, i) => i !== idx))}
+                <button type="button" aria-label={`Eliminar costo variable ${idx + 1}`} onClick={() => setVariableCosts(variableCosts.filter((_, i) => i !== idx))}
                   className="h-9 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors"
                   disabled={variableCosts.length <= 1}>
                   <Trash2 className="h-3.5 w-3.5" />
